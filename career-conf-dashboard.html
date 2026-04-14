@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>커리어 컨퍼런스 성과 대시보드</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Pretendard', -apple-system, sans-serif; background: #f2f4f6; color: #191f28; padding: 32px; }
+    h1 { text-align: center; margin-bottom: 4px; font-size: 26px; font-weight: 800; color: #191f28; }
+    .subtitle { text-align: center; color: #8b95a1; margin-bottom: 36px; font-size: 14px; font-weight: 400; }
+
+    .card { background: #ffffff; border-radius: 16px; padding: 24px 28px; box-shadow: 0 1px 3px rgba(4,4,4,0.04); text-align: center; min-width: 150px; }
+    .card .label { font-size: 13px; color: #8b95a1; margin-bottom: 6px; font-weight: 500; }
+    .card .number { font-size: 34px; font-weight: 800; color: #3182f6; }
+    .card .sub { font-size: 11px; color: #b0b8c1; margin-top: 4px; font-weight: 400; }
+
+    .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 1200px; margin: 0 auto 28px; overflow: hidden; }
+    .chart-box { background: #ffffff; border-radius: 16px; padding: 20px; box-shadow: 0 1px 3px rgba(4,4,4,0.04); overflow: hidden; min-width: 0; }
+    .chart-box h3 { margin-bottom: 12px; font-size: 15px; color: #333d4b; font-weight: 700; }
+    .chart-box canvas { max-height: 220px; max-width: 100%; }
+    .chart-box.full { grid-column: 1 / -1; }
+
+    .ga-section { max-width: 1200px; margin: 0 auto 28px; }
+    .ga-section h2 { font-size: 19px; margin-bottom: 14px; font-weight: 800; color: #191f28; }
+    .ga-table { width: 100%; border-collapse: collapse; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(4,4,4,0.04); }
+    .ga-table th { text-align: left; padding: 14px 16px; font-size: 12px; color: #8b95a1; border-bottom: 1px solid #f2f4f6; background: #f9fafb; font-weight: 600; }
+    .ga-table td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid #f2f4f6; color: #333d4b; }
+    .ga-table tr:hover { background: #f2f4f6; }
+    .ga-note { font-size: 11px; color: #b0b8c1; margin-top: 8px; }
+
+    .feedback { max-width: 1200px; margin: 0 auto 28px; }
+    .feedback h2 { font-size: 19px; margin-bottom: 14px; font-weight: 800; color: #191f28; }
+    .feedback-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .feedback-card { background: #ffffff; border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px rgba(4,4,4,0.04); }
+    .feedback-card h3 { font-size: 15px; color: #333d4b; margin-bottom: 14px; font-weight: 700; }
+    .feedback-card .score { font-size: 48px; font-weight: 800; color: #ff9500; text-align: center; }
+    .feedback-card .score-sub { text-align: center; font-size: 13px; color: #8b95a1; }
+    .feedback-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f2f4f6; }
+    .feedback-item:last-child { border-bottom: none; }
+    .feedback-item .name { font-size: 13px; color: #333d4b; }
+    .feedback-item .pct { font-size: 13px; font-weight: 700; color: #3182f6; }
+
+    .note-box { background: #fff3e0; border: 1px solid #ff9500; border-radius: 12px; padding: 14px 18px; font-size: 12px; color: #6b7684; max-width: 1200px; margin: 0 auto 28px; line-height: 1.6; }
+
+    @media (max-width: 768px) { .charts { grid-template-columns: 1fr; } .feedback-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <a href="./" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:#8b95a1;font-size:13px;font-weight:500;margin-bottom:16px">← B2C 대시보드</a>
+  <div style="text-align:center;margin-bottom:8px"><span style="display:inline-block;font-size:11px;padding:4px 12px;border-radius:8px;background:#e8f3ff;color:#3182f6;font-weight:700">웨비나</span></div>
+  <h1>JOBKOREA Career Conference</h1>
+  <p class="subtitle">선배가 알려주는 이직 치트키 | 2026.03.26 | 성과 리포트</p>
+
+  <!-- KPI 분석 -->
+  <div style="max-width:1200px;margin:0 auto 20px;background:#fff5f5;border:1px solid #fecdd3;border-radius:16px;padding:24px 32px;box-shadow:0 1px 3px rgba(4,4,4,0.04)">
+    <h2 style="font-size:16px;margin-bottom:12px;color:#f04452;font-weight:800">KPI 달성이 어려웠던 이유</h2>
+    <div style="font-size:13px;color:#333d4b;line-height:1.8">
+      <b>1. 자사 유저 인입 퍼널 부재</b> — CRM(이메일) 미운영, 앱 푸시 미발송으로 1,700만 회원 중 실 도달률 극히 낮음<br>
+      <b>2. 플랫폼 내 접근성 한계</b> — 공지사항·콘텐츠LAB 등 탐색형 지면은 전환율이 낮고, 배너/팝업은 게임잡이 압도적<br>
+      <b>3. 광고 피로도 + 단일 매체 의존</b> — 후반기 CTR 0.95%로 전반기(1.51%) 대비 37% 하락, Meta 단일 매체 운영의 한계
+    </div>
+  </div>
+
+  <!-- 인사이트 -->
+  <div style="max-width:1200px;margin:0 auto 32px;background:#ffffff;border-radius:16px;padding:28px 32px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:14px;color:#333d4b">
+    <h2 style="font-size:18px;margin-bottom:20px;color:#191f28;font-weight:800">인사이트</h2>
+    <div style="line-height:1.8;font-size:13px;color:#333d4b">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <span style="font-weight:700;color:#191f28">신청 경로</span> — 자사 채널(잡코리아 홈페이지) 52.1%, 인스타 광고 24.6%<br>
+          <span style="font-weight:700;color:#191f28">직군</span> — 기획 230 > 개발 206 > 마케팅 196 > 디자인 153 > 세일즈 121<br>
+          <span style="font-weight:700;color:#191f28">연차</span> — 1~3년 차 31.3% > 4~6년 차 26.7% > 10년 차 이상 16.3%
+        </div>
+        <div>
+          <span style="font-weight:700;color:#191f28">스파이크</span> — 3/10 185명(광고+배너 시작 익일), 3/18 137명(잡플래닛 이메일)<br>
+          <span style="font-weight:700;color:#191f28">이벤트 참여율</span> — 32.7% (485명 / 1,483명)<br>
+          <span style="font-weight:700;color:#191f28">광고 피로도</span> — 후반기 CTR 0.95%로 전반기(1.51%) 대비 급락
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 핵심 지표 한 줄 -->
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;max-width:1200px;margin:0 auto 32px">
+    <div class="card"><div class="label">신청자 KPI</div><div class="number" style="color:#f04452">31.5%</div><div class="sub">1,574 / 5,000명</div></div>
+    <div class="card"><div class="label">이력서 업데이트</div><div class="number" style="color:#f04452">22.0%</div><div class="sub">110 / 500명</div></div>
+    <div class="card"><div class="label">총 신청자</div><div class="number" style="color:#191f28">1,574</div><div class="sub">중복 제거 시 1,483명</div></div>
+    <div class="card"><div class="label">이력서 업데이트</div><div class="number" style="color:#191f28">110</div><div class="sub">ID 제출 424 → DB 매칭 379 → 기간 내 확인 <b>110</b> <span style="color:#b0b8c1;font-size:10px">(424 중 110 = 25.9%)</span></div></div>
+    <div class="card"><div class="label">SNS 공유</div><div class="number" style="color:#191f28">27</div><div class="sub">유효 링크 · <span style="color:#B0B8C1">전체 제출 57명</span></div></div>
+  </div>
+
+  <!-- 예산 & 단가 분석 -->
+  <div class="ga-section">
+    <h2>예산 및 단가 분석</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px">
+      <div style="background:#ffffff;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(4,4,4,0.04);text-align:center">
+        <div style="font-size:13px;color:#8b95a1;font-weight:500">총 집행액</div>
+        <div style="font-size:32px;font-weight:800;color:#191f28;margin-top:8px">970만 원</div>
+        <div style="font-size:11px;color:#b0b8c1;margin-top:4px">광고 491 + 줌 326 + 연사 100 + 경품 53</div>
+      </div>
+      <div style="background:#ffffff;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(4,4,4,0.04);text-align:center">
+        <div style="font-size:13px;color:#8b95a1;font-weight:500">신청 단가</div>
+        <div style="font-size:32px;font-weight:800;color:#3182f6;margin-top:8px">6,160원</div>
+        <div style="font-size:11px;color:#b0b8c1;margin-top:4px">9,695,588 / 1,574명</div>
+      </div>
+      <div style="background:#ffffff;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(4,4,4,0.04);text-align:center">
+        <div style="font-size:13px;color:#8b95a1;font-weight:500">이력서 업데이트 전환 단가</div>
+        <div style="font-size:32px;font-weight:800;color:#f04452;margin-top:8px">88,142원</div>
+        <div style="font-size:11px;color:#b0b8c1;margin-top:4px">9,695,588 / 110명</div>
+      </div>
+    </div>
+    <table class="ga-table">
+      <thead>
+        <tr><th>항목</th><th>품의 금액</th><th>실제 집행액</th><th>차이</th><th>비고</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>광고비(Meta)</td><td style="text-align:right">5,000,000</td><td style="text-align:right">4,905,722</td><td style="text-align:right">-94,278</td><td>매체비 4,459,747 + 마크업 10% (VAT 포함 5,396,294)</td></tr>
+        <tr><td>줌 구독(웨비나 플랜)</td><td style="text-align:right">3,300,000</td><td style="text-align:right">3,255,066</td><td style="text-align:right">-44,934</td><td>연간 이용권(달러 결제, 환율 적용)</td></tr>
+        <tr><td>연사료(4인)</td><td style="text-align:right">1,000,000</td><td style="text-align:right">1,000,000</td><td style="text-align:right">0</td><td>인당 20~30만 원</td></tr>
+        <tr><td>경품비</td><td style="text-align:right">700,000</td><td style="text-align:right">534,800</td><td style="text-align:right">-165,200</td><td>네이버페이 50명 + 메가커피 28명</td></tr>
+        <tr style="background:#e8f3ff;font-weight:700"><td>합계</td><td style="text-align:right">10,000,000</td><td style="text-align:right">9,695,588</td><td style="text-align:right;color:#3182f6">-304,412</td><td><span style="color:#3182f6">잔액 304,412원</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="ga-note" style="margin-top:12px">* 실제 집행액 기준 (VAT 별도)</div>
+  </div>
+
+  <!-- 광고 효율 분석 (Meta) -->
+  <div class="ga-section">
+    <h2>광고 효율 분석 (Meta)</h2>
+    <div style="font-size:12px;color:#b0b8c1;margin-bottom:16px">캠페인 기간: 3/9(월) ~ 3/24(화) · 16일 · 예산 500만 원(VAT 별도, 마크업 포함)</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;margin-bottom:20px">
+      <div style="background:#ffffff;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(4,4,4,0.04);text-align:center">
+        <div style="font-size:13px;color:#8b95a1;font-weight:500">총 노출</div>
+        <div style="font-size:28px;font-weight:800;color:#191f28;margin-top:8px">964,204</div>
+      </div>
+      <div style="background:#ffffff;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(4,4,4,0.04);text-align:center">
+        <div style="font-size:13px;color:#8b95a1;font-weight:500">총 클릭</div>
+        <div style="font-size:28px;font-weight:800;color:#191f28;margin-top:8px">11,474</div>
+      </div>
+      <div style="background:#ffffff;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(4,4,4,0.04);text-align:center">
+        <div style="font-size:13px;color:#8b95a1;font-weight:500">평균 CTR</div>
+        <div style="font-size:28px;font-weight:800;color:#191f28;margin-top:8px">1.19%</div>
+      </div>
+      <div style="background:#ffffff;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(4,4,4,0.04);text-align:center">
+        <div style="font-size:13px;color:#8b95a1;font-weight:500">평균 CPC</div>
+        <div style="font-size:28px;font-weight:800;color:#191f28;margin-top:8px">428원</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+      <div style="background:#ffffff;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(4,4,4,0.04);text-align:center">
+        <div style="font-size:13px;color:#8b95a1;font-weight:500">신청 전환율 (구글폼 광고 응답)</div>
+        <div style="font-size:28px;font-weight:800;color:#f04452;margin-top:8px">3.2%</div>
+        <div style="font-size:11px;color:#b0b8c1;margin-top:4px">365명 / 클릭 11,474 · 구글폼에서 광고로 응답한 사람만</div>
+      </div>
+      <div style="background:#ffffff;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(4,4,4,0.04);text-align:center">
+        <div style="font-size:13px;color:#8b95a1;font-weight:500">신청 전환율 (총 신청 기준)</div>
+        <div style="font-size:28px;font-weight:800;color:#191f28;margin-top:8px">13.7%</div>
+        <div style="font-size:11px;color:#b0b8c1;margin-top:4px">1,574명 / 클릭 11,474 · 광고 클릭이 전부 신청으로 이어졌다고 가정한 최대치</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+      <div style="background:#ffffff;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(4,4,4,0.04)">
+        <div style="font-size:13px;color:#8b95a1;font-weight:500;margin-bottom:12px">전반기 (3/9~3/16)</div>
+        <div style="display:flex;justify-content:space-around;text-align:center">
+          <div><div style="font-size:11px;color:#b0b8c1">노출</div><div style="font-weight:700;color:#333d4b">407,365</div></div>
+          <div><div style="font-size:11px;color:#b0b8c1">클릭</div><div style="font-weight:700;color:#333d4b">6,168</div></div>
+          <div><div style="font-size:11px;color:#b0b8c1">CTR</div><div style="font-weight:700;color:#00c48c">1.51%</div></div>
+          <div><div style="font-size:11px;color:#b0b8c1">CPC</div><div style="font-weight:700;color:#00c48c">387원</div></div>
+        </div>
+      </div>
+      <div style="background:#ffffff;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(4,4,4,0.04)">
+        <div style="font-size:13px;color:#8b95a1;font-weight:500;margin-bottom:12px">후반기 (3/17~3/24)</div>
+        <div style="display:flex;justify-content:space-around;text-align:center">
+          <div><div style="font-size:11px;color:#b0b8c1">노출</div><div style="font-weight:700;color:#333d4b">556,839</div></div>
+          <div><div style="font-size:11px;color:#b0b8c1">클릭</div><div style="font-weight:700;color:#333d4b">5,306</div></div>
+          <div><div style="font-size:11px;color:#b0b8c1">CTR</div><div style="font-weight:700;color:#f04452">0.95%</div></div>
+          <div><div style="font-size:11px;color:#b0b8c1">CPC</div><div style="font-weight:700;color:#f04452">474원</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="ga-note">* 후반기 노출 ↑37%인데 클릭 ↓14% — 광고 피로도로 CTR 하락, CPC 상승</div>
+    <h3 style="margin-top:24px;margin-bottom:12px;font-size:15px;color:#4e5968;font-weight:700">소재별 성과</h3>
+    <table class="ga-table">
+      <thead>
+        <tr><th>소재</th><th>운영 기간</th><th>노출</th><th>클릭</th><th>CTR</th><th>CPC</th><th>광고비</th><th>비중</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>연봉강조형</td><td>3/9~3/24</td><td style="text-align:right">555,449</td><td style="text-align:right">7,193</td><td style="text-align:right">1.29%</td><td style="text-align:right">423원</td><td style="text-align:right">3,039,102</td><td style="text-align:right">62.0%</td></tr>
+        <tr style="background:#e8faf5"><td>경력강조형</td><td>3/9~3/20 (OFF)</td><td style="text-align:right">222,123</td><td style="text-align:right">2,760</td><td style="text-align:right;color:#00c48c;font-weight:700">1.24%</td><td style="text-align:right;color:#00c48c;font-weight:700">387원</td><td style="text-align:right">1,069,154</td><td style="text-align:right">21.8%</td></tr>
+        <tr style="background:#ffe5e5"><td>인재강조형</td><td>3/16~3/24</td><td style="text-align:right">176,109</td><td style="text-align:right">1,424</td><td style="text-align:right;color:#f04452;font-weight:700">0.81%</td><td style="text-align:right;color:#f04452;font-weight:700">533원</td><td style="text-align:right">758,534</td><td style="text-align:right">15.5%</td></tr>
+        <tr><td>연사 이미지형</td><td>3/9~3/16 (OFF)</td><td style="text-align:right">10,523</td><td style="text-align:right">97</td><td style="text-align:right">0.92%</td><td style="text-align:right">398원</td><td style="text-align:right">38,649</td><td style="text-align:right">0.8%</td></tr>
+      </tbody>
+    </table>
+    <div class="ga-note" style="margin-top:8px">* 경력강조형이 CPC 최저(387원)로 효율 최고였으나 3/20에 조기 OFF. 인재강조형은 CPC 533원으로 효율이 가장 낮음</div>
+  </div>
+
+  <!-- 줌 라이브 참여 분석 -->
+  <div class="ga-section">
+    <h2>줌 라이브 참여</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div style="background:#ffffff;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(4,4,4,0.04);text-align:center">
+        <div style="font-size:13px;color:#8b95a1;font-weight:500">실참석자 (유니크)</div>
+        <div style="font-size:32px;font-weight:800;color:#191f28;margin-top:8px">562명</div>
+        <div style="font-size:11px;color:#b0b8c1;margin-top:4px">신청 대비 35.7%</div>
+      </div>
+      <div style="background:#ffffff;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(4,4,4,0.04);text-align:center">
+        <div style="font-size:13px;color:#8b95a1;font-weight:500">최대 동시 접속</div>
+        <div style="font-size:32px;font-weight:800;color:#191f28;margin-top:8px">371명</div>
+        <div style="font-size:11px;color:#b0b8c1;margin-top:4px">총 접속 977건</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 차트 -->
+  <div class="charts">
+    <div class="chart-box full">
+      <h3>일별 신청자 추이 <span style="font-size:11px;font-weight:400;color:#b0b8c1">| 모집 기간: 3/4 ~ 3/24 (21일) · 일평균 75명</span></h3>
+      <div style="height:260px"><canvas id="dailyChart"></canvas></div>
+    </div>
+    <div class="chart-box">
+      <h3>신청경로 분석 (구글폼 기준)</h3>
+      <canvas id="channelChart"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>연차별 분포</h3>
+      <canvas id="yearChart"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>직군별 분포 (TOP 7)</h3>
+      <canvas id="jobChart"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>신청 유형</h3>
+      <canvas id="eventTypeChart"></canvas>
+    </div>
+  </div>
+
+  <!-- GA 유입 분석 -->
+  <div class="ga-section">
+    <h2>GA 유입 분석 (UTM 기반)</h2>
+    <table class="ga-table">
+      <thead>
+        <tr><th>채널</th><th>설명</th><th>세션수(방문)</th><th>활성 사용자(순 방문자)</th><th>조회수</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>gamejob_popup</td><td>게임잡 팝업 메시지</td><td style="text-align:right">4,145</td><td style="text-align:right"><b>2,190</b></td><td style="text-align:right">31,091</td></tr>
+        <tr><td>banner_ct</td><td>잡코리아 커튼 배너</td><td style="text-align:right">2,717</td><td style="text-align:right">469</td><td style="text-align:right">38,994</td></tr>
+        <tr><td>jobplanet_email</td><td>잡플래닛 이메일</td><td style="text-align:right">563</td><td style="text-align:right">341</td><td style="text-align:right">3,566</td></tr>
+        <tr><td>referral</td><td>외부 링크 유입</td><td style="text-align:right">445</td><td style="text-align:right">316</td><td style="text-align:right">950</td></tr>
+        <tr><td>kakao</td><td>카카오 오픈채팅방</td><td style="text-align:right">181</td><td style="text-align:right">89</td><td style="text-align:right">1,015</td></tr>
+        <tr><td>banner_recruit_sky</td><td>잡코리아 스카이 배너</td><td style="text-align:right">94</td><td style="text-align:right">21</td><td style="text-align:right">792</td></tr>
+        <tr><td>blog</td><td>잡코리아 블로그</td><td style="text-align:right">68</td><td style="text-align:right">12</td><td style="text-align:right">1,166</td></tr>
+        <tr><td>contentlab</td><td>잡코리아 콘텐츠LAB</td><td style="text-align:right">64</td><td style="text-align:right">23</td><td style="text-align:right">583</td></tr>
+        <tr><td>instagram</td><td>잡코리아 인스타그램</td><td style="text-align:right">60</td><td style="text-align:right">16</td><td style="text-align:right">527</td></tr>
+        <tr><td>linkedin</td><td>잡코리아 링크드인</td><td style="text-align:right">56</td><td style="text-align:right">12</td><td style="text-align:right">142</td></tr>
+        <tr><td>banner_searchright</td><td>잡코리아 검색 우측 배너</td><td style="text-align:right">45</td><td style="text-align:right">2</td><td style="text-align:right">130</td></tr>
+      </tbody>
+    </table>
+    <div class="ga-note">* banner_ct(커튼 배너)는 UTM이 매번 붙어 세션 수가 부풀려짐. 채널 비교 시 <b>활성 사용자 기준</b>이 정확합니다.</div>
+  </div>
+
+  <!-- 피드백 -->
+  <div class="feedback">
+    <h2>참여자 피드백</h2>
+    <div style="font-size:12px;color:#b0b8c1;margin-bottom:16px">설문 응답 98명 (실참석자 562명 중 17.4%)</div>
+    <div class="feedback-grid">
+      <div class="feedback-card">
+        <h3>만족도</h3>
+        <div class="score">4.33 <span style="font-size:20px;color:#8b95a1">/ 5</span></div>
+        <div class="score-sub">5점 44명 · 4점대 36명 · 3점대 16명 · 2점대 2명</div>
+      </div>
+      <div class="feedback-card">
+        <h3>신청 이유</h3>
+        <div class="feedback-item"><span class="name">주제가 나랑 맞아서</span><span class="pct">40명</span></div>
+        <div class="feedback-item"><span class="name">커리어 성장을 위해</span><span class="pct">22명</span></div>
+        <div class="feedback-item"><span class="name">발표 내용이 궁금해서</span><span class="pct">21명</span></div>
+        <div class="feedback-item"><span class="name">잡코리아 플랫폼 신뢰도</span><span class="pct">8명</span></div>
+        <div class="feedback-item"><span class="name">궁금한 연사</span><span class="pct">5명</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 유저 리뷰 -->
+  <div class="ga-section">
+    <h2>유저 리뷰 (이벤트 참여자)</h2>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      <a href="https://www.facebook.com/share/p/1FdwwQqdsU/" target="_blank" style="display:inline-block;padding:8px 14px;background:#ffffff;border-radius:8px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:12px;color:#4e5968;text-decoration:none">Facebook 1</a>
+      <a href="https://www.instagram.com/p/DVhg6Skk4KZ/" target="_blank" style="display:inline-block;padding:8px 14px;background:#ffffff;border-radius:8px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:12px;color:#8b5cf6;text-decoration:none">Instagram 1</a>
+      <a href="https://www.instagram.com/p/DVhx7CeEio0/" target="_blank" style="display:inline-block;padding:8px 14px;background:#ffffff;border-radius:8px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:12px;color:#8b5cf6;text-decoration:none">Instagram 2</a>
+      <a href="https://www.instagram.com/p/DVu3cn4EVv3/" target="_blank" style="display:inline-block;padding:8px 14px;background:#ffffff;border-radius:8px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:12px;color:#8b5cf6;text-decoration:none">Instagram 3</a>
+      <a href="https://www.instagram.com/p/DVu5A9ykUEw/" target="_blank" style="display:inline-block;padding:8px 14px;background:#ffffff;border-radius:8px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:12px;color:#8b5cf6;text-decoration:none">Instagram 4</a>
+      <a href="https://www.instagram.com/p/DVvYLNxE4lY/" target="_blank" style="display:inline-block;padding:8px 14px;background:#ffffff;border-radius:8px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:12px;color:#8b5cf6;text-decoration:none">Instagram 5</a>
+      <a href="https://www.instagram.com/p/DV52djck2YC/" target="_blank" style="display:inline-block;padding:8px 14px;background:#ffffff;border-radius:8px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:12px;color:#8b5cf6;text-decoration:none">Instagram 6</a>
+      <a href="https://www.instagram.com/p/DV--EfsEbKl/" target="_blank" style="display:inline-block;padding:8px 14px;background:#ffffff;border-radius:8px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:12px;color:#8b5cf6;text-decoration:none">Instagram 7</a>
+      <a href="https://www.instagram.com/p/DWC-O8fEx21/" target="_blank" style="display:inline-block;padding:8px 14px;background:#ffffff;border-radius:8px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:12px;color:#8b5cf6;text-decoration:none">Instagram 8</a>
+      <a href="https://www.instagram.com/p/DWP5K3kElmO/" target="_blank" style="display:inline-block;padding:8px 14px;background:#ffffff;border-radius:8px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:12px;color:#8b5cf6;text-decoration:none">Instagram 9</a>
+      <a href="https://www.instagram.com/p/DWWli5CiIJ3/" target="_blank" style="display:inline-block;padding:8px 14px;background:#ffffff;border-radius:8px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:12px;color:#8b5cf6;text-decoration:none">Instagram 10</a>
+      <a href="https://www.threads.com/@_nmsg__" target="_blank" style="display:inline-block;padding:8px 14px;background:#ffffff;border-radius:8px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:12px;color:#4e5968;text-decoration:none">Threads 1</a>
+      <a href="https://www.threads.com/@sunyuhwa/post/DWWUzaak3yZ" target="_blank" style="display:inline-block;padding:8px 14px;background:#ffffff;border-radius:8px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:12px;color:#4e5968;text-decoration:none">Threads 2</a>
+      <a href="https://blog.naver.com/taehwani83/224205424479" target="_blank" style="display:inline-block;padding:8px 14px;background:#ffffff;border-radius:8px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:12px;color:#00c48c;text-decoration:none">Blog 1</a>
+      <a href="https://blog.naver.com/mijoop1979/224210958533" target="_blank" style="display:inline-block;padding:8px 14px;background:#ffffff;border-radius:8px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:12px;color:#00c48c;text-decoration:none">Blog 2</a>
+      <a href="https://blog.naver.com/armada1029/224211392666" target="_blank" style="display:inline-block;padding:8px 14px;background:#ffffff;border-radius:8px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:12px;color:#00c48c;text-decoration:none">Blog 3</a>
+      <a href="https://blog.naver.com/cher4394/224213936764" target="_blank" style="display:inline-block;padding:8px 14px;background:#ffffff;border-radius:8px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:12px;color:#00c48c;text-decoration:none">Blog 4</a>
+      <a href="https://blog.naver.com/sun_comes_up_/224219545514" target="_blank" style="display:inline-block;padding:8px 14px;background:#ffffff;border-radius:8px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:12px;color:#00c48c;text-decoration:none">Blog 5</a>
+      <a href="https://blog.naver.com/cakeshop007/224225752437" target="_blank" style="display:inline-block;padding:8px 14px;background:#ffffff;border-radius:8px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:12px;color:#00c48c;text-decoration:none">Blog 6</a>
+      <a href="https://blog.naver.com/prdt7j/224226671837" target="_blank" style="display:inline-block;padding:8px 14px;background:#ffffff;border-radius:8px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:12px;color:#00c48c;text-decoration:none">Blog 7</a>
+      <a href="https://m.blog.naver.com/babao-/224227017225" target="_blank" style="display:inline-block;padding:8px 14px;background:#ffffff;border-radius:8px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:12px;color:#00c48c;text-decoration:none">Blog 8</a>
+      <a href="https://blog.naver.com/gangdalgeul/224227758591" target="_blank" style="display:inline-block;padding:8px 14px;background:#ffffff;border-radius:8px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:12px;color:#00c48c;text-decoration:none">Blog 9</a>
+      <a href="https://blog.naver.com/raingirl2/224228335721" target="_blank" style="display:inline-block;padding:8px 14px;background:#ffffff;border-radius:8px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:12px;color:#00c48c;text-decoration:none">Blog 10</a>
+      <a href="https://blog.naver.com/pikipakipoki/224230825123" target="_blank" style="display:inline-block;padding:8px 14px;background:#ffffff;border-radius:8px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:12px;color:#00c48c;text-decoration:none">Blog 11</a>
+      <a href="https://blog.naver.com/owo0312/224231224675" target="_blank" style="display:inline-block;padding:8px 14px;background:#ffffff;border-radius:8px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:12px;color:#00c48c;text-decoration:none">Blog 12</a>
+      <a href="https://blog.naver.com/ftgoj/224231283154" target="_blank" style="display:inline-block;padding:8px 14px;background:#ffffff;border-radius:8px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:12px;color:#00c48c;text-decoration:none">Blog 13</a>
+      <a href="https://x.com/i/status/2029449101339967588" target="_blank" style="display:inline-block;padding:8px 14px;background:#ffffff;border-radius:8px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:12px;color:#4e5968;text-decoration:none">X (Twitter)</a>
+    </div>
+    <div class="ga-note" style="margin-top:8px">* SNS 공유 이벤트 참여자 중 유효 링크 27건</div>
+  </div>
+
+  <!-- 직무 일치율 -->
+  <div class="ga-section">
+    <h2>직무 일치율 분석</h2>
+    <div style="font-size:12px;color:#b0b8c1;margin-bottom:16px">이력서 업데이트 확인자(110명) 중 구글폼 직군 vs 잡코리아 이력서 희망직무 비교</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <div style="background:#fff;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(4,4,4,0.04);text-align:center">
+        <div style="font-size:13px;color:#8b95a1">직무 일치</div>
+        <div style="font-size:32px;font-weight:800;color:#00c48c;margin-top:8px">60.3%</div>
+        <div style="font-size:11px;color:#b0b8c1;margin-top:4px">136명 비교 가능 중 82명 일치</div>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(4,4,4,0.04);text-align:center">
+        <div style="font-size:13px;color:#8b95a1">직무 불일치</div>
+        <div style="font-size:32px;font-weight:800;color:#f04452;margin-top:8px">39.7%</div>
+        <div style="font-size:11px;color:#b0b8c1;margin-top:4px">54명 — 설문 직군과 이력서 희망직무 상이</div>
+      </div>
+    </div>
+    <div class="ga-note">* 불일치 사례: 설문에 "기획"으로 응답했으나 이력서 희망직무는 "회계·세무", "청소" → "마케팅·영업" 등. 이벤트 참여 목적과 실제 구직 방향이 다를 수 있음</div>
+  </div>
+
+  <div class="note-box">
+    * 이력서 업데이트 수치는 DB 검증 기준입니다. 3/4~3/24 기간 내 업데이트 이력 기준 110명입니다.
+  </div>
+
+
+  <script>
+    Chart.register(ChartDataLabels);
+    Chart.defaults.plugins.datalabels = { display: false };
+
+    // 일별 신청자
+    const dates = ['03/04','03/05','03/06','03/07','03/08','03/09','03/10','03/11','03/12','03/13','03/14','03/15','03/16','03/17','03/18','03/19','03/20','03/21','03/22','03/23','03/24'];
+    const daily = [6,69,78,21,36,103,185,137,88,66,30,54,72,75,137,97,40,28,30,75,54];
+    let cum = 0;
+    const cumulative = daily.map(d => { cum += d; return cum; });
+
+    // 마케팅 이벤트 - 막대 위에 텍스트로 표시
+    const eventMap = {
+      '03/04': '인스타',
+      '03/05': 'CRM·블로그·오카방',
+      '03/06': '링크드인',
+      '03/09': '광고/배너/게임잡',
+      '03/12': '커튼 배너 종료',
+      '03/13': 'PR',
+      '03/18': '잡플래닛',
+      '03/24': '광고 종료',
+    };
+    // 스파이크 날은 막대 색 강조
+    const spikeMap = { '03/10': '#f04452', '03/11': '#f04452', '03/18': '#f04452' };
+    const barColors = dates.map(d => spikeMap[d] || '#90c2ff');
+
+    new Chart(document.getElementById('dailyChart'), {
+      type: 'bar',
+      data: { labels: dates, datasets: [
+        { type: 'bar', label: '일별 신청자', data: daily, backgroundColor: barColors, borderRadius: 4, order: 2 },
+        { type: 'line', label: '누적 신청자', data: cumulative, borderColor: '#f04452', backgroundColor: 'transparent', tension: 0.3, pointRadius: 3, yAxisID: 'y1', order: 1 }
+      ]},
+      plugins: [{ id: 'barLabels', afterDraw(chart) {
+        const ctx = chart.ctx;
+        const meta = chart.getDatasetMeta(0);
+        ctx.save();
+        ctx.textAlign = 'center';
+        dates.forEach((d, i) => {
+          const bar = meta.data[i];
+          if (!bar) return;
+          const x = bar.x;
+          const y = bar.y;
+          // 이벤트 라벨 (막대 위 세로 텍스트)
+          if (eventMap[d]) {
+            ctx.font = '9px Pretendard';
+            ctx.fillStyle = '#6b7684';
+            ctx.save();
+            ctx.translate(x, y - 8);
+            ctx.rotate(-Math.PI / 4);
+            ctx.textAlign = 'left';
+            ctx.fillText(eventMap[d], 0, 0);
+            ctx.restore();
+          }
+          // 스파이크 날 숫자 강조
+          if (spikeMap[d]) {
+            ctx.font = 'bold 11px Pretendard';
+            ctx.fillStyle = '#f04452';
+            ctx.fillText('▲' + daily[i], x, y - 6);
+          }
+        });
+        ctx.restore();
+      }}],
+      options: { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 50 } }, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true, title: { display: true, text: '일별' } }, y1: { position: 'right', beginAtZero: true, title: { display: true, text: '누적' }, grid: { display: false } } } }
+    });
+
+    // 신청경로
+    const chLabels = ['잡코리아 홈페이지','인스타그램 광고','잡코리아 SNS','지인 추천','잡플래닛 이메일','링크드인','연사 SNS','기타'];
+    const chData = [771, 365, 75, 65, 63, 49, 44, 49];
+    const colors = ['#3182f6','#f04452','#8b5cf6','#ff9500','#00c48c','#1b64da','#6b7684','#e5e8eb'];
+
+    new Chart(document.getElementById('channelChart'), {
+      type: 'doughnut',
+      data: { labels: chLabels, datasets: [{ data: chData, backgroundColor: colors }] },
+      options: { responsive: true, plugins: {
+        legend: { position: 'right', labels: { font: { size: 11 } } },
+        datalabels: {
+          display: true,
+          color: '#191f28',
+          font: { size: 11, weight: 'bold' },
+          formatter: (value, ctx) => {
+            const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
+            const pct = (value / total * 100).toFixed(1);
+            if (pct < 5) return '';
+            return ctx.chart.data.labels[ctx.dataIndex] + '\n' + pct + '%';
+          },
+          textAlign: 'center'
+        }
+      } }
+    });
+
+    // 연차별
+    new Chart(document.getElementById('yearChart'), {
+      type: 'doughnut',
+      data: { labels: ['0년차(대학생/취준)', '1~3년차', '4~6년차', '7~9년차', '10년차 이상'], datasets: [{ data: [148, 464, 395, 232, 242], backgroundColor: ['#8b5cf6','#3182f6','#00c48c','#ff9500','#f04452'] }] },
+      options: { responsive: true, plugins: { legend: { position: 'right', labels: { font: { size: 11 } } }, datalabels: { display: true, color: '#191f28', font: { size: 11, weight: 'bold' }, formatter: (v, ctx) => { const t = ctx.dataset.data.reduce((a,b)=>a+b,0); const p = (v/t*100).toFixed(1); return p < 5 ? '' : ctx.chart.data.labels[ctx.dataIndex]+'\n'+p+'%'; }, textAlign: 'center' } } }
+    });
+
+    // 직군별 (TOP 7)
+    const jobLabels = ['기획','마케팅','개발','디자인','세일즈','경영지원','HR'];
+    const jobData = [230, 196, 206, 153, 121, 31, 26];
+    const jobColors = ['#3182f6','#f04452','#ff9500','#8b5cf6','#00c48c','#1b64da','#6b7684'];
+
+    new Chart(document.getElementById('jobChart'), {
+      type: 'doughnut',
+      data: { labels: jobLabels, datasets: [{ data: jobData, backgroundColor: jobColors }] },
+      options: { responsive: true, plugins: {
+        legend: { position: 'right', labels: { font: { size: 11 } } },
+        datalabels: {
+          display: true,
+          color: '#191f28',
+          font: { size: 11, weight: 'bold' },
+          formatter: (value, ctx) => {
+            const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
+            const pct = (value / total * 100).toFixed(1);
+            if (pct < 5) return '';
+            return ctx.chart.data.labels[ctx.dataIndex] + '\n' + pct + '%';
+          },
+          textAlign: 'center'
+        }
+      } }
+    });
+
+    // 신청 유형
+    new Chart(document.getElementById('eventTypeChart'), {
+      type: 'doughnut',
+      data: { labels: ['컨퍼런스 + 이벤트 참여 (485명)', '컨퍼런스만 (996명)'], datasets: [{ data: [485, 996], backgroundColor: ['#ff9500', '#3182f6'] }] },
+      options: { responsive: true, plugins: {
+        legend: { position: 'bottom' },
+        datalabels: {
+          display: true,
+          color: '#191f28',
+          font: { size: 13, weight: 'bold' },
+          formatter: (value, ctx) => {
+            const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
+            return (value / total * 100).toFixed(1) + '%';
+          }
+        }
+      } }
+    });
+  </script>
+</body>
+</html>

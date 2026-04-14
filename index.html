@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>인사이트전략팀 B2C 대시보드</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Pretendard', -apple-system, sans-serif; background: #f2f4f6; color: #191F28; padding: 48px 24px; }
+    h1 { text-align: center; font-size: 28px; margin-bottom: 6px; font-weight: 800; }
+    .subtitle { text-align: center; color: #8B95A1; font-size: 14px; margin-bottom: 40px; font-weight: 400; }
+    .container { max-width: 1000px; margin: 0 auto; }
+
+    .month { margin-bottom: 28px; }
+    .month-header { font-size: 13px; font-weight: 800; color: #8B95A1; letter-spacing: 0.5px; margin-bottom: 10px; padding-left: 4px; }
+
+    .category-label { font-size: 11px; color: #B0B8C1; padding-left: 4px; margin-bottom: 4px; margin-top: 10px; font-weight: 500; }
+
+    .row { display: flex; align-items: center; background: #fff; border-radius: 16px; padding: 18px 24px; margin-bottom: 6px; box-shadow: 0 1px 3px rgba(4,4,4,0.04); text-decoration: none; color: #191F28; transition: transform 0.15s, box-shadow 0.15s; cursor: pointer; }
+    .row:hover { transform: translateX(4px); box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+    .row .tag { display: inline-block; font-size: 11px; padding: 4px 10px; border-radius: 8px; font-weight: 700; margin-right: 16px; min-width: 56px; text-align: center; }
+    .row .tag.done { background: #F2F4F6; color: #B0B8C1; }
+    .row .tag.live { background: #FEE; color: #F04452; }
+    .row .tag.soon { background: #F2F4F6; color: #B0B8C1; }
+    .row .name { font-weight: 700; font-size: 15px; min-width: 180px; color: #333D4B; }
+    .row .desc { font-size: 12px; color: #8B95A1; flex: 1; }
+    .row .stats { display: flex; gap: 24px; margin-left: auto; }
+    .row .stat { text-align: center; }
+    .row .stat .num { font-size: 16px; font-weight: 800; color: #3182F6; }
+    .row .stat .num.red { color: #F04452; }
+    .row .stat .num.orange { color: #FF9500; }
+    .row .stat .label { font-size: 10px; color: #B0B8C1; font-weight: 500; }
+
+    .row.empty { border: 1.5px dashed #E5E8EB; box-shadow: none; cursor: default; justify-content: center; padding: 20px; }
+    .row.empty:hover { transform: none; box-shadow: none; }
+    .row.empty .placeholder { color: #B0B8C1; font-size: 13px; }
+    .row.faded { opacity: 0.6; }
+    .dot { position: absolute; top: -3px; left: -5px; width: 5px; height: 5px; background: #F04452; border-radius: 50%; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    .filter-btn { font-size:11px;padding:5px 14px;border-radius:8px;border:1px solid #e5e8eb;background:#fff;cursor:pointer;color:#6b7684;font-family:Pretendard;font-weight:600;transition:all 0.15s; }
+    .filter-btn:hover { background:#f2f4f6; }
+    .footer { text-align: center; margin-top: 40px; font-size: 12px; color: #B0B8C1; }
+  </style>
+</head>
+<body>
+  <h1>인사이트전략팀 B2C 대시보드</h1>
+  <p class="subtitle">2026 상반기 프로젝트 성과</p>
+
+  <!-- 팀 전체 요약 -->
+  <div style="display:flex;gap:16px;justify-content:center;max-width:1000px;margin:0 auto 36px;flex-wrap:wrap">
+    <div style="background:#fff;border-radius:16px;padding:24px 36px;box-shadow:0 1px 3px rgba(4,4,4,0.04);text-align:center;flex:1;min-width:180px">
+      <div style="font-size:13px;color:#8B95A1;margin-bottom:6px;font-weight:500">총 신청자</div>
+      <div style="font-size:36px;font-weight:800;color:#191F28" id="totalApplicants">2,711</div>
+      <div style="font-size:11px;color:#B0B8C1;margin-top:4px" id="totalApplicantsSub">커리어 컨퍼런스 1,574 + 데브콘 1,137</div>
+    </div>
+    <div style="background:#fff;border-radius:16px;padding:24px 36px;box-shadow:0 1px 3px rgba(4,4,4,0.04);text-align:center;flex:1;min-width:180px">
+      <div style="font-size:13px;color:#8B95A1;margin-bottom:6px;font-weight:500">총 이력서 업데이트</div>
+      <div style="font-size:36px;font-weight:800;color:#191F28" id="totalResume">328</div>
+      <div style="font-size:11px;color:#B0B8C1;margin-top:4px" id="totalResumeSub">커리어 컨퍼런스 110 + 데브콘 218</div>
+    </div>
+    <div id="articleCard" onclick="editCardLink('article')" style="background:#fff;border-radius:16px;padding:24px 36px;box-shadow:0 1px 3px rgba(4,4,4,0.04);text-align:center;flex:1;min-width:180px;cursor:pointer;transition:box-shadow 0.15s" onmouseenter="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.08)'" onmouseleave="this.style.boxShadow='0 1px 3px rgba(4,4,4,0.04)'">
+      <div style="font-size:13px;color:#8B95A1;margin-bottom:6px;font-weight:500">아티클 총 조회수</div>
+      <div style="font-size:36px;font-weight:800;color:#E5E8EB">—</div>
+      <div style="font-size:11px;color:#B0B8C1;margin-top:4px" id="articleSub">업데이트 해주시면 더 정확해져요!</div>
+    </div>
+    <div id="instaCard" onclick="editCardLink('insta')" style="background:#fff;border-radius:16px;padding:24px 36px;box-shadow:0 1px 3px rgba(4,4,4,0.04);text-align:center;flex:1;min-width:180px;cursor:pointer;transition:box-shadow 0.15s" onmouseenter="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.08)'" onmouseleave="this.style.boxShadow='0 1px 3px rgba(4,4,4,0.04)'">
+      <div style="font-size:13px;color:#8B95A1;margin-bottom:6px;font-weight:500">인스타 팔로워</div>
+      <div id="instaFollowers" style="font-size:36px;font-weight:800;color:#191F28">89</div>
+      <div id="instaSub" style="font-size:11px;color:#B0B8C1;margin-top:4px"><a href="https://www.instagram.com/worxtory/" target="_blank" onclick="event.stopPropagation()" style="color:#3182f6;text-decoration:none">@worxtory</a> · 로딩 중</div>
+    </div>
+    <div id="okaCard" onclick="editCardLink('oka')" style="background:#fff;border-radius:16px;padding:24px 36px;box-shadow:0 1px 3px rgba(4,4,4,0.04);text-align:center;flex:1;min-width:180px;cursor:pointer;transition:box-shadow 0.15s" onmouseenter="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.08)'" onmouseleave="this.style.boxShadow='0 1px 3px rgba(4,4,4,0.04)'">
+      <div style="font-size:13px;color:#8B95A1;margin-bottom:6px;font-weight:500">오카방 총 참여자</div>
+      <div id="okaTotal" style="font-size:36px;font-weight:800;color:#191F28">504</div>
+      <div id="okaSub" style="font-size:11px;color:#B0B8C1;margin-top:4px"><a href="https://www.notion.so/worxphere/c8c7d8322b048205949701cca47a0550" target="_blank" onclick="event.stopPropagation()" style="color:#3182f6;text-decoration:none">성과 지표 노션</a> · 4/13 기준</div>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- 필터 -->
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+      <span style="font-size:12px;color:#8B95A1;font-weight:500">상태</span>
+      <button onclick="toggleFilter('done')" id="btn-done" class="filter-btn">완료 숨기기</button>
+      <button onclick="toggleFilter('soon')" id="btn-soon" class="filter-btn">예정 숨기기</button>
+      <!-- 유형 필터는 콘텐츠 추가 시 활성화 -->
+    </div>
+
+    <!-- 3월 -->
+    <div class="month">
+      <div class="month-header">3월</div>
+      <div class="category-label" data-cat="이벤트">이벤트</div>
+      <a class="row faded" data-cat="이벤트" href="career-conf-dashboard.html" target="_blank">
+        <span class="tag done">완료</span>
+        <span class="name">커리어 컨퍼런스</span>
+        <span class="desc">선배가 알려주는 이직 치트키 · 3.26 · 한나 · 4/14 업데이트</span>
+        <div class="stats">
+          <div class="stat"><div class="num red">31.5%</div><div class="label">KPI</div></div>
+          <div class="stat"><div class="num">1,574</div><div class="label">신청자</div></div>
+          <div class="stat"><div class="num">110</div><div class="label">이력서</div></div>
+          <div class="stat"><div class="num">562</div><div class="label">참석자</div></div>
+        </div>
+      </a>
+    </div>
+
+    <!-- 4월 -->
+    <div class="month">
+      <div class="month-header">4월</div>
+      <div class="category-label" data-cat="이벤트">이벤트</div>
+      <a class="row" data-cat="이벤트" data-event="DEVCON" href="devcon-dashboard.html" target="_blank">
+        <span class="tag live">진행 중</span>
+        <span class="name" style="position:relative"><span class="dot"></span>DEVCON</span>
+        <span class="desc">AI 시대, 개발자 고민 완전 정복 · 4.23 · 한나 · 4/14 업데이트</span>
+        <div class="stats">
+          <div class="stat"><div class="num orange">75.8%</div><div class="label">KPI</div></div>
+          <div class="stat"><div class="num">1,137</div><div class="label">신청자</div></div>
+          <div class="stat"><div class="num">218</div><div class="label">이력서</div></div>
+          <div class="stat"><div class="num" style="color:#b0b8c1;font-size:13px">행사 전</div><div class="label">참석자</div></div>
+        </div>
+      </a>
+    </div>
+
+    <!-- 커스텀 이벤트 영역 -->
+    <div id="customEvents"></div>
+
+    <!-- 이벤트 추가 버튼 -->
+    <div style="margin-top:20px">
+      <div class="row empty" onclick="openModal()" style="cursor:pointer">
+        <span class="placeholder" style="font-size:22px;color:#B0B8C1;margin-right:8px">+</span>
+        <span class="placeholder">이벤트 추가</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 이벤트 추가 모달 -->
+  <div id="modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:999;justify-content:center;align-items:center">
+    <div style="background:#fff;border-radius:20px;padding:32px;width:480px;max-width:90vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.15)">
+      <h2 style="font-size:18px;font-weight:800;margin-bottom:20px">이벤트 추가</h2>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div>
+          <label style="font-size:12px;color:#8B95A1;font-weight:600;display:block;margin-bottom:4px">이벤트명 *</label>
+          <input id="f-name" type="text" placeholder="예: WORK FESTIVAL" style="width:100%;padding:10px 14px;border:1px solid #E5E8EB;border-radius:10px;font-size:14px;font-family:Pretendard;outline:none">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <label style="font-size:12px;color:#8B95A1;font-weight:600;display:block;margin-bottom:4px">구분</label>
+            <select id="f-type" style="width:100%;padding:10px 14px;border:1px solid #E5E8EB;border-radius:10px;font-size:13px;font-family:Pretendard;background:#fff">
+              <option>이벤트</option><option>SNS</option><option>커뮤니티</option><option>아티클</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:12px;color:#8B95A1;font-weight:600;display:block;margin-bottom:4px">상태</label>
+            <select id="f-status" style="width:100%;padding:10px 14px;border:1px solid #E5E8EB;border-radius:10px;font-size:13px;font-family:Pretendard;background:#fff">
+              <option>예정</option><option>진행 중</option><option>상시</option><option>완료</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+          <div>
+            <label style="font-size:12px;color:#8B95A1;font-weight:600;display:block;margin-bottom:4px">월</label>
+            <select id="f-month" style="width:100%;padding:10px 14px;border:1px solid #E5E8EB;border-radius:10px;font-size:13px;font-family:Pretendard;background:#fff">
+              <option value="3">3월</option><option value="4">4월</option><option value="5">5월</option><option value="6">6월</option><option value="7">7월</option><option value="8">8월</option><option value="9">9월</option><option value="10">10월</option><option value="11">11월</option><option value="12">12월</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:12px;color:#8B95A1;font-weight:600;display:block;margin-bottom:4px">시작일</label>
+            <input id="f-start" type="date" style="width:100%;padding:10px 14px;border:1px solid #E5E8EB;border-radius:10px;font-size:13px;font-family:Pretendard">
+          </div>
+          <div>
+            <label style="font-size:12px;color:#8B95A1;font-weight:600;display:block;margin-bottom:4px">마감일</label>
+            <input id="f-end" type="date" style="width:100%;padding:10px 14px;border:1px solid #E5E8EB;border-radius:10px;font-size:13px;font-family:Pretendard">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <label style="font-size:12px;color:#8B95A1;font-weight:600;display:block;margin-bottom:4px">KPI 목표</label>
+            <input id="f-kpi" type="number" placeholder="예: 2000" style="width:100%;padding:10px 14px;border:1px solid #E5E8EB;border-radius:10px;font-size:14px;font-family:Pretendard;outline:none">
+          </div>
+          <div>
+            <label style="font-size:12px;color:#8B95A1;font-weight:600;display:block;margin-bottom:4px">sub KPI 목표</label>
+            <input id="f-subkpi" type="number" placeholder="예: 500" style="width:100%;padding:10px 14px;border:1px solid #E5E8EB;border-radius:10px;font-size:14px;font-family:Pretendard;outline:none">
+          </div>
+        </div>
+        <div>
+          <label style="font-size:12px;color:#8B95A1;font-weight:600;display:block;margin-bottom:6px">담당자</label>
+          <div id="f-owner-tabs" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+          <input id="f-owner" type="hidden">
+        </div>
+        <script>
+          (function(){
+            var names = ['한나','수진','정현','지아'];
+            var container = document.getElementById('f-owner-tabs');
+            names.forEach(function(n){
+              var btn = document.createElement('button');
+              btn.type = 'button';
+              btn.textContent = n;
+              btn.style.cssText = 'padding:8px 16px;border-radius:10px;border:1px solid #E5E8EB;background:#fff;font-size:13px;font-family:Pretendard;font-weight:600;color:#6B7684;cursor:pointer;transition:all 0.15s';
+              btn.onclick = function(){
+                var input = document.getElementById('f-owner');
+                if (input.value === n) { input.value = ''; btn.style.background='#fff'; btn.style.color='#6B7684'; btn.style.borderColor='#E5E8EB'; }
+                else {
+                  input.value = n;
+                  container.querySelectorAll('button').forEach(function(b){ b.style.background='#fff'; b.style.color='#6B7684'; b.style.borderColor='#E5E8EB'; });
+                  btn.style.background='#191F28'; btn.style.color='#fff'; btn.style.borderColor='#191F28';
+                }
+              };
+              container.appendChild(btn);
+            });
+          })();
+        </script>
+        <div>
+          <label style="font-size:12px;color:#8B95A1;font-weight:600;display:block;margin-bottom:8px">데이터 문서</label>
+          <div style="font-size:11px;color:#6B7684;margin-bottom:8px;line-height:1.5">예산품의pdf, 이력서업데이트 데이터, 유저피드백, 광고리포트, 신청자수데이터를 넣으면 더 정확하게 볼 수 있어요</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div>
+              <div style="font-size:11px;color:#B0B8C1;margin-bottom:3px">구글 드라이브 폴더 링크</div>
+              <input id="f-drive" type="url" placeholder="https://drive.google.com/drive/folders/..." style="width:100%;padding:10px 14px;border:1px solid #E5E8EB;border-radius:10px;font-size:13px;font-family:Pretendard;outline:none">
+            </div>
+            <div style="text-align:center;font-size:11px;color:#B0B8C1">또는</div>
+            <div>
+              <div style="font-size:11px;color:#B0B8C1;margin-bottom:3px">파일 직접 첨부 (xlsx, pdf, csv 등)</div>
+              <input id="f-files" type="file" multiple accept=".xlsx,.xls,.csv,.pdf,.png,.jpg,.docx,.pptx" style="width:100%;padding:8px 0;font-size:12px;font-family:Pretendard">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:24px;justify-content:flex-end">
+        <button onclick="closeModal()" style="padding:10px 20px;border-radius:10px;border:1px solid #E5E8EB;background:#fff;font-size:13px;font-family:Pretendard;font-weight:600;color:#6B7684;cursor:pointer">취소</button>
+        <button onclick="saveEvent()" style="padding:10px 20px;border-radius:10px;border:none;background:#191F28;color:#fff;font-size:13px;font-family:Pretendard;font-weight:700;cursor:pointer">추가</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer" id="footerText">인사이트전략팀 · 로딩 중...</div>
+
+  <script>
+    // 필터
+    const hidden = { done: false, soon: false };
+    function toggleFilter(type) {
+      hidden[type] = !hidden[type];
+      const btn = document.getElementById('btn-' + type);
+      btn.style.background = hidden[type] ? '#f2f4f6' : '#fff';
+      btn.textContent = hidden[type] ? (type === 'done' ? '완료 보이기' : '예정 보이기') : (type === 'done' ? '완료 숨기기' : '예정 숨기기');
+      // 행 숨기기
+      document.querySelectorAll('.row').forEach(row => {
+        const tag = row.querySelector('.tag');
+        if (tag && tag.classList.contains(type)) {
+          row.style.display = hidden[type] ? 'none' : 'flex';
+        }
+      });
+      // 월 전체가 비면 월도 숨기기
+      document.querySelectorAll('.month').forEach(month => {
+        const visibleRows = month.querySelectorAll('.row:not(.empty)');
+        let anyVisible = false;
+        visibleRows.forEach(r => { if (r.style.display !== 'none') anyVisible = true; });
+        month.style.display = anyVisible ? 'block' : 'none';
+      });
+    }
+
+    // 카테고리 필터
+    let activeCat = 'all';
+    function filterCategory(cat) {
+      activeCat = cat;
+      // 버튼 스타일
+      document.querySelectorAll('.filter-btn').forEach(b => {
+        if (b.id && b.id.startsWith('btn-cat-')) {
+          if ((cat === 'all' && b.id === 'btn-cat-all') || b.id === 'btn-cat-' + cat) {
+            b.style.background = '#191f28'; b.style.color = '#fff'; b.style.borderColor = '#191f28';
+          } else {
+            b.style.background = '#fff'; b.style.color = '#6b7684'; b.style.borderColor = '#e5e8eb';
+          }
+        }
+      });
+      // 행 + 라벨 보이기/숨기기
+      document.querySelectorAll('[data-cat]').forEach(el => {
+        if (cat === 'all') { el.style.display = ''; }
+        else { el.style.display = el.dataset.cat === cat ? '' : 'none'; }
+      });
+      // 월 전체가 비면 월도 숨기기
+      document.querySelectorAll('.month').forEach(month => {
+        const items = month.querySelectorAll('[data-cat]');
+        let any = false;
+        items.forEach(el => { if (el.style.display !== 'none') any = true; });
+        month.style.display = any ? 'block' : 'none';
+      });
+    }
+
+    // === 이벤트 추가 기능 ===
+    function openModal() { document.getElementById('modal').style.display = 'flex'; }
+    function closeModal() { document.getElementById('modal').style.display = 'none'; }
+    document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+
+    function getEvents() { return JSON.parse(localStorage.getItem('b2c_events') || '[]'); }
+    function setEvents(arr) { localStorage.setItem('b2c_events', JSON.stringify(arr)); }
+
+    function renderEvents() {
+      const container = document.getElementById('customEvents');
+      const events = getEvents();
+      container.innerHTML = '';
+      // 월별 그룹핑
+      const byMonth = {};
+      events.forEach((ev, i) => {
+        const m = ev.month || (ev.start ? new Date(ev.start).getMonth() + 1 : 0);
+        const key = m ? m + '월' : '미정';
+        if (!byMonth[key]) byMonth[key] = [];
+        byMonth[key].push({ ...ev, idx: i });
+      });
+      Object.entries(byMonth).forEach(([month, evts]) => {
+        const div = document.createElement('div');
+        div.className = 'month';
+        const statusMap = { '완료': 'done', '진행 중': 'live', '상시': 'live', '예정': 'soon' };
+        const statusClass = (s) => statusMap[s] || 'soon';
+        const fadedClass = (s) => s === '완료' ? ' faded' : '';
+        div.innerHTML = '<div class="month-header">' + month + '</div>' +
+          '<div class="category-label" data-cat="이벤트">이벤트</div>' +
+          evts.map(ev => {
+            const pct = ev.kpi && ev.current ? (ev.current / ev.kpi * 100).toFixed(1) + '%' : '—';
+            const pctColor = ev.kpi && ev.current ? (ev.current / ev.kpi >= 0.8 ? '#00c48c' : ev.current / ev.kpi >= 0.5 ? '#ff9500' : '#f04452') : '#b0b8c1';
+            const noData = !ev.kpi && !ev.current;
+            return '<div class="row' + fadedClass(ev.status) + '" data-cat="이벤트" style="position:relative">' +
+              '<span class="tag ' + statusClass(ev.status) + '">' + ev.status + '</span>' +
+              '<span class="name">' + (ev.status === '진행 중' ? '<span class="dot"></span>' : '') + ev.name + '</span>' +
+              '<span class="desc">' + (ev.desc || '') + (ev.owner ? ' · ' + ev.owner : '') + '</span>' +
+              '<div class="stats">' +
+                (ev.kpi ? '<div class="stat"><div class="num" style="color:' + pctColor + '">' + pct + '</div><div class="label">KPI ' + Number(ev.kpi).toLocaleString() + '</div></div>' : '') +
+                (ev.subkpi ? '<div class="stat"><div class="num" style="color:#8b5cf6;font-size:13px">sub ' + Number(ev.subkpi).toLocaleString() + '</div><div class="label">sub KPI</div></div>' : '') +
+                (ev.current ? '<div class="stat"><div class="num">' + Number(ev.current).toLocaleString() + '</div><div class="label">신청자</div></div>' : '') +
+                (noData ? '<div class="stat"><div class="num" style="color:#B0B8C1;font-size:11px">업데이트 해주시면<br>더 정확해져요!</div></div>' : '') +
+                (ev.drive ? '<div class="stat"><a href="' + ev.drive + '" target="_blank" onclick="event.stopPropagation()" style="display:inline-block;padding:6px 12px;background:#f2f4f6;border-radius:8px;font-size:11px;color:#3182f6;text-decoration:none;font-weight:600">Drive</a></div>' : '') +
+                (ev.files && ev.files.length ? '<div class="stat"><div class="num" style="font-size:12px;color:#6B7684">' + ev.files.length + '</div><div class="label">첨부파일</div></div>' : '') +
+              '</div>' +
+              '<span onclick="deleteEvent(' + ev.idx + ')" style="position:absolute;top:8px;right:12px;font-size:14px;color:#B0B8C1;cursor:pointer;padding:4px" title="삭제">&times;</span>' +
+            '</div>';
+          }).join('');
+        container.appendChild(div);
+      });
+    }
+
+    function saveEvent() {
+      const name = document.getElementById('f-name').value.trim();
+      if (!name) { alert('이벤트명을 입력해주세요'); return; }
+      const events = getEvents();
+      // 첨부 파일 처리
+      const fileInput = document.getElementById('f-files');
+      const fileNames = [];
+      const filePromises = [];
+      for (let i = 0; i < fileInput.files.length; i++) {
+        const file = fileInput.files[i];
+        fileNames.push(file.name);
+      }
+
+      events.push({
+        name: name,
+        type: document.getElementById('f-type').value,
+        status: document.getElementById('f-status').value,
+        month: document.getElementById('f-month').value,
+        start: document.getElementById('f-start').value,
+        end: document.getElementById('f-end').value,
+        desc: '',
+        kpi: document.getElementById('f-kpi').value,
+        subkpi: document.getElementById('f-subkpi').value,
+        current: '',
+        owner: document.getElementById('f-owner').value.trim(),
+        drive: document.getElementById('f-drive').value.trim(),
+        files: fileNames
+      });
+      setEvents(events);
+      renderEvents();
+      closeModal();
+      // 폼 초기화
+      ['f-name','f-kpi','f-subkpi','f-owner','f-start','f-end','f-drive'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('f-month').selectedIndex = 0;
+      fileInput.value = '';
+      document.getElementById('f-owner-tabs').querySelectorAll('button').forEach(function(b){ b.style.background='#fff'; b.style.color='#6B7684'; b.style.borderColor='#E5E8EB'; });
+    }
+
+    function deleteEvent(idx) {
+      if (!confirm('삭제할까요?')) return;
+      const events = getEvents();
+      events.splice(idx, 1);
+      setEvents(events);
+      renderEvents();
+    }
+
+    renderEvents();
+
+    // 카드 클릭 → 저장된 링크로 이동
+    function editCardLink(type) {
+      var saved = localStorage.getItem('cardLink_' + type);
+      if (saved) {
+        window.open(saved, '_blank');
+      }
+    }
+
+    // 인스타 팔로워 JSON fetch
+    fetch('./data/insta.json?' + Date.now()).then(r => r.json()).then(d => {
+      document.getElementById('instaFollowers').textContent = d.followers.toLocaleString();
+      document.getElementById('instaSub').innerHTML = '<a href="https://www.instagram.com/worxtory/" target="_blank" onclick="event.stopPropagation()" style="color:#3182f6;text-decoration:none">@worxtory</a> · ' + d.date + ' 기준';
+    }).catch(() => {});
+
+    // 오카방 JSON 자동 fetch
+    fetch('./data/oka.json?' + Date.now()).then(r => r.json()).then(d => {
+      document.getElementById('okaTotal').textContent = d.total.toLocaleString();
+      document.getElementById('okaSub').innerHTML = '<a href="https://www.notion.so/worxphere/c8c7d8322b048205949701cca47a0550" target="_blank" onclick="event.stopPropagation()" style="color:#3182f6;text-decoration:none">성과 지표 노션</a> · ' + d.date + ' 기준';
+    }).catch(() => {});
+
+    // === CSV 파싱 유틸 (경량) ===
+    function parseCSVLight(text) {
+      const rows = [];
+      let current = '', inQuote = false, row = [], i = 0;
+      while (i < text.length) {
+        const ch = text[i];
+        if (inQuote) {
+          if (ch === '"' && text[i + 1] === '"') { current += '"'; i += 2; }
+          else if (ch === '"') { inQuote = false; i++; }
+          else { current += ch; i++; }
+        } else {
+          if (ch === '"') { inQuote = true; i++; }
+          else if (ch === ',') { row.push(current.trim()); current = ''; i++; }
+          else if (ch === '\n' || ch === '\r') {
+            row.push(current.trim()); current = '';
+            if (row.length > 1 || row[0] !== '') rows.push(row);
+            row = [];
+            if (ch === '\r' && text[i + 1] === '\n') i++;
+            i++;
+          } else { current += ch; i++; }
+        }
+      }
+      row.push(current.trim());
+      if (row.length > 1 || row[0] !== '') rows.push(row);
+      return rows;
+    }
+
+    // === 대시보드 수치 업데이트 ===
+    function updateDevconStats(devconTotal, devconResume, isLive, timestamp) {
+      // DEVCON 행 업데이트
+      const devconRow = document.querySelector('.row[data-event="DEVCON"]');
+      if (devconRow) {
+        const nums = devconRow.querySelectorAll('.stat .num');
+        const kpiPct = (devconTotal / 1500 * 100).toFixed(1);
+        nums[0].textContent = kpiPct + '%';
+        // KPI 색상 업데이트
+        if (kpiPct >= 80) { nums[0].className = 'num'; nums[0].style.color = '#00c48c'; }
+        else if (kpiPct >= 50) { nums[0].className = 'num orange'; }
+        else { nums[0].className = 'num red'; }
+        nums[1].textContent = devconTotal.toLocaleString();
+        nums[2].textContent = devconResume.toLocaleString();
+        // desc 업데이트 (타임스탬프)
+        const desc = devconRow.querySelector('.desc');
+        if (desc && timestamp) {
+          desc.textContent = 'AI 시대, 개발자 고민 완전 정복 · 4.23 · 한나 · ' + timestamp + ' 업데이트';
+        }
+      }
+
+      // 요약 카드 업데이트
+      const totalAll = 1574 + devconTotal;
+      const resumeAll = 110 + devconResume;
+      document.getElementById('totalApplicants').textContent = totalAll.toLocaleString();
+      document.getElementById('totalResume').textContent = resumeAll.toLocaleString();
+
+      // 소계 텍스트 업데이트
+      var appSub = document.getElementById('totalApplicantsSub');
+      if (appSub) appSub.textContent = '커리어 컨퍼런스 1,574 + 데브콘 ' + devconTotal.toLocaleString();
+      var resSub = document.getElementById('totalResumeSub');
+      if (resSub) resSub.textContent = '커리어 컨퍼런스 110 + 데브콘 ' + devconResume.toLocaleString();
+
+      // 푸터 업데이트
+      var badge = isLive ? ' (실시간)' : '';
+      document.getElementById('footerText').textContent = '인사이트전략팀 · ' + (timestamp || '4/14') + ' 기준' + badge;
+    }
+
+    // === 페이지 로드 시 자동 fetch + 폴백 ===
+    (async function() {
+      const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1UgmgZCjEnI_DWxyfaJWLuiDpl91bnSBpfiSc6asz1Vs/gviz/tq?tqx=out:csv&gid=82584708';
+      // 정적 폴백 값
+      const FALLBACK_TOTAL = 1137, FALLBACK_RESUME = 218;
+
+      try {
+        const res = await fetch(SHEET_CSV_URL);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const text = await res.text();
+        const rows = parseCSVLight(text);
+        if (rows.length < 2) throw new Error('CSV rows too few: ' + rows.length);
+
+        const dataRows = rows.slice(1).filter(r => r.length > 6 && r[0]);
+
+        // 핸드폰 번호(col 6) 기준 중복 제거
+        const seen = new Set();
+        const unique = [];
+        dataRows.forEach(r => {
+          const phone = (r[6] || '').replace(/[^0-9]/g, '');
+          if (phone && phone.length >= 10) {
+            if (!seen.has(phone)) { seen.add(phone); unique.push(r); }
+          } else {
+            unique.push(r);
+          }
+        });
+
+        const devconTotal = unique.length;
+        const devconResume = unique.filter(r => r[10] && r[10].trim()).length;
+
+        const now = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        const timestamp = (now.getMonth() + 1) + '/' + now.getDate() + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+
+        updateDevconStats(devconTotal, devconResume, true, timestamp);
+        console.log('[B2C 대시보드] 실시간 데이터 로드 완료: 데브콘 ' + devconTotal + '명, 이력서 ' + devconResume + '명');
+      } catch (err) {
+        console.warn('[B2C 대시보드] 구글 시트 fetch 실패, 정적 데이터 사용:', err);
+        updateDevconStats(FALLBACK_TOTAL, FALLBACK_RESUME, false, '4/14');
+      }
+    })();
+  </script>
+</body>
+</html>
