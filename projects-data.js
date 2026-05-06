@@ -12,6 +12,25 @@ window.MEMBERS = {};
 })();
 window.PROJECTS = {};
 
+// ── 사용자 정의 카테고리 ──
+window.getCategories = function() {
+  try { return JSON.parse(localStorage.getItem('b2c_categories') || '[]'); }
+  catch (e) { return []; }
+};
+window.addCategory = function(name) {
+  const n = String(name || '').trim();
+  if (!n) return false;
+  const list = window.getCategories();
+  if (list.includes(n)) return false;
+  list.push(n);
+  localStorage.setItem('b2c_categories', JSON.stringify(list));
+  return true;
+};
+window.removeCategory = function(name) {
+  const list = window.getCategories().filter(c => c !== name);
+  localStorage.setItem('b2c_categories', JSON.stringify(list));
+};
+
 
 
 // ── localStorage 키 ──
@@ -120,4 +139,7 @@ window.resetAll = function() {
   localStorage.removeItem('b2c_user_projects');
   localStorage.removeItem('b2c_overrides');
   localStorage.removeItem('b2c_deleted');
+  localStorage.removeItem('b2c_members');
+  localStorage.removeItem('b2c_categories');
+  window.MEMBERS = {};
 };
