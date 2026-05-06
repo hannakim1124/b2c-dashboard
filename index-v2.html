@@ -660,7 +660,7 @@
           <input class="nav-search-input" id="searchInput" placeholder="이벤트, 멤버, 카테고리 검색…" autocomplete="off">
           <div class="search-pop" id="searchPop"></div>
         </div>
-        <button class="nav-add" id="openAddBtn">+ 새 성과</button>
+        <button class="nav-add" id="openAddBtn">+ 프로젝트 추가</button>
       </div>
     </div>
   </nav>
@@ -831,7 +831,7 @@
     <div class="modal" role="dialog" aria-labelledby="modalTitle">
       <div class="modal-head">
         <div>
-          <h3 id="modalTitle">새 성과 추가</h3>
+          <h3 id="modalTitle">프로젝트 추가</h3>
           <p id="modalSub">이벤트, 웨비나, 콘텐츠, 캠페인 등 우리 팀이 진행한 일을 기록해요.</p>
         </div>
         <button class="close" id="closeModal">✕</button>
@@ -873,8 +873,19 @@
             </select>
           </div>
           <div class="field">
-            <label>날짜</label>
+            <label>대표 날짜 <span class="opt">(본행사일)</span></label>
             <input type="date" name="date" required>
+          </div>
+        </div>
+
+        <div class="field-row" style="margin-top:14px">
+          <div class="field">
+            <label>모집 시작일 <span class="opt">(생략 가능)</span></label>
+            <input type="date" name="periodStart">
+          </div>
+          <div class="field">
+            <label>모집 종료일 <span class="opt">(생략 가능)</span></label>
+            <input type="date" name="periodEnd">
           </div>
         </div>
 
@@ -1227,7 +1238,7 @@
         modalSub.textContent = '내용을 수정하면 곧바로 카드에 반영돼요.';
         submitBtn.textContent = '수정하기';
       } else {
-        modalTitle.textContent = '새 성과 추가';
+        modalTitle.textContent = '프로젝트 추가';
         modalSub.textContent = '이벤트, 웨비나, 콘텐츠, 캠페인 등 우리 팀이 진행한 일을 기록해요.';
         submitBtn.textContent = '등록하기';
       }
@@ -1253,6 +1264,16 @@
       form.querySelector('[name="category"]').value = p.category || '이벤트';
       form.querySelector('[name="status"]').value = p.status || 'ongoing';
       form.querySelector('[name="date"]').value = p.date || new Date().toISOString().slice(0, 10);
+      // period 기존값 복원 (예: "2026.04.01 — 2026.04.23")
+      if (p.period) {
+        const m = p.period.match(/(\d{4})\.(\d{2})\.(\d{2})\s*[—–-]\s*(\d{4})\.(\d{2})\.(\d{2})/);
+        if (m) {
+          const psEl = form.querySelector('[name="periodStart"]');
+          const peEl = form.querySelector('[name="periodEnd"]');
+          if (psEl) psEl.value = `${m[1]}-${m[2]}-${m[3]}`;
+          if (peEl) peEl.value = `${m[4]}-${m[5]}-${m[6]}`;
+        }
+      }
       form.querySelector('[name="title"]').value = p.title || '';
       form.querySelector('[name="desc"]').value = p.desc || '';
       form.querySelector('[name="emoji"]').value = p.emoji || '📌';
@@ -1303,7 +1324,9 @@
         status: o.status,
         statusLabel: (o.statusLabel || '').trim() || STATUS_LABELS[o.status] || '',
         date: o.date,
-        period: base.period && isEdit ? base.period : o.date.replace(/-/g, '.'),
+        period: (o.periodStart && o.periodEnd)
+          ? `${o.periodStart.replace(/-/g, '.')} — ${o.periodEnd.replace(/-/g, '.')}`
+          : (base.period && isEdit ? base.period : o.date.replace(/-/g, '.')),
         emoji: (o.emoji || '📌').trim(),
         desc: o.desc.trim(),
         kpis: [
