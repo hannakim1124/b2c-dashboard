@@ -554,6 +554,23 @@
     .toast.is-open { opacity: 1; transform: translateX(-50%) translateY(0); }
     .toast .ok { color: var(--c-success); margin-right: 6px; font-weight: 800; }
 
+    /* link rows in form */
+    .link-row {
+      display: flex; align-items: center; gap: 8px;
+      margin-top: 8px; padding: 8px 12px;
+      background: var(--c-surface-deep); border: 1px solid transparent;
+      border-radius: 8px;
+      transition: border-color 0.12s;
+    }
+    .link-row:focus-within { border-color: var(--c-primary); background: #fff; }
+    .link-row .link-ic { font-size: 16px; flex-shrink: 0; line-height: 1; }
+    .link-row input {
+      flex: 1; border: none; background: transparent;
+      font-size: 13px; font-family: inherit;
+      color: var(--c-text); outline: none;
+    }
+    .link-row input::placeholder { color: var(--c-text-3); }
+
     /* emoji picker */
     .emoji-picker { display: flex; flex-direction: column; gap: 8px; }
     .emoji-options { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
@@ -973,6 +990,26 @@
           </div>
         </div>
 
+        <div class="field" style="margin-top:14px">
+          <label>📎 외부 자료 링크 <span class="opt">(생략 가능)</span></label>
+          <div class="link-row">
+            <span class="link-ic">📝</span>
+            <input type="url" name="linkNotion" placeholder="노션 페이지 URL">
+          </div>
+          <div class="link-row">
+            <span class="link-ic">📊</span>
+            <input type="url" name="linkSheet" placeholder="구글 시트/문서 URL">
+          </div>
+          <div class="link-row">
+            <span class="link-ic">📄</span>
+            <input type="url" name="linkPdf" placeholder="PDF 또는 외부 자료 URL">
+          </div>
+          <div class="link-row">
+            <span class="link-ic">🌐</span>
+            <input type="url" name="linkEvent" placeholder="외부 행사·이벤트 페이지 URL">
+          </div>
+        </div>
+
         <div class="kpi-block">
           <label class="title">핵심 KPI 3개 <span class="opt">(라벨은 목록에서 선택 또는 "직접 입력")</span></label>
           <div class="kpi-row">
@@ -1188,6 +1225,12 @@
 
       // user-added first (가장 최근), then demo
       const all = [...userCards, ...demoCards];
+      // 완료된 카드는 자동으로 하단으로
+      all.sort((a, b) => {
+        const aDone = a.status === 'done' ? 1 : 0;
+        const bDone = b.status === 'done' ? 1 : 0;
+        return aDone - bDone;
+      });
       const html = all.map(p => {
         const isUser = userCards.some(u => u.id === p.id);
         return cardHtml(p, { user: isUser });
@@ -1398,6 +1441,12 @@
       form.querySelector('[name="desc"]').value = p.desc || '';
       form.querySelector('[name="emoji"]').value = p.emoji || '📌';
       form.querySelector('[name="statusLabel"]').value = p.statusLabel || '';
+      // 외부 자료 링크 복원
+      const links = p.links || {};
+      form.querySelector('[name="linkNotion"]').value = links.notion || '';
+      form.querySelector('[name="linkSheet"]').value = links.sheet || '';
+      form.querySelector('[name="linkPdf"]').value = links.pdf || '';
+      form.querySelector('[name="linkEvent"]').value = links.event || '';
       const k = p.kpis || [];
       [1,2,3].forEach((n, i) => {
         const kk = k[i] || { label: '', value: '', flavor: '' };
@@ -1447,6 +1496,12 @@
         period: (o.periodStart && o.periodEnd)
           ? `${o.periodStart.replace(/-/g, '.')} — ${o.periodEnd.replace(/-/g, '.')}`
           : (base.period && isEdit ? base.period : o.date.replace(/-/g, '.')),
+        links: {
+          notion: (o.linkNotion || '').trim(),
+          sheet: (o.linkSheet || '').trim(),
+          pdf: (o.linkPdf || '').trim(),
+          event: (o.linkEvent || '').trim()
+        },
         emoji: (o.emoji || '📌').trim(),
         desc: o.desc.trim(),
         kpis: [
@@ -1617,7 +1672,7 @@
     window.openTrash = function () {
       const deletedIds = window.getDeletedIds() || [];
       if (deletedIds.length === 0) {
-        alert('🗑 휴지통이 비어있어요!\n버려진 카드가 없어요.');
+        showToast('🗑 버려진 카드가 없어요 ㅠ');
         return;
       }
       const modal = document.getElementById('trashModal');

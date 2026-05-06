@@ -428,6 +428,32 @@
           <div class="quote-who">— ${escapeHtml(p.quote.who)}</div>
         </div>` : '';
 
+      // 외부 자료 링크 섹션
+      const links = p.links || {};
+      const linkItems = [
+        { key: 'notion', icon: '📝', label: '노션 페이지', url: links.notion },
+        { key: 'sheet',  icon: '📊', label: '구글 시트·문서', url: links.sheet },
+        { key: 'pdf',    icon: '📄', label: 'PDF / 외부 자료', url: links.pdf },
+        { key: 'event',  icon: '🌐', label: '이벤트 페이지', url: links.event }
+      ].filter(l => l.url);
+      const linksHtml = linkItems.length ? `
+        <section class="section" id="links">
+          <span class="sec-eyebrow">Resources</span>
+          <h2 class="sec-title">📎 외부 자료</h2>
+          <div class="links-grid">
+            ${linkItems.map(l => `
+              <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener" class="link-card">
+                <span class="link-card-ic">${l.icon}</span>
+                <div class="link-card-info">
+                  <div class="link-card-label">${escapeHtml(l.label)}</div>
+                  <div class="link-card-url">${escapeHtml(l.url.replace(/^https?:\/\//, '').slice(0, 50))}…</div>
+                </div>
+                <span class="link-card-arrow">↗</span>
+              </a>
+            `).join('')}
+          </div>
+        </section>` : '';
+
       const actionsHtml = (p.nextActions && p.nextActions.length) ? `
         <section class="section" id="next">
           <span class="sec-eyebrow">Next Steps</span>
@@ -529,6 +555,7 @@
                   <div class="timeline">${tlHtml}</div>
                 </section>
 
+                ${linksHtml}
                 ${actionsHtml}
                 ${relHtml}
               </div>
