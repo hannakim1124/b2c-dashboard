@@ -556,21 +556,25 @@
 
     /* Export modal */
     .export-fmt { display: flex; gap: 8px; }
-    .export-fmt .ef-opt {
+    #exportModal .ef-opt {
       flex: 1; padding: 12px 14px; border: 1px solid var(--c-border-strong);
       border-radius: var(--r-sm); font-size: 13px; font-weight: 700; color: var(--c-text-2);
-      cursor: pointer; transition: all 0.12s; display: flex; align-items: center; gap: 8px;
+      cursor: pointer; transition: all 0.12s;
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 0;
     }
-    .export-fmt .ef-opt:has(input:checked) {
+    #exportModal .ef-opt:has(input:checked) {
       border-color: var(--c-primary); background: var(--c-primary-bg); color: var(--c-primary);
     }
-    .export-fmt .ef-opt input { margin: 0; accent-color: var(--c-primary); }
-    .export-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; }
-    .export-cols label {
-      display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;
-      color: var(--c-text-2); cursor: pointer; padding: 4px 0;
+    #exportModal .ef-opt input[type="radio"],
+    #exportModal .export-cols input[type="checkbox"] {
+      width: auto; padding: 0; margin: 0; accent-color: var(--c-primary);
     }
-    .export-cols input { accent-color: var(--c-primary); }
+    #exportModal .export-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; }
+    #exportModal .export-cols label {
+      display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;
+      color: var(--c-text-2); cursor: pointer; padding: 4px 0; margin-bottom: 0;
+    }
     .field input, .field select, .field textarea {
       width: 100%; padding: 11px 12px; font-family: inherit;
       border: 1px solid var(--c-border-strong); border-radius: 10px;
