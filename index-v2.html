@@ -1535,10 +1535,16 @@
       if (!q) { searchPop.classList.remove('is-open'); searchPop.innerHTML = ''; return; }
 
       const all = [...window.getUserProjects(), ...DEMO_ORDER.map(id => window.PROJECTS[id]).filter(Boolean)];
+      // 태그 # 검색 지원 (예: "#이력서" 입력 시 태그 매칭)
+      const isTagSearch = q.startsWith('#');
+      const tagQ = isTagSearch ? q.slice(1) : q;
       const matches = all.filter(p => {
         const m = window.MEMBERS[p.member];
+        const tags = (p.tags || []).join(' ').toLowerCase();
+        if (isTagSearch) return tags.includes(tagQ);
         const hay = [
           p.title, p.desc, p.category, p.categoryLabel, p.statusLabel,
+          tags, p.retroNote,
           m && m.name, m && m.role
         ].filter(Boolean).join(' ').toLowerCase();
         return hay.includes(q);
@@ -1556,7 +1562,8 @@
         const items = matches.map(p => {
           const m = window.MEMBERS[p.member] || { name: '?' };
           const title = highlight(p.title, q);
-          const sub = `${escapeHtml(m.name)} · ${escapeHtml(p.categoryLabel || p.category)} · ${escapeHtml(p.statusLabel || '')}`;
+          const tagBadges = (p.tags || []).slice(0, 3).map(t => `<span style="display:inline-block;padding:1px 6px;background:var(--c-primary-bg);color:var(--c-primary);border-radius:8px;font-size:10px;font-weight:700;margin-right:3px">#${escapeHtml(t)}</span>`).join('');
+          const sub = `${escapeHtml(m.name)} · ${escapeHtml(p.categoryLabel || p.category)} ${tagBadges}`;
           return `
             <div class="search-item" onclick="location.href='${escapeHtml(getDetailHref(p))}'">
               <div class="ic">${escapeHtml(p.emoji || '📌')}</div>
@@ -1711,6 +1718,24 @@
       const id = isEdit ? editingId : ('user-' + Date.now());
       const m = window.MEMBERS[o.member] || {};
 
+      // 수정 기록 (KPI 값·제목 등 변경 감지)
+      let history = base.history ? [...base.history] : [];
+      if (isEdit) {
+        const changes = [];
+        if (base.title !== o.title.trim()) changes.push({ field: '제목', from: base.title, to: o.title.trim() });
+        if (base.kpis?.[0]?.value !== o.kpi1Value) changes.push({ field: `KPI1 (${o.kpi1Label})`, from: base.kpis?.[0]?.value, to: o.kpi1Value });
+        if (base.kpis?.[1]?.value !== o.kpi2Value && o.kpi2Value) changes.push({ field: `KPI2 (${o.kpi2Label})`, from: base.kpis?.[1]?.value, to: o.kpi2Value });
+        if (changes.length > 0) {
+          const now = new Date();
+          history.push({
+            date: now.toISOString().slice(0, 10),
+            time: now.toTimeString().slice(0, 5),
+            user: window.MEMBERS[o.member]?.name || '?',
+            changes
+          });
+        }
+      }
+
       // KPI 1개 이상 필수 검증
       if (!o.kpi1Label || !o.kpi1Value) {
         showToast('⚠️ KPI 1개 이상은 꼭 입력해 주세요!');
@@ -1771,6 +1796,7 @@
           .map(i => i.value.trim()).filter(Boolean),
         tags: (o.tags || '').split(',').map(t => t.trim()).filter(Boolean),
         retroNote: (o.retroNote || '').trim(),
+        history,
         emoji: (o.emoji || '📌').trim(),
         desc: finalDesc,
         kpis: [

@@ -191,6 +191,52 @@
     .sec-eyebrow { display: inline-block; font-size: 11px; font-weight: 800; color: var(--c-primary); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
     .sec-title { font-size: 28px; font-weight: 900; letter-spacing: -0.025em; margin-bottom: 24px; line-height: 1.2; }
 
+    /* Sheet auto-render */
+    .sheet-card { background: var(--c-surface); }
+    .sheet-loading, .sheet-empty {
+      padding: 32px; text-align: center;
+      color: var(--c-text-3); font-size: 14px;
+    }
+    .sheet-summary {
+      padding: 12px 16px; background: var(--c-surface-deep);
+      font-size: 12px; color: var(--c-text-2); font-weight: 600;
+    }
+    .sheet-summary strong { color: var(--c-primary); font-feature-settings: var(--tx-mono); }
+    .sheet-table-wrap { overflow-x: auto; max-height: 400px; overflow-y: auto; }
+    .sheet-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .sheet-table th, .sheet-table td {
+      padding: 8px 12px; text-align: left;
+      border-bottom: 1px solid var(--c-line);
+      white-space: nowrap; max-width: 200px;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    .sheet-table th {
+      background: var(--c-surface-deep);
+      font-weight: 700; font-size: 11px;
+      color: var(--c-text-2); position: sticky; top: 0;
+    }
+    .sheet-table tbody tr:hover { background: var(--c-surface-alt); }
+
+    /* History */
+    .history-list { display: flex; flex-direction: column; gap: 12px; }
+    .history-item {
+      background: var(--c-surface); border: 1px solid var(--c-border);
+      border-radius: var(--r-lg); padding: 16px;
+    }
+    .history-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--c-line); }
+    .history-date { font-size: 13px; font-weight: 700; color: var(--c-text); font-feature-settings: var(--tx-mono); }
+    .history-user {
+      font-size: 11px; padding: 3px 8px;
+      background: var(--c-primary-bg); color: var(--c-primary);
+      border-radius: 6px; font-weight: 700;
+    }
+    .history-changes { display: flex; flex-direction: column; gap: 6px; }
+    .history-change { font-size: 13px; color: var(--c-text-2); line-height: 1.5; }
+    .history-change strong { color: var(--c-text); }
+    .history-change .from { color: var(--c-text-3); text-decoration: line-through; margin: 0 4px; }
+    .history-change .arrow { color: var(--c-text-3); margin: 0 4px; }
+    .history-change .to { color: var(--c-primary); font-weight: 700; }
+
     /* Retro memo */
     .retro-block {
       background: #FFFBF0; border: 1px solid #FFE4A8;
@@ -415,6 +461,7 @@
       </a>
       <div class="nav-actions">
         <a class="back-link" href="index-v2.html">← 목록</a>
+        <button class="share-btn" id="shareBtn" onclick="shareLink()">🔗 공유</button>
         <button class="top-del" id="topDel" style="display:none">삭제</button>
         <button class="top-edit" id="topEdit">✏️ 편집</button>
       </div>
@@ -485,13 +532,42 @@
 
       const quoteHtml = '';
 
-      // 회고 메모 섹션
-      const retroHtml = p.retroNote ? `
+      // 회고 메모 섹션 (인라인 편집 가능)
+      const retroHtml = `
         <section class="section" id="retro">
           <span class="sec-eyebrow">Retrospective</span>
-          <h2 class="sec-title">📓 회고 메모</h2>
-          <div class="retro-block">
-            ${escapeHtml(p.retroNote).replace(/\n/g, '<br>')}
+          <h2 class="sec-title">📓 회고 메모 <button class="share-btn" onclick="editRetro('${id}')" style="font-size:12px;padding:4px 10px;margin-left:8px">✏️ 편집</button></h2>
+          <div class="retro-block" id="retroBlock">${
+            p.retroNote
+              ? escapeHtml(p.retroNote).replace(/\n/g, '<br>')
+              : '<span style="color:var(--c-text-3)">아직 회고가 없어요. ✏️ 편집 버튼으로 작성해 보세요.</span>'
+          }</div>
+        </section>`;
+
+      // 수정 기록 섹션
+      const historyHtml = (p.history && p.history.length) ? `
+        <section class="section" id="history">
+          <span class="sec-eyebrow">Edit History</span>
+          <h2 class="sec-title">🕐 수정 기록</h2>
+          <div class="history-list">
+            ${p.history.slice().reverse().map(h => `
+              <div class="history-item">
+                <div class="history-head">
+                  <span class="history-date">${escapeHtml(h.date)} ${escapeHtml(h.time || '')}</span>
+                  <span class="history-user">${escapeHtml(h.user)}</span>
+                </div>
+                <div class="history-changes">
+                  ${(h.changes || []).map(c => `
+                    <div class="history-change">
+                      <strong>${escapeHtml(c.field)}</strong>:
+                      <span class="from">${escapeHtml(String(c.from || '(없음)'))}</span>
+                      <span class="arrow">→</span>
+                      <span class="to">${escapeHtml(String(c.to || ''))}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            `).join('')}
           </div>
         </section>` : '';
 
@@ -600,8 +676,25 @@
                     <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener" class="link-embed-link">드라이브에서 열기 ↗</a>
                   </div>`;
               }
-              // 구글 시트/문서/슬라이드: publish iframe
-              if (l.type === 'sheet' || l.type === 'doc' || l.type === 'slides') {
+              // 구글 시트: CSV 자동 fetch + 표 가공
+              if (l.type === 'sheet') {
+                const sheetIdMatch = l.url.match(/spreadsheets\/d\/([\w-]+)/);
+                if (sheetIdMatch) {
+                  const sid = sheetIdMatch[1];
+                  const containerId = 'sheetTable_' + sid + '_' + Math.random().toString(36).slice(2, 6);
+                  setTimeout(() => loadSheetData(sid, l.url, containerId), 100);
+                  return `
+                    <div class="link-embed sheet-card">
+                      <div class="link-embed-head">${l.icon} 구글 시트 — 자동 가공</div>
+                      <div id="${containerId}" class="sheet-container">
+                        <div class="sheet-loading">📊 시트 데이터 불러오는 중...</div>
+                      </div>
+                      <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener" class="link-embed-link">시트에서 직접 열기 ↗</a>
+                    </div>`;
+                }
+              }
+              // 구글 문서/슬라이드: publish iframe
+              if (l.type === 'doc' || l.type === 'slides') {
                 const embedUrl = l.url.includes('/pubhtml') || l.url.includes('/pub') ? l.url
                   : l.url.replace(/\/edit.*$/, '/preview');
                 return `
@@ -732,6 +825,7 @@
                 ${donutHtml}
                 ${linksHtml}
                 ${retroHtml}
+                ${historyHtml}
                 ${actionsHtml}
                 ${relHtml}
               </div>
@@ -776,6 +870,126 @@
     }
 
     let toastTimer = null;
+    // 시트 CSV → 자동 표 렌더
+    window.loadSheetData = async function(sheetId, originalUrl, containerId) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      // gid 추출 (있으면)
+      const gidMatch = originalUrl.match(/[#&?]gid=(\d+)/);
+      const gid = gidMatch ? gidMatch[1] : '0';
+      const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
+      try {
+        const res = await fetch(csvUrl);
+        if (!res.ok) throw new Error('fetch failed: ' + res.status);
+        const text = await res.text();
+        const rows = parseCSV(text);
+        if (rows.length === 0) {
+          container.innerHTML = '<div class="sheet-empty">⚠️ 시트가 비어있거나 공개 권한이 없어요.</div>';
+          return;
+        }
+        renderSheetTable(rows, container);
+      } catch (e) {
+        container.innerHTML = `<div class="sheet-empty">
+          ⚠️ 시트 자동 불러오기 실패. 시트가 공개 권한(링크 있는 사람 모두)으로 설정돼 있는지 확인해 주세요.
+          <br><span style="font-size:11px;color:var(--c-text-3)">${escapeHtml(e.message || '')}</span>
+        </div>`;
+      }
+    };
+    function parseCSV(text) {
+      const rows = [];
+      let row = [], field = '', inQuotes = false;
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (inQuotes) {
+          if (c === '"' && text[i+1] === '"') { field += '"'; i++; }
+          else if (c === '"') inQuotes = false;
+          else field += c;
+        } else {
+          if (c === '"') inQuotes = true;
+          else if (c === ',') { row.push(field); field = ''; }
+          else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+          else if (c === '\r') {}
+          else field += c;
+        }
+      }
+      if (field || row.length) { row.push(field); rows.push(row); }
+      return rows.filter(r => r.some(c => c));
+    }
+    function renderSheetTable(rows, container) {
+      const headers = rows[0];
+      const data = rows.slice(1, 11);  // 최대 10행만
+      const total = rows.length - 1;
+      const tableHtml = `
+        <div class="sheet-summary">
+          📊 총 <strong>${total.toLocaleString()}행</strong> · ${headers.length}개 컬럼 · 미리보기 ${Math.min(data.length, 10)}행
+        </div>
+        <div class="sheet-table-wrap">
+          <table class="sheet-table">
+            <thead>
+              <tr>${headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')}</tr>
+            </thead>
+            <tbody>
+              ${data.map(r => `<tr>${r.map(c => `<td>${escapeHtml(c || '')}</td>`).join('')}</tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+      container.innerHTML = tableHtml;
+    }
+
+    window.editRetro = function(id) {
+      const block = document.getElementById('retroBlock');
+      if (!block) return;
+      const project = window.getProject(id);
+      const current = project?.retroNote || '';
+      block.innerHTML = `
+        <textarea id="retroEdit" style="width:100%;min-height:160px;padding:12px;border:1px solid var(--c-border);border-radius:8px;font-family:inherit;font-size:14px;line-height:1.6;resize:vertical">${escapeHtml(current)}</textarea>
+        <div style="display:flex;gap:8px;margin-top:10px;justify-content:flex-end">
+          <button class="share-btn" onclick="cancelRetro('${id}')">취소</button>
+          <button class="share-btn" style="background:var(--c-primary);color:#fff;border-color:var(--c-primary)" onclick="saveRetro('${id}')">저장</button>
+        </div>
+      `;
+      document.getElementById('retroEdit')?.focus();
+    };
+    window.saveRetro = function(id) {
+      const newText = (document.getElementById('retroEdit')?.value || '').trim();
+      const project = window.getProject(id);
+      if (!project) return;
+      const updated = { ...project, retroNote: newText };
+      // history에도 기록
+      const now = new Date();
+      const history = project.history ? [...project.history] : [];
+      if (project.retroNote !== newText) {
+        history.push({
+          date: now.toISOString().slice(0, 10),
+          time: now.toTimeString().slice(0, 5),
+          user: window.MEMBERS[project.member]?.name || '?',
+          changes: [{ field: '회고 메모', from: project.retroNote || '(비어있음)', to: newText.slice(0, 30) + (newText.length > 30 ? '…' : '') }]
+        });
+        updated.history = history;
+      }
+      window.upsertProject(updated);
+      showToast(`<span class="ok">✓</span>회고 메모 저장됐어요!`);
+      // 페이지 다시 렌더 (간단히 reload)
+      setTimeout(() => location.reload(), 500);
+    };
+    window.cancelRetro = function(id) {
+      location.reload();
+    };
+
+    window.shareLink = function() {
+      const url = window.location.href;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(() => {
+          showToast(`<span class="ok">✓</span>링크를 복사했어요!`);
+        }).catch(() => {
+          prompt('링크를 복사해 주세요:', url);
+        });
+      } else {
+        prompt('링크를 복사해 주세요:', url);
+      }
+    };
+
     function showToast(html) {
       const t = document.getElementById('toast');
       t.innerHTML = html;
