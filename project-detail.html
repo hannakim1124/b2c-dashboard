@@ -422,11 +422,7 @@
           </div>`;
       }).join('') || '<div style="color:var(--c-text-3);font-size:13px">타임라인이 아직 등록되지 않았어요.</div>';
 
-      const quoteHtml = p.quote ? `
-        <div class="quote-block">
-          <div class="quote-text">${escapeHtml(p.quote.text)}</div>
-          <div class="quote-who">— ${escapeHtml(p.quote.who)}</div>
-        </div>` : '';
+      const quoteHtml = '';
 
       // 외부 자료 링크 섹션
       const links = p.links || {};
