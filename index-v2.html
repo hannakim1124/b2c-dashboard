@@ -1234,6 +1234,20 @@
       return { live: 0, ongoing: 1, soon: 2, done: 3 }[s] ?? 9;
     }
 
+    // 기간이 지나면 자동 'done' 처리 (데이터는 그대로, 렌더링 시점 override)
+    function getEffectiveStatus(p) {
+      const today = new Date().toISOString().slice(0, 10);
+      // period 끝 날짜 우선 (예: "2026.04.01 — 2026.04.23")
+      const periodEnd = (p.period || '').match(/[—–-]\s*(\d{4})\.(\d{2})\.(\d{2})/);
+      if (periodEnd) {
+        const endStr = `${periodEnd[1]}-${periodEnd[2]}-${periodEnd[3]}`;
+        if (endStr < today) return 'done';
+      } else if (p.date && p.date < today) {
+        return 'done';
+      }
+      return p.status;
+    }
+
     function escapeHtml(s) {
       return (s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
     }
@@ -1309,10 +1323,10 @@
 
       // user-added first (가장 최근), then demo
       const all = [...userCards, ...demoCards];
-      // 완료된 카드는 자동으로 하단으로
+      // 완료된 카드는 자동으로 하단으로 (기간 지난 것도 포함)
       all.sort((a, b) => {
-        const aDone = a.status === 'done' ? 1 : 0;
-        const bDone = b.status === 'done' ? 1 : 0;
+        const aDone = getEffectiveStatus(a) === 'done' ? 1 : 0;
+        const bDone = getEffectiveStatus(b) === 'done' ? 1 : 0;
         return aDone - bDone;
       });
       const html = all.map(p => {
