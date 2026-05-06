@@ -13,6 +13,7 @@ window.MEMBERS = {
 window.PROJECTS = {
   'devcon-2026': {
     id: 'devcon-2026', title: 'JOBKOREA DEVCON 2026', member: 'hanna',
+    jobGroupStats: { 'AI·개발·데이터': 998, '디자인': 76, '기획·전략': 287, '그 외': 150 },
     category: '이벤트', categoryLabel: 'EVENT · 웨비나',
     status: 'live', statusLabel: 'LIVE',
     date: '2026-04-23', period: '2026.04.01 — 2026.04.23',
@@ -108,6 +109,7 @@ window.PROJECTS = {
 
   'metabase-auto': {
     id: 'metabase-auto', title: '인사이트 메타베이스 자동화', member: 'hanna',
+    jobGroupStats: { 'AI·개발·데이터': 412, '디자인': 287, '기획·전략': 198, '그 외': 311 },
     category: '자동화', categoryLabel: 'AUTOMATION · Q2',
     status: 'ongoing', statusLabel: '진행중',
     date: '2026-04-10', period: '2026.04.10 — 2026.06.30',

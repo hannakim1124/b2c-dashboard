@@ -191,6 +191,35 @@
     .sec-eyebrow { display: inline-block; font-size: 11px; font-weight: 800; color: var(--c-primary); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
     .sec-title { font-size: 28px; font-weight: 900; letter-spacing: -0.025em; margin-bottom: 24px; line-height: 1.2; }
 
+    /* Donut chart - 직군 분포 */
+    .donut-section {
+      background: var(--c-surface); border: 1px solid var(--c-border);
+      border-radius: var(--r-lg); padding: 32px;
+      display: grid; grid-template-columns: 240px 1fr; gap: 32px; align-items: center;
+    }
+    @media (max-width: 600px) { .donut-section { grid-template-columns: 1fr; } }
+    .donut-wrap { position: relative; width: 220px; height: 220px; margin: 0 auto; }
+    .donut-circle { width: 100%; height: 100%; border-radius: 50%; }
+    .donut-hole {
+      position: absolute; inset: 36px;
+      background: var(--c-surface); border-radius: 50%;
+      box-shadow: inset 0 0 0 1px var(--c-border);
+    }
+    .donut-center {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; pointer-events: none;
+    }
+    .donut-total { font-size: 32px; font-weight: 900; color: var(--c-text); letter-spacing: -0.03em; }
+    .donut-total-label { font-size: 11px; color: var(--c-text-3); font-weight: 700; margin-top: 2px; }
+    .donut-legend { display: flex; flex-direction: column; gap: 10px; }
+    .donut-item { display: grid; grid-template-columns: 16px 1fr auto auto; gap: 12px; align-items: center; padding: 10px 14px; border-radius: 8px; transition: background 0.15s; }
+    .donut-item:hover { background: var(--c-surface-deep); }
+    .donut-dot { width: 14px; height: 14px; border-radius: 4px; }
+    .donut-label { font-size: 14px; font-weight: 600; color: var(--c-text); }
+    .donut-count { font-size: 14px; font-weight: 700; color: var(--c-text-2); font-feature-settings: var(--tx-mono); }
+    .donut-pct { font-size: 13px; color: var(--c-text-3); font-weight: 600; min-width: 48px; text-align: right; }
+
     /* KPI grid - 큰 숫자 강조 */
     .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
     .kpi-card {
@@ -424,6 +453,53 @@
 
       const quoteHtml = '';
 
+      // 직군 분포 도넛 차트
+      let donutHtml = '';
+      if (p.jobGroupStats && Object.keys(p.jobGroupStats).length > 0) {
+        const colors = {
+          'AI·개발·데이터': '#3182F6',
+          '디자인': '#00C896',
+          '기획·전략': '#F5A623',
+          '그 외': '#BCC4CC'
+        };
+        const entries = Object.entries(p.jobGroupStats).filter(([, v]) => v > 0);
+        const total = entries.reduce((s, [, v]) => s + v, 0);
+        let cum = 0;
+        const segs = entries.map(([label, count]) => {
+          const pct = (count / total) * 100;
+          const start = cum;
+          cum += pct;
+          return `${colors[label] || '#BCC4CC'} ${start.toFixed(2)}% ${cum.toFixed(2)}%`;
+        }).join(', ');
+        const legend = entries.map(([label, count]) => {
+          const pct = ((count / total) * 100).toFixed(1);
+          return `
+            <div class="donut-item">
+              <div class="donut-dot" style="background: ${colors[label] || '#BCC4CC'}"></div>
+              <div class="donut-label">${escapeHtml(label)}</div>
+              <div class="donut-count">${count.toLocaleString()}명</div>
+              <div class="donut-pct">${pct}%</div>
+            </div>
+          `;
+        }).join('');
+        donutHtml = `
+          <section class="section" id="distribution">
+            <span class="sec-eyebrow">Distribution</span>
+            <h2 class="sec-title">📊 직군 분포</h2>
+            <div class="donut-section">
+              <div class="donut-wrap">
+                <div class="donut-circle" style="background: conic-gradient(${segs});"></div>
+                <div class="donut-hole"></div>
+                <div class="donut-center">
+                  <div class="donut-total">${total.toLocaleString()}</div>
+                  <div class="donut-total-label">총 응모자</div>
+                </div>
+              </div>
+              <div class="donut-legend">${legend}</div>
+            </div>
+          </section>`;
+      }
+
       // 외부 자료 링크 섹션
       const links = p.links || {};
       const linkItems = [
@@ -551,6 +627,7 @@
                   <div class="timeline">${tlHtml}</div>
                 </section>
 
+                ${donutHtml}
                 ${linksHtml}
                 ${actionsHtml}
                 ${relHtml}
