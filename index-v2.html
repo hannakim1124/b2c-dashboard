@@ -974,45 +974,100 @@
         </div>
 
         <div class="kpi-block">
-          <label class="title">핵심 KPI 3개 <span class="opt">(라벨 클릭 시 자주 쓰는 항목 자동 제안)</span></label>
-          <datalist id="kpiLabels">
-            <option value="신청자 수">
-            <option value="누적 신청자">
-            <option value="유니크 신청자">
-            <option value="이력서 업데이트">
-            <option value="이력서 작성">
-            <option value="실 참석자">
-            <option value="만족도">
-            <option value="광고비">
-            <option value="CPC">
-            <option value="CTR">
-            <option value="신청 단가">
-            <option value="이력서 단가">
-            <option value="전환율">
-            <option value="도달 수">
-            <option value="노출 수">
-            <option value="클릭 수">
-            <option value="조회 수">
-            <option value="발송 수">
-            <option value="응답 수">
-            <option value="당첨자 수">
-            <option value="SNS 인증">
-            <option value="기대평">
-            <option value="공유 수">
-            <option value="KPI 달성률">
-          </datalist>
+          <label class="title">핵심 KPI 3개 <span class="opt">(라벨은 목록에서 선택 또는 "직접 입력")</span></label>
           <div class="kpi-row">
-            <input type="text" class="lbl-i" name="kpi1Label" list="kpiLabels" placeholder="라벨 (예: 신청자 수)" maxlength="14">
+            <select class="kpi-label-sel" name="kpi1Label" data-kpi="1">
+              <option value="">라벨 선택...</option>
+              <option value="신청자 수">신청자 수</option>
+              <option value="누적 신청자">누적 신청자</option>
+              <option value="유니크 신청자">유니크 신청자</option>
+              <option value="이력서 업데이트">이력서 업데이트</option>
+              <option value="이력서 작성">이력서 작성</option>
+              <option value="실 참석자">실 참석자</option>
+              <option value="만족도">만족도</option>
+              <option value="광고비">광고비</option>
+              <option value="CPC">CPC</option>
+              <option value="CTR">CTR</option>
+              <option value="신청 단가">신청 단가</option>
+              <option value="이력서 단가">이력서 단가</option>
+              <option value="전환율">전환율</option>
+              <option value="도달 수">도달 수</option>
+              <option value="노출 수">노출 수</option>
+              <option value="클릭 수">클릭 수</option>
+              <option value="조회 수">조회 수</option>
+              <option value="발송 수">발송 수</option>
+              <option value="응답 수">응답 수</option>
+              <option value="당첨자 수">당첨자 수</option>
+              <option value="SNS 인증">SNS 인증</option>
+              <option value="기대평">기대평</option>
+              <option value="공유 수">공유 수</option>
+              <option value="KPI 달성률">KPI 달성률</option>
+              <option value="__custom__">✏️ 직접 입력...</option>
+            </select>
             <input type="text" class="lbl-i" name="kpi1Value" placeholder="값 (예: 1,500)" maxlength="14">
             <select name="kpi1Flavor"><option value="">기본</option><option value="success">성공</option><option value="warning">주의</option><option value="danger">미달</option></select>
           </div>
           <div class="kpi-row">
-            <input type="text" class="lbl-i" name="kpi2Label" list="kpiLabels" placeholder="라벨" maxlength="14">
+            <select class="kpi-label-sel" name="kpi2Label" data-kpi="2">
+              <option value="">라벨 선택...</option>
+              <option value="신청자 수">신청자 수</option>
+              <option value="누적 신청자">누적 신청자</option>
+              <option value="유니크 신청자">유니크 신청자</option>
+              <option value="이력서 업데이트">이력서 업데이트</option>
+              <option value="이력서 작성">이력서 작성</option>
+              <option value="실 참석자">실 참석자</option>
+              <option value="만족도">만족도</option>
+              <option value="광고비">광고비</option>
+              <option value="CPC">CPC</option>
+              <option value="CTR">CTR</option>
+              <option value="신청 단가">신청 단가</option>
+              <option value="이력서 단가">이력서 단가</option>
+              <option value="전환율">전환율</option>
+              <option value="도달 수">도달 수</option>
+              <option value="노출 수">노출 수</option>
+              <option value="클릭 수">클릭 수</option>
+              <option value="조회 수">조회 수</option>
+              <option value="발송 수">발송 수</option>
+              <option value="응답 수">응답 수</option>
+              <option value="당첨자 수">당첨자 수</option>
+              <option value="SNS 인증">SNS 인증</option>
+              <option value="기대평">기대평</option>
+              <option value="공유 수">공유 수</option>
+              <option value="KPI 달성률">KPI 달성률</option>
+              <option value="__custom__">✏️ 직접 입력...</option>
+            </select>
             <input type="text" class="lbl-i" name="kpi2Value" placeholder="값" maxlength="14">
             <select name="kpi2Flavor"><option value="">기본</option><option value="success">성공</option><option value="warning">주의</option><option value="danger">미달</option></select>
           </div>
           <div class="kpi-row">
-            <input type="text" class="lbl-i" name="kpi3Label" list="kpiLabels" placeholder="라벨" maxlength="14">
+            <select class="kpi-label-sel" name="kpi3Label" data-kpi="3">
+              <option value="">라벨 선택...</option>
+              <option value="신청자 수">신청자 수</option>
+              <option value="누적 신청자">누적 신청자</option>
+              <option value="유니크 신청자">유니크 신청자</option>
+              <option value="이력서 업데이트">이력서 업데이트</option>
+              <option value="이력서 작성">이력서 작성</option>
+              <option value="실 참석자">실 참석자</option>
+              <option value="만족도">만족도</option>
+              <option value="광고비">광고비</option>
+              <option value="CPC">CPC</option>
+              <option value="CTR">CTR</option>
+              <option value="신청 단가">신청 단가</option>
+              <option value="이력서 단가">이력서 단가</option>
+              <option value="전환율">전환율</option>
+              <option value="도달 수">도달 수</option>
+              <option value="노출 수">노출 수</option>
+              <option value="클릭 수">클릭 수</option>
+              <option value="조회 수">조회 수</option>
+              <option value="발송 수">발송 수</option>
+              <option value="응답 수">응답 수</option>
+              <option value="당첨자 수">당첨자 수</option>
+              <option value="SNS 인증">SNS 인증</option>
+              <option value="기대평">기대평</option>
+              <option value="공유 수">공유 수</option>
+              <option value="KPI 달성률">KPI 달성률</option>
+              <option value="__custom__">✏️ 직접 입력...</option>
+            </select>
             <input type="text" class="lbl-i" name="kpi3Value" placeholder="값" maxlength="14">
             <select name="kpi3Flavor"><option value="">기본</option><option value="success">성공</option><option value="warning">주의</option><option value="danger">미달</option></select>
           </div>
@@ -1522,6 +1577,31 @@
       });
     })();
 
+    // === KPI Label Custom Input ===
+    document.querySelectorAll('.kpi-label-sel').forEach(sel => {
+      sel.addEventListener('change', () => {
+        if (sel.value === '__custom__') {
+          const custom = prompt('KPI 라벨을 직접 입력해 주세요 (최대 14자)', '');
+          if (custom && custom.trim()) {
+            const value = custom.trim().slice(0, 14);
+            // 이미 옵션에 있으면 그것 선택, 아니면 새 옵션 추가
+            const existing = sel.querySelector(`option[value="${value}"]`);
+            if (existing) {
+              sel.value = value;
+            } else {
+              const opt = document.createElement('option');
+              opt.value = value;
+              opt.textContent = value + ' (직접 입력)';
+              sel.insertBefore(opt, sel.querySelector('[value="__custom__"]'));
+              sel.value = value;
+            }
+          } else {
+            sel.value = '';
+          }
+        }
+      });
+    });
+
     // === Emoji Picker ===
     document.querySelectorAll('.emoji-opt').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1535,6 +1615,11 @@
 
     // === Trash Modal ===
     window.openTrash = function () {
+      const deletedIds = window.getDeletedIds() || [];
+      if (deletedIds.length === 0) {
+        alert('🗑 휴지통이 비어있어요!\n버려진 카드가 없어요.');
+        return;
+      }
       const modal = document.getElementById('trashModal');
       if (!modal) return;
       modal.hidden = false;
