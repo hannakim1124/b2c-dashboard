@@ -989,11 +989,7 @@
           <div class="field">
             <label>담당자</label>
             <select name="member" required>
-              <option value="hanna">한나</option>
-              <option value="minji">김민지</option>
-              <option value="jihoon">박지훈</option>
-              <option value="suyoung">이수영</option>
-              <option value="taeho">최태호</option>
+              <option value="">담당자 선택...</option>
             </select>
           </div>
           <div class="field">
@@ -1588,10 +1584,25 @@
       }
     }
 
+    function refreshMemberSelect() {
+      const sel = form.querySelector('[name="member"]');
+      if (!sel) return;
+      const prev = sel.value;
+      const members = window.MEMBERS || {};
+      const ids = Object.keys(members);
+      sel.innerHTML = ids.length === 0
+        ? '<option value="">먼저 멤버를 추가해 주세요</option>'
+        : '<option value="">담당자 선택...</option>' + ids.map(id =>
+            `<option value="${escapeHtml(id)}">${escapeHtml(members[id].name || id)}</option>`
+          ).join('');
+      if (prev && members[prev]) sel.value = prev;
+    }
+
     function openAddModal() {
       form.reset();
       editingIdField.value = '';
       setEditMode(false);
+      refreshMemberSelect();
       modal.classList.add('is-open');
       document.body.style.overflow = 'hidden';
       const dateField = form.querySelector('[name="date"]');
@@ -1603,8 +1614,9 @@
       if (!p) return;
       form.reset();
       editingIdField.value = id;
+      refreshMemberSelect();
       // 폼 채우기
-      form.querySelector('[name="member"]').value = p.member || 'hanna';
+      form.querySelector('[name="member"]').value = p.member || '';
       form.querySelector('[name="category"]').value = p.category || '웨비나';
       form.querySelector('[name="status"]').value = p.status || 'ongoing';
       form.querySelector('[name="date"]').value = p.date || new Date().toISOString().slice(0, 10);
