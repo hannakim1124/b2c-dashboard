@@ -1696,15 +1696,25 @@
       document.body.style.overflow = 'hidden';
     };
 
+    function closeModalFnAndBack() {
+      // detail에서 들어온 경우 detail로 돌아가기
+      const params = new URLSearchParams(location.search);
+      const editId = params.get('edit');
+      if (editId) {
+        location.href = 'project-detail.html?id=' + encodeURIComponent(editId);
+        return;
+      }
+      closeModalFn();
+    }
     function closeModalFn() {
       modal.classList.remove('is-open');
       document.body.style.overflow = '';
     }
     openBtn.addEventListener('click', openAddModal);
-    closeBtn.addEventListener('click', closeModalFn);
-    cancelBtn.addEventListener('click', closeModalFn);
-    modal.addEventListener('click', e => { if (e.target === modal) closeModalFn(); });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModalFn(); });
+    closeBtn.addEventListener('click', closeModalFnAndBack);
+    cancelBtn.addEventListener('click', closeModalFnAndBack);
+    modal.addEventListener('click', e => { if (e.target === modal) closeModalFnAndBack(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModalFnAndBack(); });
 
     form.addEventListener('submit', e => {
       e.preventDefault();
@@ -1817,6 +1827,17 @@
       };
 
       window.upsertProject(project);
+
+      // detail 페이지에서 편집 들어온 경우 → 그 detail 페이지로 돌아가기
+      const params = new URLSearchParams(location.search);
+      if (params.get('edit')) {
+        showToast(`<span class="ok">✓</span>저장됐어요! 상세 페이지로 돌아갑니다.`);
+        setTimeout(() => {
+          location.href = 'project-detail.html?id=' + encodeURIComponent(project.id);
+        }, 600);
+        return;
+      }
+
       closeModalFn();
       form.reset();
       renderGrid();
