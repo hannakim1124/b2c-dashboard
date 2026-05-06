@@ -923,18 +923,18 @@
       <button class="modal-close" onclick="closeMemberModal()" aria-label="닫기">×</button>
       <h2 class="modal-title">+ 새 멤버 추가</h2>
       <p class="modal-sub">팀원을 추가해 보세요. 이름·역할·이니셜·색상 입력!</p>
-      <form id="memberForm" class="member-form">
+      <form id="memberForm" class="member-form" onsubmit="return submitMember(event)">
         <div class="field">
           <label>이름</label>
-          <input type="text" name="name" placeholder="예: 김한나" required maxlength="10">
+          <input type="text" id="memName" placeholder="예: 김한나" required maxlength="10">
         </div>
         <div class="field">
           <label>역할</label>
-          <input type="text" name="role" placeholder="예: 이벤트 · 캠페인" required maxlength="20">
+          <input type="text" id="memRole" placeholder="예: 이벤트 · 캠페인" required maxlength="20">
         </div>
         <div class="field">
           <label>색상</label>
-          <select name="cls" required>
+          <select id="memCls" required>
             <option value="red">🔴</option>
             <option value="orange">🟠</option>
             <option value="yellow">🟡</option>
@@ -1396,60 +1396,66 @@
         const modal = document.getElementById('memberModal');
         modal.hidden = false;
         document.body.style.overflow = 'hidden';
-        modal.querySelector('input[name="name"]')?.focus();
+        document.getElementById('memName')?.focus();
       });
-      window.closeMemberModal = function() {
-        const modal = document.getElementById('memberModal');
-        if (!modal) return;
-        modal.hidden = true;
-        document.body.style.overflow = '';
-        document.getElementById('memberForm')?.reset();
-      };
       document.getElementById('memberModal')?.addEventListener('click', e => {
         if (e.target.id === 'memberModal') window.closeMemberModal();
       });
-      document.getElementById('memberForm')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const fd = new FormData(e.target);
-        const o = Object.fromEntries(fd.entries());
-        const id = 'mem_' + Date.now();
-        const trimmedName = o.name.trim();
-        const newMember = {
-          id, name: trimmedName, role: o.role.trim(),
-          avatar: trimmedName.charAt(0) || '?',
-          cls: o.cls
-        };
-        // LocalStorage에 저장
-        const saved = JSON.parse(localStorage.getItem('b2c_members') || '[]');
-        saved.push(newMember);
-        localStorage.setItem('b2c_members', JSON.stringify(saved));
-        // window.MEMBERS에도 추가 (런타임)
-        if (window.MEMBERS) {
-          window.MEMBERS[id] = newMember;
-        }
-        // 멤버 카드 영역에 새 카드 추가
-        const grid = document.querySelector('.members-grid');
-        const addBtn = document.getElementById('addMemberBtn');
-        if (grid && addBtn) {
-          const card = document.createElement('a');
-          card.className = 'mem-card';
-          card.href = '#feed';
-          card.dataset.memberGo = id;
-          card.innerHTML = `
-            <div class="av av-${newMember.cls}">${newMember.avatar}</div>
-            <div class="name">${newMember.name}</div>
-            <div class="role">${newMember.role}</div>
-            <div class="mem-card-stats">
-              <div class="mem-card-stat"><div class="num">0</div><div class="lbl">프로젝트</div></div>
-              <div class="mem-card-stat"><div class="num">0</div><div class="lbl">참여자</div></div>
-            </div>
-          `;
-          grid.insertBefore(card, addBtn);
-        }
-        showToast(`<span class="ok">✓</span>${newMember.name} 님 추가됐어요!`);
-        window.closeMemberModal();
-      });
     }
+
+    // === Member Modal (global) ===
+    window.closeMemberModal = function() {
+      const modal = document.getElementById('memberModal');
+      if (!modal) return;
+      modal.hidden = true;
+      document.body.style.overflow = '';
+      document.getElementById('memberForm')?.reset();
+    };
+    window.submitMember = function(e) {
+      if (e) e.preventDefault();
+      const trimmedName = (document.getElementById('memName').value || '').trim();
+      const role = (document.getElementById('memRole').value || '').trim();
+      const cls = document.getElementById('memCls').value;
+      if (!trimmedName || !role) { showToast('이름·역할을 입력해 주세요'); return false; }
+      const id = 'mem_' + Date.now();
+      const newMember = { id, name: trimmedName, role, avatar: trimmedName.charAt(0) || '?', cls };
+      // LocalStorage 저장
+      const saved = JSON.parse(localStorage.getItem('b2c_members') || '[]');
+      saved.push(newMember);
+      localStorage.setItem('b2c_members', JSON.stringify(saved));
+      if (window.MEMBERS) window.MEMBERS[id] = newMember;
+      // 1. 멤버 칩 (필터 영역) 추가
+      const filterRow = document.querySelector('[data-filter="member"]');
+      const addBtn = document.getElementById('addMemberBtn');
+      if (filterRow && addBtn) {
+        const chip = document.createElement('button');
+        chip.className = 'm-chip';
+        chip.dataset.member = id;
+        chip.innerHTML = `<span class="av av-${cls}">${newMember.avatar}</span>${newMember.name}`;
+        filterRow.insertBefore(chip, addBtn);
+      }
+      // 2. 멤버 카드 (members-grid) 추가
+      const grid = document.querySelector('.members-grid');
+      if (grid) {
+        const card = document.createElement('a');
+        card.className = 'mem-card';
+        card.href = '#feed';
+        card.dataset.memberGo = id;
+        card.innerHTML = `
+          <div class="av av-${cls}">${newMember.avatar}</div>
+          <div class="name">${newMember.name}</div>
+          <div class="role">${role}</div>
+          <div class="mem-card-stats">
+            <div class="mem-card-stat"><div class="num">0</div><div class="lbl">프로젝트</div></div>
+            <div class="mem-card-stat"><div class="num">0</div><div class="lbl">참여자</div></div>
+          </div>
+        `;
+        grid.appendChild(card);
+      }
+      showToast(`<span class="ok">✓</span>${trimmedName} 님 추가됐어요!`);
+      window.closeMemberModal();
+      return false;
+    };
 
     // ════════════════════════════════════════════════
     //  Sort
