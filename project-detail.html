@@ -191,6 +191,13 @@
     .sec-eyebrow { display: inline-block; font-size: 11px; font-weight: 800; color: var(--c-primary); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
     .sec-title { font-size: 28px; font-weight: 900; letter-spacing: -0.025em; margin-bottom: 24px; line-height: 1.2; }
 
+    /* Link embed (YouTube etc.) */
+    .link-embed { background: #000; border-radius: var(--r-lg); overflow: hidden; }
+    .link-embed-head { padding: 12px 16px; background: var(--c-text); color: #fff; font-size: 13px; font-weight: 700; }
+    .link-embed-frame { position: relative; padding-bottom: 56.25%; height: 0; }
+    .link-embed-frame iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+    .link-embed-link { display: block; padding: 10px 16px; background: var(--c-surface-deep); color: var(--c-primary); font-size: 12px; font-weight: 600; text-align: center; }
+
     /* Donut chart - 직군 분포 */
     .donut-section {
       background: var(--c-surface); border: 1px solid var(--c-border);
@@ -500,29 +507,62 @@
           </section>`;
       }
 
-      // 외부 자료 링크 섹션
+      // 외부 자료 링크 섹션 — URL 자동 분류
+      function detectLinkType(url) {
+        if (/notion\.so|notion\.site/i.test(url)) return { type: 'notion', icon: '📝', label: '노션 페이지' };
+        if (/docs\.google\.com\/spreadsheets/i.test(url)) return { type: 'sheet', icon: '📊', label: '구글 시트' };
+        if (/docs\.google\.com\/document/i.test(url)) return { type: 'doc', icon: '📄', label: '구글 문서' };
+        if (/docs\.google\.com\/presentation/i.test(url)) return { type: 'slides', icon: '🎤', label: '구글 슬라이드' };
+        if (/(youtube\.com\/watch|youtu\.be\/)/i.test(url)) return { type: 'youtube', icon: '📺', label: '유튜브 영상' };
+        if (/vimeo\.com/i.test(url)) return { type: 'vimeo', icon: '🎥', label: '비메오 영상' };
+        if (/drive\.google\.com/i.test(url)) {
+          if (/\.pdf|view\?usp/i.test(url)) return { type: 'drive-file', icon: '📋', label: '구글 드라이브 파일' };
+          return { type: 'drive', icon: '📁', label: '구글 드라이브' };
+        }
+        if (/\.pdf(\?|$)/i.test(url)) return { type: 'pdf', icon: '📋', label: 'PDF' };
+        if (/figma\.com/i.test(url)) return { type: 'figma', icon: '🎨', label: '피그마' };
+        if (/instagram\.com/i.test(url)) return { type: 'instagram', icon: '📸', label: '인스타그램' };
+        if (/linkedin\.com/i.test(url)) return { type: 'linkedin', icon: '💼', label: '링크드인' };
+        if (/blog\.naver\.com/i.test(url)) return { type: 'blog', icon: '📰', label: '네이버 블로그' };
+        return { type: 'link', icon: '🔗', label: '외부 링크' };
+      }
+      function getYoutubeId(url) {
+        const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
+        return m ? m[1] : null;
+      }
       const links = p.links || {};
-      const linkItems = [
-        { key: 'notion', icon: '📝', label: '노션 페이지', url: links.notion },
-        { key: 'sheet',  icon: '📊', label: '구글 시트·문서', url: links.sheet },
-        { key: 'pdf',    icon: '📄', label: 'PDF / 외부 자료', url: links.pdf },
-        { key: 'event',  icon: '🌐', label: '이벤트 페이지', url: links.event }
-      ].filter(l => l.url);
+      const linkItems = [links.notion, links.sheet, links.pdf, links.event]
+        .filter(Boolean)
+        .map(url => ({ url, ...detectLinkType(url) }));
       const linksHtml = linkItems.length ? `
         <section class="section" id="links">
           <span class="sec-eyebrow">Resources</span>
           <h2 class="sec-title">📎 외부 자료</h2>
           <div class="links-grid">
-            ${linkItems.map(l => `
-              <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener" class="link-card">
-                <span class="link-card-ic">${l.icon}</span>
-                <div class="link-card-info">
-                  <div class="link-card-label">${escapeHtml(l.label)}</div>
-                  <div class="link-card-url">${escapeHtml(l.url.replace(/^https?:\/\//, '').slice(0, 50))}…</div>
-                </div>
-                <span class="link-card-arrow">↗</span>
-              </a>
-            `).join('')}
+            ${linkItems.map(l => {
+              // 유튜브: 임베드 카드
+              if (l.type === 'youtube') {
+                const yid = getYoutubeId(l.url);
+                if (yid) return `
+                  <div class="link-embed">
+                    <div class="link-embed-head">${l.icon} ${l.label}</div>
+                    <div class="link-embed-frame">
+                      <iframe src="https://www.youtube.com/embed/${yid}" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                    <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener" class="link-embed-link">유튜브에서 열기 ↗</a>
+                  </div>`;
+              }
+              // 일반 링크 카드
+              return `
+                <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener" class="link-card">
+                  <span class="link-card-ic">${l.icon}</span>
+                  <div class="link-card-info">
+                    <div class="link-card-label">${escapeHtml(l.label)}</div>
+                    <div class="link-card-url">${escapeHtml(l.url.replace(/^https?:\/\//, '').slice(0, 50))}…</div>
+                  </div>
+                  <span class="link-card-arrow">↗</span>
+                </a>`;
+            }).join('')}
           </div>
         </section>` : '';
 

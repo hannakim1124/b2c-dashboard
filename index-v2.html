@@ -1002,20 +1002,10 @@
           </div>
         </div>
 
-        <div class="field-row">
-          <div class="field">
-            <label>상태</label>
-            <select name="status" required>
-              <option value="ongoing">진행중</option>
-              <option value="soon">예정</option>
-              <option value="done">완료</option>
-              <option value="live">LIVE</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>대표 날짜 <span class="opt">(본행사일)</span></label>
-            <input type="date" name="date" required>
-          </div>
+        <input type="hidden" name="status" value="ongoing">
+        <div class="field" style="margin-top:14px">
+          <label>대표 날짜 <span class="opt">(본행사일 — 상태는 모집기간 따라 자동)</span></label>
+          <input type="date" name="date" required>
         </div>
 
         <div class="field-row" style="margin-top:14px">
@@ -1057,18 +1047,7 @@
               </div>
             </div>
           </div>
-          <div class="field">
-            <label>상태 라벨 <span class="opt">(생략 가능)</span></label>
-            <select name="statusLabel">
-              <option value="">(상태 자동 표시)</option>
-              <option value="진행중">진행중</option>
-              <option value="예정">예정</option>
-              <option value="완료">완료</option>
-              <option value="LIVE">LIVE</option>
-              <option value="모집중">모집중</option>
-              <option value="회고중">회고중</option>
-            </select>
-          </div>
+          <input type="hidden" name="statusLabel">
         </div>
 
         <div class="field" style="margin-top:14px">
@@ -1092,7 +1071,7 @@
         </div>
 
         <div class="kpi-block">
-          <label class="title">핵심 KPI 3개 <span class="opt">(라벨은 목록에서 선택 또는 "직접 입력")</span></label>
+          <label class="title">핵심 KPI <span class="opt">(최소 1개 필수, 최대 2개)</span></label>
           <div class="kpi-row">
             <select class="kpi-label-sel" name="kpi1Label" data-kpi="1">
               <option value="">라벨 선택...</option>
@@ -1157,38 +1136,9 @@
             <input type="text" class="lbl-i" name="kpi2Value" placeholder="값" maxlength="14">
             <select name="kpi2Flavor"><option value="">기본</option><option value="success">성공</option><option value="warning">주의</option><option value="danger">미달</option></select>
           </div>
-          <div class="kpi-row">
-            <select class="kpi-label-sel" name="kpi3Label" data-kpi="3">
-              <option value="">라벨 선택...</option>
-              <option value="신청자 수">신청자 수</option>
-              <option value="누적 신청자">누적 신청자</option>
-              <option value="유니크 신청자">유니크 신청자</option>
-              <option value="이력서 업데이트">이력서 업데이트</option>
-              <option value="이력서 작성">이력서 작성</option>
-              <option value="실 참석자">실 참석자</option>
-              <option value="만족도">만족도</option>
-              <option value="광고비">광고비</option>
-              <option value="CPC">CPC</option>
-              <option value="CTR">CTR</option>
-              <option value="신청 단가">신청 단가</option>
-              <option value="이력서 단가">이력서 단가</option>
-              <option value="전환율">전환율</option>
-              <option value="도달 수">도달 수</option>
-              <option value="노출 수">노출 수</option>
-              <option value="클릭 수">클릭 수</option>
-              <option value="조회 수">조회 수</option>
-              <option value="발송 수">발송 수</option>
-              <option value="응답 수">응답 수</option>
-              <option value="당첨자 수">당첨자 수</option>
-              <option value="SNS 인증">SNS 인증</option>
-              <option value="기대평">기대평</option>
-              <option value="공유 수">공유 수</option>
-              <option value="KPI 달성률">KPI 달성률</option>
-              <option value="__custom__">✏️ 직접 입력...</option>
-            </select>
-            <input type="text" class="lbl-i" name="kpi3Value" placeholder="값" maxlength="14">
-            <select name="kpi3Flavor"><option value="">기본</option><option value="success">성공</option><option value="warning">주의</option><option value="danger">미달</option></select>
-          </div>
+          <input type="hidden" name="kpi3Label">
+          <input type="hidden" name="kpi3Value">
+          <input type="hidden" name="kpi3Flavor">
         </div>
 
         <div class="modal-foot">
@@ -1647,6 +1597,38 @@
       const base = isEdit ? (window.getProject(editingId) || {}) : {};
       const id = isEdit ? editingId : ('user-' + Date.now());
       const m = window.MEMBERS[o.member] || {};
+
+      // KPI 1개 이상 필수 검증
+      if (!o.kpi1Label || !o.kpi1Value) {
+        showToast('⚠️ KPI 1개 이상은 꼭 입력해 주세요!');
+        return;
+      }
+
+      // 자동 상태 (모집 시작/종료일 기준)
+      const today = new Date().toISOString().slice(0, 10);
+      let autoStatus = 'ongoing';
+      if (o.periodStart && o.periodEnd) {
+        if (today < o.periodStart) autoStatus = 'soon';
+        else if (today >= o.periodStart && today <= o.periodEnd) autoStatus = 'ongoing';
+        else autoStatus = 'done';
+      } else if (o.date) {
+        if (today < o.date) autoStatus = 'soon';
+        else if (today === o.date) autoStatus = 'ongoing';
+        else autoStatus = 'done';
+      }
+      o.status = autoStatus;
+
+      // 자동 상태 라벨
+      let autoLabel = '';
+      if (autoStatus === 'soon' && o.periodStart) {
+        const diff = Math.ceil((new Date(o.periodStart) - new Date(today)) / (1000 * 60 * 60 * 24));
+        autoLabel = `D-${diff}`;
+      } else if (autoStatus === 'soon' && o.date) {
+        const diff = Math.ceil((new Date(o.date) - new Date(today)) / (1000 * 60 * 60 * 24));
+        autoLabel = `D-${diff}`;
+      } else if (autoStatus === 'ongoing') autoLabel = '진행중';
+      else if (autoStatus === 'done') autoLabel = '종료';
+      o.statusLabel = autoLabel;
 
       // 자동 한 줄 설명 생성 (수정한 경우 base.desc 우선, 없으면 자동 생성)
       const memName = window.MEMBERS[o.member]?.name || '';
