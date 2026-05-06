@@ -1034,10 +1034,7 @@
           <input type="text" name="title" placeholder="예: 5월 인사이트 트렌드 리포트" required maxlength="40">
         </div>
 
-        <div class="field">
-          <label>한 줄 설명</label>
-          <textarea name="desc" placeholder="어떤 프로젝트인지 1~2문장으로" maxlength="120" required></textarea>
-        </div>
+        <input type="hidden" name="desc">
 
         <div class="field-row">
           <div class="field">
@@ -1608,7 +1605,7 @@
         }
       }
       form.querySelector('[name="title"]').value = p.title || '';
-      form.querySelector('[name="desc"]').value = p.desc || '';
+      form.querySelector('[name="desc"]').value = p.desc || '';  // hidden, 자동 생성용
       form.querySelector('[name="emoji"]').value = p.emoji || '📌';
       form.querySelector('[name="statusLabel"]').value = p.statusLabel || '';
       // 외부 자료 링크 복원
@@ -1651,6 +1648,15 @@
       const id = isEdit ? editingId : ('user-' + Date.now());
       const m = window.MEMBERS[o.member] || {};
 
+      // 자동 한 줄 설명 생성 (수정한 경우 base.desc 우선, 없으면 자동 생성)
+      const memName = window.MEMBERS[o.member]?.name || '';
+      const k1Label = o.kpi1Label || '';
+      const k1Value = o.kpi1Value || '';
+      const autoDesc = (k1Label && k1Value)
+        ? `${o.category} · ${memName}님이 진행한 프로젝트. ${k1Label} ${k1Value} 달성.`
+        : `${o.category} · ${memName}님 프로젝트`;
+      const finalDesc = (o.desc && o.desc.trim()) ? o.desc.trim() : autoDesc;
+
       const project = {
         ...base,
         id,
@@ -1673,7 +1679,7 @@
           event: (o.linkEvent || '').trim()
         },
         emoji: (o.emoji || '📌').trim(),
-        desc: o.desc.trim(),
+        desc: finalDesc,
         kpis: [
           { label: o.kpi1Label || '—', value: o.kpi1Value || '—', flavor: o.kpi1Flavor || '' },
           { label: o.kpi2Label || '—', value: o.kpi2Value || '—', flavor: o.kpi2Flavor || '' },
