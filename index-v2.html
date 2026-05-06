@@ -932,24 +932,18 @@
           <label>역할</label>
           <input type="text" name="role" placeholder="예: 이벤트 · 캠페인" required maxlength="20">
         </div>
-        <div class="field-row">
-          <div class="field">
-            <label>아바타 이니셜 <span class="opt">(1~2자)</span></label>
-            <input type="text" name="avatar" placeholder="예: 한" required maxlength="2">
-          </div>
-          <div class="field">
-            <label>색상</label>
-            <select name="cls" required>
-              <option value="red">🔴</option>
-              <option value="orange">🟠</option>
-              <option value="yellow">🟡</option>
-              <option value="green">🟢</option>
-              <option value="blue">🔵</option>
-              <option value="purple">🟣</option>
-              <option value="pink">🩷</option>
-              <option value="gray">⚪</option>
-            </select>
-          </div>
+        <div class="field">
+          <label>색상</label>
+          <select name="cls" required>
+            <option value="red">🔴</option>
+            <option value="orange">🟠</option>
+            <option value="yellow">🟡</option>
+            <option value="green">🟢</option>
+            <option value="blue">🔵</option>
+            <option value="purple">🟣</option>
+            <option value="pink">🩷</option>
+            <option value="gray">⚪</option>
+          </select>
         </div>
         <div class="modal-foot">
           <button type="button" class="btn-text" onclick="closeMemberModal()">취소</button>
@@ -1405,9 +1399,11 @@
         const fd = new FormData(e.target);
         const o = Object.fromEntries(fd.entries());
         const id = 'mem_' + Date.now();
+        const trimmedName = o.name.trim();
         const newMember = {
-          id, name: o.name.trim(), role: o.role.trim(),
-          avatar: o.avatar.trim(), cls: o.cls
+          id, name: trimmedName, role: o.role.trim(),
+          avatar: trimmedName.charAt(0) || '?',
+          cls: o.cls
         };
         // LocalStorage에 저장
         const saved = JSON.parse(localStorage.getItem('b2c_members') || '[]');
