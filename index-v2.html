@@ -538,6 +538,12 @@
       margin-bottom: 6px;
     }
     .field label .opt { color: var(--c-text-4); font-weight: 500; margin-left: 4px; }
+    .field-action {
+      float: right; font-size: 11px; font-weight: 600;
+      color: var(--c-primary); margin-left: 6px; cursor: pointer;
+      padding: 1px 6px; border-radius: 6px; transition: background 0.12s;
+    }
+    .field-action:hover { background: var(--c-primary-bg); }
     .field input, .field select, .field textarea {
       width: 100%; padding: 11px 12px; font-family: inherit;
       border: 1px solid var(--c-border-strong); border-radius: 10px;
@@ -944,7 +950,7 @@
     <div class="container">
       <div class="members-head">
         <div class="members-eyebrow">Team Members</div>
-        <h2>누적 프로젝트 &gt; 내 프로젝트 보기</h2>
+        <h2>내 프로젝트 보기</h2>
         <p>각자 어떤 일을 얼마나 진행했는지 한눈에.</p>
       </div>
       <div class="members-grid" id="membersGrid">
@@ -986,14 +992,14 @@
         <div class="field">
           <label>색상</label>
           <select id="memCls" required>
-            <option value="red">🔴</option>
-            <option value="orange">🟠</option>
-            <option value="yellow">🟡</option>
-            <option value="green">🟢</option>
-            <option value="blue">🔵</option>
-            <option value="purple">🟣</option>
-            <option value="pink">🩷</option>
-            <option value="gray">⚪</option>
+            <option value="red">❤️ 빨강</option>
+            <option value="orange">🧡 주황</option>
+            <option value="yellow">💛 노랑</option>
+            <option value="green">💚 초록</option>
+            <option value="blue">💙 파랑</option>
+            <option value="purple">💜 보라</option>
+            <option value="pink">🩷 핑크</option>
+            <option value="gray">🤍 화이트</option>
           </select>
         </div>
         <div class="modal-foot">
@@ -1030,13 +1036,13 @@
         <input type="hidden" name="editingId" id="editingId" value="">
         <div class="field-row">
           <div class="field">
-            <label>담당자</label>
+            <label>담당자 <a href="javascript:void(0)" class="field-action" onclick="editSelectedMember()" title="선택한 담당자 편집/삭제">✏️ 편집</a> <a href="javascript:void(0)" class="field-action" onclick="openMemberModal()" title="새 멤버 추가">+ 추가</a></label>
             <select name="member" required>
               <option value="">담당자 선택...</option>
             </select>
           </div>
           <div class="field">
-            <label>카테고리</label>
+            <label>카테고리 <a href="javascript:void(0)" class="field-action" onclick="editSelectedCategory()" title="선택한 카테고리 수정/삭제">✏️ 편집</a></label>
             <select name="category" required onchange="onCategoryChange(this)">
               <option value="">카테고리 선택...</option>
               <option value="__new__">＋ 새 카테고리 추가</option>
@@ -1759,6 +1765,40 @@
       refreshCategorySelect(name);
       if (window._renderCategoryChips) window._renderCategoryChips();
       if (!ok) showToast(`<span class="ok">!</span>이미 있는 카테고리예요.`);
+    };
+
+    // 폼 안에서 선택된 담당자 편집
+    window.editSelectedMember = function() {
+      const sel = form.querySelector('[name="member"]');
+      const id = sel?.value;
+      if (!id) { showToast('편집할 담당자를 먼저 선택해 주세요'); return; }
+      window.openMemberModal(id);
+    };
+    // 폼 안에서 선택된 카테고리 편집(이름 수정/삭제)
+    window.editSelectedCategory = function() {
+      const sel = form.querySelector('[name="category"]');
+      const cur = sel?.value;
+      if (!cur || cur === '__new__') { showToast('편집할 카테고리를 먼저 선택해 주세요'); return; }
+      const action = prompt(`"${cur}" — 새 이름을 입력하면 수정, 빈 칸으로 두고 확인하면 삭제합니다.`, cur);
+      if (action === null) return;
+      const newName = action.trim();
+      if (!newName) {
+        if (!confirm(`"${cur}" 카테고리를 삭제할까요?\n(이 카테고리를 쓴 프로젝트는 그대로 남아요)`)) return;
+        window.removeCategory(cur);
+        refreshCategorySelect('');
+        if (window._renderCategoryChips) window._renderCategoryChips();
+        showToast(`<span class="ok">✓</span>"${cur}" 삭제했어요.`);
+        return;
+      }
+      if (newName === cur) return;
+      const list = window.getCategories();
+      if (list.includes(newName)) { showToast(`<span class="ok">!</span>이미 있는 이름이에요.`); return; }
+      const idx = list.indexOf(cur);
+      if (idx >= 0) list[idx] = newName;
+      localStorage.setItem('b2c_categories', JSON.stringify(list));
+      refreshCategorySelect(newName);
+      if (window._renderCategoryChips) window._renderCategoryChips();
+      showToast(`<span class="ok">✓</span>"${newName}"(으)로 수정했어요.`);
     };
 
     function refreshMemberSelect() {
