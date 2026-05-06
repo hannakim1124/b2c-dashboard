@@ -1171,6 +1171,16 @@
           <input type="hidden" name="kpi3Flavor">
         </div>
 
+        <div class="field" style="margin-top:14px">
+          <label>🏷 태그 <span class="opt">(쉼표로 구분, 검색용)</span></label>
+          <input type="text" name="tags" placeholder="예: 이력서, 5월, 페스티벌, B2C">
+        </div>
+
+        <div class="field" style="margin-top:14px">
+          <label>📓 회고 메모 <span class="opt">(랩업·인사이트, 추후 인라인 편집 가능)</span></label>
+          <textarea name="retroNote" placeholder="이번 프로젝트에서 잘 된 점, 아쉬운 점, 다음에 개선할 것 등을 자유롭게 적어주세요" rows="4" style="width:100%;padding:12px;border:1px solid var(--c-border);border-radius:8px;font-family:inherit;font-size:13px;resize:vertical;"></textarea>
+        </div>
+
         <div class="modal-foot">
           <button type="button" class="btn-text" id="cancelBtn">취소</button>
           <button type="submit" class="btn-fill" id="submitBtn">등록하기</button>
@@ -1650,6 +1660,10 @@
       form.querySelector('[name="desc"]').value = p.desc || '';  // hidden, 자동 생성용
       form.querySelector('[name="emoji"]').value = p.emoji || '📌';
       form.querySelector('[name="statusLabel"]').value = p.statusLabel || '';
+      // 태그 + 회고 복원
+      form.querySelector('[name="tags"]').value = (p.tags || []).join(', ');
+      form.querySelector('[name="retroNote"]').value = p.retroNote || '';
+
       // 외부 자료 링크 복원 (resources 또는 기존 links 둘 다 지원)
       const resourcesList = document.getElementById('resourcesList');
       if (resourcesList) {
@@ -1755,6 +1769,8 @@
           : (base.period && isEdit ? base.period : o.date.replace(/-/g, '.')),
         resources: Array.from(document.querySelectorAll('.resource-input'))
           .map(i => i.value.trim()).filter(Boolean),
+        tags: (o.tags || '').split(',').map(t => t.trim()).filter(Boolean),
+        retroNote: (o.retroNote || '').trim(),
         emoji: (o.emoji || '📌').trim(),
         desc: finalDesc,
         kpis: [
