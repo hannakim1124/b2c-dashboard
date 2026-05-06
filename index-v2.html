@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>인사이트전략팀 · 2026 성과</title>
+  <title>인사이트전략팀 · 2026 프로젝트</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
   <style>
     /* === Design tokens === */
@@ -821,7 +821,7 @@
   <!-- Hero -->
   <section class="hero" id="top">
     <div class="container">
-      <span class="hero-tag">2026 · 인사이트전략팀 성과 보드</span>
+      <span class="hero-tag">2026 · 인사이트전략팀 프로젝트 보드</span>
       <h1>2026년, 인사이트전략팀이<br>만들 <span class="accent" id="totalCount">0가지</span> 이야기.</h1>
       <p class="hero-sub">팀원이 올해 진행한 이벤트, 웨비나, 콘텐츠, 캠페인을 한곳에서 모아보세요.<br>+ 프로젝트 추가 버튼으로 시작하세요.</p>
 
@@ -872,7 +872,7 @@
   <section class="feed" id="feed">
     <div class="container">
       <div class="feed-head">
-        <h2>최근 성과<span class="count" id="cardCount">14건</span></h2>
+        <h2>최근 프로젝트<span class="count" id="cardCount">14건</span></h2>
         <div class="feed-sort">
           <button class="is-active" data-sort="recent">최신순</button>
           <button data-sort="impact">성과순</button>
@@ -886,7 +886,7 @@
 
       <div class="empty" id="emptyState" style="display:none">
         <div class="em">🔍</div>
-        <div class="et">조건에 맞는 성과가 없어요</div>
+        <div class="et">조건에 맞는 프로젝트가 없어요</div>
         <div class="es">필터를 다시 선택해 보세요.</div>
       </div>
     </div>
@@ -897,7 +897,7 @@
     <div class="container">
       <div class="members-head">
         <div class="members-eyebrow">Team Members</div>
-        <h2>팀원별 누적 성과</h2>
+        <h2>팀원별 누적 프로젝트</h2>
         <p>각자 어떤 일을 얼마나 진행했는지 한눈에.</p>
       </div>
       <div class="members-grid" id="membersGrid">
@@ -968,7 +968,7 @@
     </div>
   </div>
 
-  <!-- Modal: + 새 성과 -->
+  <!-- Modal: + 새 프로젝트 -->
   <div class="modal-bg" id="addModal">
     <div class="modal" role="dialog" aria-labelledby="modalTitle">
       <div class="modal-head">
@@ -1574,7 +1574,7 @@
 
     function setEditMode(editing) {
       if (editing) {
-        modalTitle.textContent = '성과 편집';
+        modalTitle.textContent = '프로젝트 편집';
         modalSub.textContent = '내용을 수정하면 곧바로 카드에 반영돼요.';
         submitBtn.textContent = '수정하기';
       } else {
@@ -1807,7 +1807,7 @@
     // delete (called from inline onclick)
     window.deleteCard = function(id) {
       const p = window.getProject(id);
-      const name = p ? p.title : '이 성과';
+      const name = p ? p.title : '이 프로젝트';
       if (!confirm(`"${name}"\n정말 삭제할까요?\n(데모 카드는 숨김 처리되며, 모두 초기화하려면 푸터의 "데모 복원" 버튼을 눌러주세요.)`)) return;
       window.deleteProject(id);
       renderGrid();
@@ -1892,7 +1892,7 @@
           const heroH1 = document.querySelector('.hero h1');
           if (heroH1) heroH1.innerHTML = heroH1.innerHTML.replace(/\d{4}년/, year + '년');
           const heroTag = document.querySelector('.hero-tag');
-          if (heroTag) heroTag.textContent = year + ' · 인사이트전략팀 성과 보드';
+          if (heroTag) heroTag.textContent = year + ' · 인사이트전략팀 프로젝트 보드';
           yearDropdown.hidden = true;
           yearWrap.classList.remove('open');
         });
