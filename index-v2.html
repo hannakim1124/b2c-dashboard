@@ -317,6 +317,11 @@
       transition: background 0.12s, color 0.12s;
     }
     .feed-sort button.is-active { background: var(--c-surface); color: var(--c-text); box-shadow: var(--sh-1); }
+    .feed-sort .btn-export {
+      margin-left: 4px; background: var(--c-surface); color: var(--c-text);
+      border: 1px solid var(--c-border-strong); cursor: pointer;
+    }
+    .feed-sort .btn-export:hover { border-color: var(--c-primary); color: var(--c-primary); }
 
     /* ────────────────────────────────────────────────
        Cards
@@ -930,6 +935,7 @@
           <button class="is-active" data-sort="recent">최신순</button>
           <button data-sort="impact">성과순</button>
           <button data-sort="status">상태순</button>
+          <button type="button" class="btn-export" onclick="exportProjectsExcel()" title="Excel(.xlsx) 다운로드">📥 Excel</button>
         </div>
       </div>
 
@@ -2118,6 +2124,74 @@
       window.deleteProject(id);
       renderGrid();
       showToast(`<span class="ok">✓</span>삭제했어요.`);
+    };
+
+    // === 프로젝트 Excel(CSV) 내보내기 ===
+    window.exportProjectsExcel = function() {
+      // 현재 보여지는 모든 프로젝트 모으기 (override + user + 데모(숨김 제외))
+      const allIds = new Set();
+      Object.keys(window.PROJECTS || {}).forEach(id => {
+        if (!window.getDeletedIds().includes(id)) allIds.add(id);
+      });
+      window.getUserProjects().forEach(p => allIds.add(p.id));
+      Object.keys(window.getOverrides()).forEach(id => allIds.add(id));
+
+      const rows = [];
+      allIds.forEach(id => {
+        const p = window.getProject(id);
+        if (!p) return;
+        rows.push(p);
+      });
+      if (rows.length === 0) {
+        showToast('내보낼 프로젝트가 없어요');
+        return;
+      }
+      // 최신순 정렬
+      rows.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+      const headers = [
+        '제목', '담당자', '카테고리', '상태', '대표 날짜', '기간',
+        'KPI1 라벨', 'KPI1 값', 'KPI2 라벨', 'KPI2 값',
+        '태그', '회고 메모', '외부 자료'
+      ];
+      const STATUS_LABELS = { ongoing: '진행중', soon: '예정', done: '완료', live: 'LIVE' };
+      const csvEscape = v => {
+        const s = String(v == null ? '' : v);
+        return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+      };
+      const lines = [headers.join(',')];
+      rows.forEach(p => {
+        const memberName = window.MEMBERS[p.member]?.name || p.memberName || '';
+        const k1 = (p.kpis && p.kpis[0]) || {};
+        const k2 = (p.kpis && p.kpis[1]) || {};
+        const tags = (p.tags || []).map(t => '#' + t).join(' ');
+        const resources = (p.resources || []).join(' | ');
+        const row = [
+          p.title || '',
+          memberName,
+          p.category || '',
+          STATUS_LABELS[p.status] || p.status || '',
+          p.date || '',
+          p.period || '',
+          k1.label || '', k1.value || '',
+          k2.label || '', k2.value || '',
+          tags,
+          (p.retroNote || '').replace(/\n/g, ' '),
+          resources
+        ].map(csvEscape).join(',');
+        lines.push(row);
+      });
+      const csv = '﻿' + lines.join('\r\n'); // UTF-8 BOM (엑셀 한글 호환)
+      const today = new Date().toISOString().slice(0, 10);
+      const filename = `프로젝트_${today}.csv`;
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showToast(`<span class="ok">✓</span>${rows.length}건 다운로드했어요!`);
     };
 
     // share dashboard URL
