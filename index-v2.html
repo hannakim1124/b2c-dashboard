@@ -543,12 +543,34 @@
       margin-bottom: 6px;
     }
     .field label .opt { color: var(--c-text-4); font-weight: 500; margin-left: 4px; }
+    .field-label-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+    .field-label-row label { margin-bottom: 0; }
+    .field-actions { display: inline-flex; gap: 4px; }
     .field-action {
-      float: right; font-size: 11px; font-weight: 600;
-      color: var(--c-primary); margin-left: 6px; cursor: pointer;
-      padding: 1px 6px; border-radius: 6px; transition: background 0.12s;
+      font-size: 11px; font-weight: 600;
+      color: var(--c-primary); cursor: pointer; font-family: inherit;
+      padding: 2px 8px; border: none; border-radius: 6px;
+      background: transparent; transition: background 0.12s;
     }
     .field-action:hover { background: var(--c-primary-bg); }
+
+    /* Export modal */
+    .export-fmt { display: flex; gap: 8px; }
+    .export-fmt .ef-opt {
+      flex: 1; padding: 12px 14px; border: 1px solid var(--c-border-strong);
+      border-radius: var(--r-sm); font-size: 13px; font-weight: 700; color: var(--c-text-2);
+      cursor: pointer; transition: all 0.12s; display: flex; align-items: center; gap: 8px;
+    }
+    .export-fmt .ef-opt:has(input:checked) {
+      border-color: var(--c-primary); background: var(--c-primary-bg); color: var(--c-primary);
+    }
+    .export-fmt .ef-opt input { margin: 0; accent-color: var(--c-primary); }
+    .export-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; }
+    .export-cols label {
+      display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;
+      color: var(--c-text-2); cursor: pointer; padding: 4px 0;
+    }
+    .export-cols input { accent-color: var(--c-primary); }
     .field input, .field select, .field textarea {
       width: 100%; padding: 11px 12px; font-family: inherit;
       border: 1px solid var(--c-border-strong); border-radius: 10px;
@@ -601,9 +623,11 @@
       position: fixed; inset: 0;
       background: rgba(15, 20, 25, 0.45);
       display: flex; align-items: center; justify-content: center;
-      z-index: 200; padding: 20px;
+      z-index: 250; padding: 20px;
       animation: modalFadeIn 0.18s ease-out;
     }
+    /* 프로젝트 모달 위에 띄울 sub 모달 */
+    #memberModal, #exportModal { z-index: 400; }
     .modal-overlay[hidden] { display: none; }
     .modal-overlay .modal {
       width: 100%; max-width: 520px;
@@ -1017,6 +1041,51 @@
     </div>
   </div>
 
+  <!-- Modal: 내보내기 -->
+  <div class="modal-overlay" id="exportModal" hidden>
+    <div class="modal" style="max-width: 480px;">
+      <button class="modal-close" onclick="closeExportModal()" aria-label="닫기">×</button>
+      <h2 class="modal-title">📥 프로젝트 내보내기</h2>
+      <p class="modal-sub">받고 싶은 컬럼과 형식을 선택해 주세요.</p>
+
+      <div class="field" style="margin-top:14px">
+        <label>형식</label>
+        <div class="export-fmt">
+          <label class="ef-opt"><input type="radio" name="exportFmt" value="csv" checked><span>📊 Excel (.csv)</span></label>
+          <label class="ef-opt"><input type="radio" name="exportFmt" value="md"><span>📝 Notion (.md 표)</span></label>
+        </div>
+      </div>
+
+      <div class="field" style="margin-top:14px">
+        <div class="field-label-row">
+          <label>포함할 컬럼</label>
+          <span class="field-actions">
+            <button type="button" class="field-action" onclick="exportToggleAll(true)">전체 선택</button>
+            <button type="button" class="field-action" onclick="exportToggleAll(false)">해제</button>
+          </span>
+        </div>
+        <div class="export-cols" id="exportCols">
+          <label><input type="checkbox" data-col="title" checked> 제목</label>
+          <label><input type="checkbox" data-col="member" checked> 담당자</label>
+          <label><input type="checkbox" data-col="category" checked> 카테고리</label>
+          <label><input type="checkbox" data-col="status" checked> 상태</label>
+          <label><input type="checkbox" data-col="date" checked> 대표 날짜</label>
+          <label><input type="checkbox" data-col="period"> 기간</label>
+          <label><input type="checkbox" data-col="kpi1" checked> KPI1 (라벨·값)</label>
+          <label><input type="checkbox" data-col="kpi2" checked> KPI2 (라벨·값)</label>
+          <label><input type="checkbox" data-col="tags"> 태그</label>
+          <label><input type="checkbox" data-col="retro"> 회고 메모</label>
+          <label><input type="checkbox" data-col="resources"> 외부 자료</label>
+        </div>
+      </div>
+
+      <div class="modal-foot">
+        <button type="button" class="btn-text" onclick="closeExportModal()">취소</button>
+        <button type="button" class="btn-fill" onclick="runExport()">다운로드</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal: 휴지통 -->
   <div class="modal-overlay" id="trashModal" hidden>
     <div class="modal" style="max-width: 520px;">
@@ -1042,13 +1111,24 @@
         <input type="hidden" name="editingId" id="editingId" value="">
         <div class="field-row">
           <div class="field">
-            <label>담당자 <a href="javascript:void(0)" class="field-action" onclick="editSelectedMember()" title="선택한 담당자 편집/삭제">✏️ 편집</a> <a href="javascript:void(0)" class="field-action" onclick="openMemberModal()" title="새 멤버 추가">+ 추가</a></label>
+            <div class="field-label-row">
+              <label>담당자</label>
+              <span class="field-actions">
+                <button type="button" class="field-action" onclick="editSelectedMember()" title="선택한 담당자 편집/삭제">✏️ 편집</button>
+                <button type="button" class="field-action" onclick="openMemberModal()" title="새 멤버 추가">+ 추가</button>
+              </span>
+            </div>
             <select name="member" required>
               <option value="">담당자 선택...</option>
             </select>
           </div>
           <div class="field">
-            <label>카테고리 <a href="javascript:void(0)" class="field-action" onclick="editSelectedCategory()" title="선택한 카테고리 수정/삭제">✏️ 편집</a></label>
+            <div class="field-label-row">
+              <label>카테고리</label>
+              <span class="field-actions">
+                <button type="button" class="field-action" onclick="editSelectedCategory()" title="선택한 카테고리 수정/삭제">✏️ 편집</button>
+              </span>
+            </div>
             <select name="category" required onchange="onCategoryChange(this)">
               <option value="">카테고리 선택...</option>
               <option value="__new__">＋ 새 카테고리 추가</option>
@@ -2126,72 +2206,111 @@
       showToast(`<span class="ok">✓</span>삭제했어요.`);
     };
 
-    // === 프로젝트 Excel(CSV) 내보내기 ===
+    // === 프로젝트 내보내기 (모달 + 컬럼 선택 + CSV/Markdown) ===
     window.exportProjectsExcel = function() {
-      // 현재 보여지는 모든 프로젝트 모으기 (override + user + 데모(숨김 제외))
+      const modal = document.getElementById('exportModal');
+      if (!modal) return;
+      modal.hidden = false;
+      document.body.style.overflow = 'hidden';
+    };
+    window.closeExportModal = function() {
+      const modal = document.getElementById('exportModal');
+      if (!modal) return;
+      modal.hidden = true;
+      document.body.style.overflow = '';
+    };
+    window.exportToggleAll = function(checked) {
+      document.querySelectorAll('#exportCols input[type=checkbox]').forEach(c => { c.checked = checked; });
+    };
+    document.getElementById('exportModal')?.addEventListener('click', e => {
+      if (e.target.id === 'exportModal') window.closeExportModal();
+    });
+
+    function gatherProjects() {
       const allIds = new Set();
       Object.keys(window.PROJECTS || {}).forEach(id => {
         if (!window.getDeletedIds().includes(id)) allIds.add(id);
       });
       window.getUserProjects().forEach(p => allIds.add(p.id));
       Object.keys(window.getOverrides()).forEach(id => allIds.add(id));
-
       const rows = [];
       allIds.forEach(id => {
         const p = window.getProject(id);
-        if (!p) return;
-        rows.push(p);
+        if (p) rows.push(p);
       });
-      if (rows.length === 0) {
-        showToast('내보낼 프로젝트가 없어요');
-        return;
-      }
-      // 최신순 정렬
       rows.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+      return rows;
+    }
 
-      const headers = [
-        '제목', '담당자', '카테고리', '상태', '대표 날짜', '기간',
-        'KPI1 라벨', 'KPI1 값', 'KPI2 라벨', 'KPI2 값',
-        '태그', '회고 메모', '외부 자료'
-      ];
-      const STATUS_LABELS = { ongoing: '진행중', soon: '예정', done: '완료', live: 'LIVE' };
-      const csvEscape = v => {
-        const s = String(v == null ? '' : v);
-        return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-      };
-      const lines = [headers.join(',')];
-      rows.forEach(p => {
-        const memberName = window.MEMBERS[p.member]?.name || p.memberName || '';
-        const k1 = (p.kpis && p.kpis[0]) || {};
-        const k2 = (p.kpis && p.kpis[1]) || {};
-        const tags = (p.tags || []).map(t => '#' + t).join(' ');
-        const resources = (p.resources || []).join(' | ');
-        const row = [
-          p.title || '',
-          memberName,
-          p.category || '',
-          STATUS_LABELS[p.status] || p.status || '',
-          p.date || '',
-          p.period || '',
-          k1.label || '', k1.value || '',
-          k2.label || '', k2.value || '',
-          tags,
-          (p.retroNote || '').replace(/\n/g, ' '),
-          resources
-        ].map(csvEscape).join(',');
-        lines.push(row);
+    const COL_DEFS = {
+      title:     { label: '제목',       get: p => p.title || '' },
+      member:    { label: '담당자',     get: p => window.MEMBERS[p.member]?.name || p.memberName || '' },
+      category:  { label: '카테고리',   get: p => p.category || '' },
+      status:    { label: '상태',       get: p => ({ongoing:'진행중',soon:'예정',done:'완료',live:'LIVE'})[p.status] || p.status || '' },
+      date:      { label: '대표 날짜',  get: p => p.date || '' },
+      period:    { label: '기간',       get: p => p.period || '' },
+      kpi1:      { label: ['KPI1 라벨','KPI1 값'], get: p => [p.kpis?.[0]?.label || '', p.kpis?.[0]?.value || ''] },
+      kpi2:      { label: ['KPI2 라벨','KPI2 값'], get: p => [p.kpis?.[1]?.label || '', p.kpis?.[1]?.value || ''] },
+      tags:      { label: '태그',       get: p => (p.tags || []).map(t => '#' + t).join(' ') },
+      retro:     { label: '회고 메모',   get: p => (p.retroNote || '').replace(/\n/g, ' ') },
+      resources: { label: '외부 자료',   get: p => (p.resources || []).join(' | ') },
+    };
+
+    window.runExport = function() {
+      const fmt = document.querySelector('#exportModal input[name="exportFmt"]:checked')?.value || 'csv';
+      const cols = Array.from(document.querySelectorAll('#exportCols input:checked')).map(c => c.dataset.col);
+      if (cols.length === 0) { showToast('컬럼을 1개 이상 선택해 주세요'); return; }
+      const rows = gatherProjects();
+      if (rows.length === 0) { showToast('내보낼 프로젝트가 없어요'); return; }
+
+      // 헤더 + 행 생성 (kpi1/kpi2는 2열로 펼침)
+      const headers = [];
+      cols.forEach(k => {
+        const d = COL_DEFS[k];
+        if (Array.isArray(d.label)) headers.push(...d.label);
+        else headers.push(d.label);
       });
-      const csv = '﻿' + lines.join('\r\n'); // UTF-8 BOM (엑셀 한글 호환)
+      const matrix = rows.map(p => {
+        const out = [];
+        cols.forEach(k => {
+          const v = COL_DEFS[k].get(p);
+          if (Array.isArray(v)) out.push(...v.map(x => x == null ? '' : String(x)));
+          else out.push(v == null ? '' : String(v));
+        });
+        return out;
+      });
+
       const today = new Date().toISOString().slice(0, 10);
-      const filename = `프로젝트_${today}.csv`;
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+      let filename, blob;
+      if (fmt === 'md') {
+        // Markdown 표
+        const esc = s => String(s).replace(/\|/g, '\\|').replace(/\n/g, ' ');
+        const lines = [];
+        lines.push('| ' + headers.map(esc).join(' | ') + ' |');
+        lines.push('| ' + headers.map(() => '---').join(' | ') + ' |');
+        matrix.forEach(r => lines.push('| ' + r.map(esc).join(' | ') + ' |'));
+        filename = `프로젝트_${today}.md`;
+        blob = new Blob([lines.join('\n')], { type: 'text/markdown;charset=utf-8' });
+      } else {
+        // CSV
+        const csvEscape = v => {
+          const s = String(v == null ? '' : v);
+          return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+        };
+        const lines = [headers.map(csvEscape).join(',')];
+        matrix.forEach(r => lines.push(r.map(csvEscape).join(',')));
+        const csv = '﻿' + lines.join('\r\n');
+        filename = `프로젝트_${today}.csv`;
+        blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+      }
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url; a.download = filename;
       document.body.appendChild(a); a.click();
       document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-      showToast(`<span class="ok">✓</span>${rows.length}건 다운로드했어요!`);
+      window.closeExportModal();
+      showToast(`<span class="ok">✓</span>${rows.length}건 ${fmt === 'md' ? 'Notion(.md)' : 'Excel(.csv)'} 다운로드 완료!`);
     };
 
     // share dashboard URL
