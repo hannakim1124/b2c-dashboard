@@ -1056,15 +1056,11 @@
         <div class="export-fmt">
           <label class="ef-opt"><input type="radio" name="exportFmt" value="csv" checked><span>📊 Excel (.csv)</span></label>
           <label class="ef-opt"><input type="radio" name="exportFmt" value="md"><span>📝 Notion (.md 표)</span></label>
-          <label class="ef-opt"><input type="radio" name="exportFmt" value="slack"><span>💬 슬랙 발송</span></label>
+          <label class="ef-opt"><input type="radio" name="exportFmt" value="slack"><span>💬 슬랙 복사</span></label>
         </div>
-        <div id="slackChannelRow" style="display:none;margin-top:10px">
-          <label style="font-size:11px;color:var(--c-text-3);font-weight:600">채널</label>
-          <select id="slackChannel" style="width:100%;padding:8px 10px;border:1px solid var(--c-border-strong);border-radius:8px;font-size:13px;font-family:inherit">
-            <option value="bot">#딴나봇 (테스트)</option>
-            <option value="team">#team-인사이트전략팀</option>
-          </select>
-        </div>
+        <p id="slackHint" style="display:none;margin:8px 0 0;font-size:11px;color:var(--c-text-3);line-height:1.5">
+          슬랙용 메시지로 클립보드에 복사돼요. <strong>슬랙 열어서 원하는 채널/DM에 붙여넣기 (Ctrl+V)</strong> 해주세요.
+        </p>
       </div>
 
       <div class="field" style="margin-top:14px">
@@ -2256,28 +2252,14 @@
     document.getElementById('exportModal')?.addEventListener('click', e => {
       if (e.target.id === 'exportModal') window.closeExportModal();
     });
-    // 슬랙 발송 선택 시 채널 드롭다운 토글
+    // 슬랙 선택 시 안내문구 토글
     document.querySelectorAll('#exportModal input[name="exportFmt"]').forEach(r => {
       r.addEventListener('change', () => {
         const fmt = document.querySelector('#exportModal input[name="exportFmt"]:checked')?.value;
-        const row = document.getElementById('slackChannelRow');
-        if (row) row.style.display = fmt === 'slack' ? '' : 'none';
+        const hint = document.getElementById('slackHint');
+        if (hint) hint.style.display = fmt === 'slack' ? '' : 'none';
       });
     });
-
-    // 슬랙 발송: 보안상 웹훅을 코드에 직접 넣을 수 없어서 localStorage에 보관
-    // 첫 사용 시 사용자가 웹훅 URL을 입력 → 이후 자동 사용
-    function getSlackHook(channelKey) {
-      try {
-        const map = JSON.parse(localStorage.getItem('b2c_slack_hooks') || '{}');
-        return map[channelKey] || '';
-      } catch (e) { return ''; }
-    }
-    function setSlackHook(channelKey, url) {
-      const map = JSON.parse(localStorage.getItem('b2c_slack_hooks') || '{}');
-      map[channelKey] = url;
-      localStorage.setItem('b2c_slack_hooks', JSON.stringify(map));
-    }
 
     function gatherProjects() {
       const allIds = new Set();
@@ -2335,36 +2317,35 @@
 
       const today = new Date().toISOString().slice(0, 10);
 
-      // ── 슬랙 발송 ──
+      // ── 슬랙 복사 (클립보드) ──
       if (fmt === 'slack') {
-        const channelKey = document.getElementById('slackChannel')?.value || 'bot';
-        const channelName = channelKey === 'bot' ? '#딴나봇' : '#team-인사이트전략팀';
-        let hook = getSlackHook(channelKey);
-        if (!hook) {
-          hook = (prompt(`${channelName} 채널의 슬랙 Incoming Webhook URL을 한 번만 입력해 주세요.\n(이후엔 브라우저에 저장되어 자동 사용됩니다)\n\n예: https://hooks.slack.com/services/...`) || '').trim();
-          if (!hook) { showToast('취소됐어요'); return; }
-          if (!/^https:\/\/hooks\.slack\.com\//.test(hook)) {
-            showToast('유효한 슬랙 Webhook URL이 아니에요'); return;
-          }
-          setSlackHook(channelKey, hook);
-        }
         const headerLine = `📥 *프로젝트 리포트* (${today}) — 총 ${rows.length}건`;
         const tableLines = [];
         tableLines.push(headers.join(' | '));
         tableLines.push(headers.map(() => '---').join(' | '));
         matrix.forEach(r => tableLines.push(r.map(s => String(s).replace(/\|/g, '\\|').replace(/\n/g, ' ')).join(' | ')));
         const body = headerLine + '\n```\n' + tableLines.join('\n') + '\n```';
-        fetch(hook, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: body })
-        }).then(() => {
-          showToast(`<span class="ok">✓</span>${channelName}로 ${rows.length}건 발송 완료!`);
-          window.closeExportModal();
-        }).catch(err => {
-          showToast(`<span class="ok">!</span>발송 실패: ${err.message}`);
-        });
+        const finish = (ok) => {
+          if (ok) {
+            showToast(`<span class="ok">✓</span>슬랙용으로 복사됐어요! 원하는 채널/DM에 붙여넣기 해주세용`);
+            // 슬랙 데스크톱 자동 오픈 시도 (실패해도 무해)
+            try { window.open('slack://open', '_blank'); } catch (e) {}
+            window.closeExportModal();
+          } else {
+            showToast(`<span class="ok">!</span>복사 실패. 직접 복사해 주세요.`);
+          }
+        };
+        if (navigator.clipboard?.writeText) {
+          navigator.clipboard.writeText(body).then(() => finish(true)).catch(() => finish(false));
+        } else {
+          // 폴백: textarea + execCommand
+          const ta = document.createElement('textarea');
+          ta.value = body; ta.style.position = 'fixed'; ta.style.opacity = '0';
+          document.body.appendChild(ta); ta.select();
+          try { document.execCommand('copy'); finish(true); }
+          catch (e) { finish(false); }
+          document.body.removeChild(ta);
+        }
         return;
       }
 
