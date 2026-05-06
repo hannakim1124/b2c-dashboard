@@ -957,9 +957,8 @@
         <h2>프로젝트<span class="count" id="cardCount">14건</span></h2>
         <div class="feed-sort">
           <button class="is-active" data-sort="recent">최신순</button>
-          <button data-sort="impact">성과순</button>
-          <button data-sort="status">상태순</button>
-          <button type="button" class="btn-export" onclick="exportProjectsExcel()" title="Excel(.xlsx) 다운로드">📥 Excel</button>
+          <button data-sort="deadline">마감순</button>
+          <button type="button" class="btn-export" onclick="exportProjectsExcel()" title="다운로드">📥 다운받기</button>
         </div>
       </div>
 
@@ -1188,61 +1187,30 @@
         </div>
 
         <div class="kpi-block">
-          <label class="title">핵심 KPI <span class="opt">(최소 1개 필수, 최대 2개)</span></label>
+          <div class="field-label-row">
+            <label class="title">핵심 KPI <span class="opt">(최소 1개 필수, 최대 2개)</span></label>
+            <span class="field-actions">
+              <button type="button" class="field-action" onclick="editSelectedKpiLabel(1)" title="KPI1 라벨 수정/삭제">✏️ 편집</button>
+            </span>
+          </div>
           <div class="kpi-row">
-            <select class="kpi-label-sel" name="kpi1Label" data-kpi="1">
+            <select class="kpi-label-sel" name="kpi1Label" data-kpi="1" onchange="onKpiLabelChange(this)">
               <option value="">라벨 선택...</option>
-              <option value="신청자 수">신청자 수</option>
-              <option value="누적 신청자">누적 신청자</option>
-              <option value="유니크 신청자">유니크 신청자</option>
-              <option value="이력서 업데이트">이력서 업데이트</option>
-              <option value="이력서 작성">이력서 작성</option>
-              <option value="실 참석자">실 참석자</option>
-              <option value="만족도">만족도</option>
-              <option value="신청 단가">신청 단가</option>
-              <option value="이력서 단가">이력서 단가</option>
-              <option value="전환율">전환율</option>
-              <option value="도달 수">도달 수</option>
-              <option value="노출 수">노출 수</option>
-              <option value="클릭 수">클릭 수</option>
-              <option value="조회 수">조회 수</option>
-              <option value="발송 수">발송 수</option>
-              <option value="응답 수">응답 수</option>
-              <option value="당첨자 수">당첨자 수</option>
-              <option value="SNS 인증">SNS 인증</option>
-              <option value="기대평">기대평</option>
-              <option value="공유 수">공유 수</option>
-              <option value="KPI 달성률">KPI 달성률</option>
-              <option value="__custom__">✏️ 직접 입력...</option>
+              <option value="__new__">＋ 새 KPI 라벨 추가</option>
             </select>
             <input type="text" class="lbl-i" name="kpi1Value" placeholder="값 (예: 1,500)" maxlength="14">
             <select name="kpi1Flavor"><option value="">기본</option><option value="success">성공</option><option value="warning">주의</option><option value="danger">미달</option></select>
           </div>
+          <div class="field-label-row" style="margin-top:8px">
+            <span style="font-size:11px;color:var(--c-text-3)">KPI2 (선택)</span>
+            <span class="field-actions">
+              <button type="button" class="field-action" onclick="editSelectedKpiLabel(2)" title="KPI2 라벨 수정/삭제">✏️ 편집</button>
+            </span>
+          </div>
           <div class="kpi-row">
-            <select class="kpi-label-sel" name="kpi2Label" data-kpi="2">
+            <select class="kpi-label-sel" name="kpi2Label" data-kpi="2" onchange="onKpiLabelChange(this)">
               <option value="">라벨 선택...</option>
-              <option value="신청자 수">신청자 수</option>
-              <option value="누적 신청자">누적 신청자</option>
-              <option value="유니크 신청자">유니크 신청자</option>
-              <option value="이력서 업데이트">이력서 업데이트</option>
-              <option value="이력서 작성">이력서 작성</option>
-              <option value="실 참석자">실 참석자</option>
-              <option value="만족도">만족도</option>
-              <option value="신청 단가">신청 단가</option>
-              <option value="이력서 단가">이력서 단가</option>
-              <option value="전환율">전환율</option>
-              <option value="도달 수">도달 수</option>
-              <option value="노출 수">노출 수</option>
-              <option value="클릭 수">클릭 수</option>
-              <option value="조회 수">조회 수</option>
-              <option value="발송 수">발송 수</option>
-              <option value="응답 수">응답 수</option>
-              <option value="당첨자 수">당첨자 수</option>
-              <option value="SNS 인증">SNS 인증</option>
-              <option value="기대평">기대평</option>
-              <option value="공유 수">공유 수</option>
-              <option value="KPI 달성률">KPI 달성률</option>
-              <option value="__custom__">✏️ 직접 입력...</option>
+              <option value="__new__">＋ 새 KPI 라벨 추가</option>
             </select>
             <input type="text" class="lbl-i" name="kpi2Value" placeholder="값" maxlength="14">
             <select name="kpi2Flavor"><option value="">기본</option><option value="success">성공</option><option value="warning">주의</option><option value="danger">미달</option></select>
@@ -1711,7 +1679,7 @@
         const cards = Array.from(grid.querySelectorAll('.card'));
         const sorted = cards.slice().sort((a, b) => {
           if (mode === 'recent') return new Date(b.dataset.date) - new Date(a.dataset.date);
-          if (mode === 'impact') return (parseFloat(b.dataset.impact) || 0) - (parseFloat(a.dataset.impact) || 0);
+          if (mode === 'deadline') return new Date(a.dataset.date) - new Date(b.dataset.date);
           return statusOrder(a.dataset.status) - statusOrder(b.dataset.status);
         });
         sorted.forEach(c => grid.appendChild(c));
@@ -1854,6 +1822,56 @@
       if (!id) { showToast('편집할 담당자를 먼저 선택해 주세요'); return; }
       window.openMemberModal(id);
     };
+    // === KPI 라벨 동적 채우기 ===
+    function refreshKpiLabelSelects(preferred1, preferred2) {
+      const labels = (window.getKpiLabels && window.getKpiLabels()) || [];
+      [1, 2].forEach(n => {
+        const sel = form.querySelector(`[name="kpi${n}Label"]`);
+        if (!sel) return;
+        const prev = (n === 1 ? preferred1 : preferred2) ?? sel.value;
+        sel.innerHTML = '<option value="">라벨 선택...</option>'
+          + labels.map(l => `<option value="${escapeHtml(l)}">${escapeHtml(l)}</option>`).join('')
+          + '<option value="__new__">＋ 새 KPI 라벨 추가</option>';
+        if (prev && labels.includes(prev)) sel.value = prev;
+      });
+    }
+    window.onKpiLabelChange = function(sel) {
+      if (sel.value !== '__new__') return;
+      const name = (prompt('새 KPI 라벨 이름을 입력해 주세요 (예: 신청자 수)') || '').trim();
+      if (!name) { sel.value = ''; return; }
+      const ok = window.addKpiLabel(name);
+      // 양쪽 select 모두 갱신, 방금 입력한 select에 새 값 반영
+      const which = sel.dataset.kpi === '1' ? 1 : 2;
+      refreshKpiLabelSelects(
+        which === 1 ? name : undefined,
+        which === 2 ? name : undefined
+      );
+      if (!ok) showToast(`<span class="ok">!</span>이미 있는 라벨이에요.`);
+    };
+    window.editSelectedKpiLabel = function(which) {
+      const sel = form.querySelector(`[name="kpi${which}Label"]`);
+      const cur = sel?.value;
+      if (!cur || cur === '__new__') { showToast('편집할 KPI 라벨을 먼저 선택해 주세요'); return; }
+      const action = prompt(`"${cur}" — 새 이름을 입력하면 수정, 빈 칸으로 두고 확인하면 삭제합니다.`, cur);
+      if (action === null) return;
+      const newName = action.trim();
+      if (!newName) {
+        if (!confirm(`"${cur}" KPI 라벨을 삭제할까요?\n(이 라벨을 쓴 프로젝트는 그대로 남아요)`)) return;
+        window.removeKpiLabel(cur);
+        refreshKpiLabelSelects('', '');
+        showToast(`<span class="ok">✓</span>"${cur}" 삭제했어요.`);
+        return;
+      }
+      if (newName === cur) return;
+      const ok = window.renameKpiLabel(cur, newName);
+      if (!ok) { showToast(`<span class="ok">!</span>이미 있는 이름이에요.`); return; }
+      refreshKpiLabelSelects(
+        which === 1 ? newName : undefined,
+        which === 2 ? newName : undefined
+      );
+      showToast(`<span class="ok">✓</span>"${newName}"(으)로 수정했어요.`);
+    };
+
     // 폼 안에서 선택된 카테고리 편집(이름 수정/삭제)
     window.editSelectedCategory = function() {
       const sel = form.querySelector('[name="category"]');
@@ -1959,6 +1977,7 @@
       setEditMode(false);
       refreshMemberSelect();
       refreshCategorySelect();
+      refreshKpiLabelSelects();
       bindTagInput();
       setTags([]);
       modal.classList.add('is-open');
@@ -1978,6 +1997,12 @@
         window.addCategory(p.category);
       }
       refreshCategorySelect(p.category || '');
+      // 편집 시: 기존 KPI 라벨이 목록에 없으면 자동 추가
+      const k1lab = p.kpis?.[0]?.label;
+      const k2lab = p.kpis?.[1]?.label;
+      if (k1lab && !window.getKpiLabels().includes(k1lab)) window.addKpiLabel(k1lab);
+      if (k2lab && !window.getKpiLabels().includes(k2lab)) window.addKpiLabel(k2lab);
+      refreshKpiLabelSelects(k1lab || '', k2lab || '');
       bindTagInput();
       // 폼 채우기
       form.querySelector('[name="member"]').value = p.member || '';

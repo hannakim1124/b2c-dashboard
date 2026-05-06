@@ -31,6 +31,34 @@ window.removeCategory = function(name) {
   localStorage.setItem('b2c_categories', JSON.stringify(list));
 };
 
+// ── 사용자 정의 KPI 라벨 ──
+window.getKpiLabels = function() {
+  try { return JSON.parse(localStorage.getItem('b2c_kpi_labels') || '[]'); }
+  catch (e) { return []; }
+};
+window.addKpiLabel = function(name) {
+  const n = String(name || '').trim();
+  if (!n) return false;
+  const list = window.getKpiLabels();
+  if (list.includes(n)) return false;
+  list.push(n);
+  localStorage.setItem('b2c_kpi_labels', JSON.stringify(list));
+  return true;
+};
+window.renameKpiLabel = function(oldName, newName) {
+  const list = window.getKpiLabels();
+  const idx = list.indexOf(oldName);
+  if (idx < 0) return false;
+  if (list.includes(newName)) return false;
+  list[idx] = newName;
+  localStorage.setItem('b2c_kpi_labels', JSON.stringify(list));
+  return true;
+};
+window.removeKpiLabel = function(name) {
+  const list = window.getKpiLabels().filter(x => x !== name);
+  localStorage.setItem('b2c_kpi_labels', JSON.stringify(list));
+};
+
 
 
 // ── localStorage 키 ──
@@ -141,5 +169,6 @@ window.resetAll = function() {
   localStorage.removeItem('b2c_deleted');
   localStorage.removeItem('b2c_members');
   localStorage.removeItem('b2c_categories');
+  localStorage.removeItem('b2c_kpi_labels');
   window.MEMBERS = {};
 };
