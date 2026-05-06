@@ -471,11 +471,21 @@
 
     .members-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
     .mem-card {
+      position: relative;
       background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-lg);
       padding: 22px; text-align: center;
       transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
       cursor: pointer;
     }
+    .mem-card .mem-edit {
+      position: absolute; top: 8px; right: 8px;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--c-surface-deep); border: none; cursor: pointer;
+      font-size: 13px; line-height: 1; padding: 0;
+      opacity: 0; transition: opacity 0.12s, background 0.12s;
+    }
+    .mem-card:hover .mem-edit { opacity: 1; }
+    .mem-card .mem-edit:hover { background: var(--c-primary-bg); }
     .mem-card:hover { transform: translateY(-2px); box-shadow: var(--sh-2); border-color: transparent; }
     .mem-card .av {
       width: 56px; height: 56px; border-radius: 50%;
@@ -957,13 +967,14 @@
     </div>
   </footer>
 
-  <!-- Modal: 멤버 추가 -->
+  <!-- Modal: 멤버 추가/편집 -->
   <div class="modal-overlay" id="memberModal" hidden>
     <div class="modal" style="max-width: 460px;">
       <button class="modal-close" onclick="closeMemberModal()" aria-label="닫기">×</button>
-      <h2 class="modal-title">+ 새 멤버 추가</h2>
-      <p class="modal-sub">팀원을 추가해 보세요. 이름·역할·이니셜·색상 입력!</p>
+      <h2 class="modal-title" id="memberModalTitle">+ 새 멤버 추가</h2>
+      <p class="modal-sub" id="memberModalSub">팀원을 추가해 보세요. 이름·역할·색상 입력!</p>
       <form id="memberForm" class="member-form" onsubmit="return submitMember(event)">
+        <input type="hidden" id="memEditId" value="">
         <div class="field">
           <label>이름</label>
           <input type="text" id="memName" placeholder="예: 김한나" required maxlength="10">
@@ -987,7 +998,8 @@
         </div>
         <div class="modal-foot">
           <button type="button" class="btn-text" onclick="closeMemberModal()">취소</button>
-          <button type="submit" class="btn-fill">멤버 추가</button>
+          <button type="button" class="btn-text" id="memDeleteBtn" onclick="deleteMember()" style="color:var(--c-danger);display:none">삭제</button>
+          <button type="submit" class="btn-fill" id="memSubmitBtn">멤버 추가</button>
         </div>
       </form>
     </div>
@@ -1396,10 +1408,7 @@
         });
       });
       document.getElementById('addMemberBtn').addEventListener('click', () => {
-        const modal = document.getElementById('memberModal');
-        modal.hidden = false;
-        document.body.style.overflow = 'hidden';
-        document.getElementById('memName')?.focus();
+        window.openMemberModal();
       });
       document.getElementById('memberModal')?.addEventListener('click', e => {
         if (e.target.id === 'memberModal') window.closeMemberModal();
@@ -1468,56 +1477,139 @@
       list.appendChild(row);
     };
 
+    // === 전체 멤버 재렌더 (초기 로드/리셋 후) ===
+    function renderAllMembers() {
+      const members = window.MEMBERS || {};
+      const ids = Object.keys(members);
+      // 1. 필터 칩
+      const filterRow = document.querySelector('[data-filter="member"]');
+      const addBtn = document.getElementById('addMemberBtn');
+      if (filterRow && addBtn) {
+        filterRow.querySelectorAll('.m-chip:not(#addMemberBtn):not([data-member="all"])').forEach(c => c.remove());
+        ids.forEach(id => rerenderMemberFilterChip(members[id]));
+      }
+      // 2. 멤버 카드
+      const grid = document.querySelector('.members-grid');
+      if (grid) {
+        grid.innerHTML = ids.length === 0
+          ? `<div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--c-text-3);font-size:14px;border:1px dashed var(--c-border-strong);border-radius:12px">👤 아직 멤버가 없어요. 위에 + 멤버 추가 버튼으로 시작해 보세요!</div>`
+          : '';
+        ids.forEach(id => rerenderMemberCard(members[id]));
+      }
+    }
+
     // === Member Modal (global) ===
+    window.openMemberModal = function(editId) {
+      const modal = document.getElementById('memberModal');
+      if (!modal) return;
+      const isEdit = !!(editId && window.MEMBERS && window.MEMBERS[editId]);
+      document.getElementById('memEditId').value = isEdit ? editId : '';
+      document.getElementById('memberModalTitle').textContent = isEdit ? '✏️ 멤버 편집' : '+ 새 멤버 추가';
+      document.getElementById('memberModalSub').textContent = isEdit ? '이름·역할·색상을 수정할 수 있어요.' : '팀원을 추가해 보세요. 이름·역할·색상 입력!';
+      document.getElementById('memSubmitBtn').textContent = isEdit ? '저장' : '멤버 추가';
+      document.getElementById('memDeleteBtn').style.display = isEdit ? '' : 'none';
+      const form = document.getElementById('memberForm');
+      form.reset();
+      if (isEdit) {
+        const m = window.MEMBERS[editId];
+        document.getElementById('memName').value = m.name || '';
+        document.getElementById('memRole').value = m.role || '';
+        document.getElementById('memCls').value = m.cls || 'blue';
+        document.getElementById('memEditId').value = editId;
+      }
+      modal.hidden = false;
+      document.body.style.overflow = 'hidden';
+      document.getElementById('memName')?.focus();
+    };
     window.closeMemberModal = function() {
       const modal = document.getElementById('memberModal');
       if (!modal) return;
       modal.hidden = true;
       document.body.style.overflow = '';
       document.getElementById('memberForm')?.reset();
+      document.getElementById('memEditId').value = '';
+    };
+    function rerenderMemberFilterChip(member) {
+      const filterRow = document.querySelector('[data-filter="member"]');
+      if (!filterRow) return;
+      const existing = filterRow.querySelector(`.m-chip[data-member="${member.id}"]`);
+      const html = `<span class="av av-${member.cls}">${escapeHtml(member.avatar)}</span>${escapeHtml(member.name)}`;
+      if (existing) {
+        existing.innerHTML = html;
+      } else {
+        const addBtn = document.getElementById('addMemberBtn');
+        const chip = document.createElement('button');
+        chip.className = 'm-chip';
+        chip.dataset.member = member.id;
+        chip.innerHTML = html;
+        filterRow.insertBefore(chip, addBtn);
+      }
+    }
+    function rerenderMemberCard(member) {
+      const grid = document.querySelector('.members-grid');
+      if (!grid) return;
+      const existing = grid.querySelector(`.mem-card[data-member-go="${member.id}"]`);
+      const inner = `
+        <div class="av av-${member.cls}">${escapeHtml(member.avatar)}</div>
+        <div class="name">${escapeHtml(member.name)}</div>
+        <div class="role">${escapeHtml(member.role || '')}</div>
+        <div class="mem-card-stats">
+          <div class="mem-card-stat"><div class="num">0</div><div class="lbl">프로젝트</div></div>
+          <div class="mem-card-stat"><div class="num">0</div><div class="lbl">참여자</div></div>
+        </div>
+        <button class="mem-edit" onclick="event.preventDefault();event.stopPropagation();openMemberModal('${member.id}')" aria-label="편집">✏️</button>
+      `;
+      if (existing) {
+        existing.innerHTML = inner;
+      } else {
+        const placeholder = grid.querySelector('div[style*="grid-column"]');
+        if (placeholder) placeholder.remove();
+        const card = document.createElement('a');
+        card.className = 'mem-card';
+        card.href = '#feed';
+        card.dataset.memberGo = member.id;
+        card.innerHTML = inner;
+        grid.appendChild(card);
+      }
+    }
+    window.deleteMember = function() {
+      const id = document.getElementById('memEditId').value;
+      if (!id || !window.MEMBERS[id]) return;
+      const m = window.MEMBERS[id];
+      if (!confirm(`"${m.name}" 멤버를 삭제할까요?\n(이 멤버가 담당한 프로젝트는 그대로 남아요)`)) return;
+      // localStorage에서 제거
+      const saved = JSON.parse(localStorage.getItem('b2c_members') || '[]').filter(x => x.id !== id);
+      localStorage.setItem('b2c_members', JSON.stringify(saved));
+      delete window.MEMBERS[id];
+      // UI에서 제거
+      document.querySelector(`.m-chip[data-member="${id}"]`)?.remove();
+      document.querySelector(`.mem-card[data-member-go="${id}"]`)?.remove();
+      showToast(`<span class="ok">✓</span>${m.name} 님을 삭제했어요.`);
+      window.closeMemberModal();
     };
     window.submitMember = function(e) {
       if (e) e.preventDefault();
       const trimmedName = (document.getElementById('memName').value || '').trim();
       const role = (document.getElementById('memRole').value || '').trim();
       const cls = document.getElementById('memCls').value;
+      const editId = (document.getElementById('memEditId').value || '').trim();
       if (!trimmedName || !role) { showToast('이름·역할을 입력해 주세요'); return false; }
-      const id = 'mem_' + Date.now();
-      const newMember = { id, name: trimmedName, role, avatar: trimmedName.charAt(0) || '?', cls };
+      const isEdit = !!editId && window.MEMBERS[editId];
+      const id = isEdit ? editId : ('mem_' + Date.now());
+      const member = { id, name: trimmedName, role, avatar: trimmedName.charAt(0) || '?', cls };
       // LocalStorage 저장
-      const saved = JSON.parse(localStorage.getItem('b2c_members') || '[]');
-      saved.push(newMember);
+      let saved = JSON.parse(localStorage.getItem('b2c_members') || '[]');
+      if (isEdit) {
+        saved = saved.map(x => x.id === id ? member : x);
+      } else {
+        saved.push(member);
+      }
       localStorage.setItem('b2c_members', JSON.stringify(saved));
-      if (window.MEMBERS) window.MEMBERS[id] = newMember;
-      // 1. 멤버 칩 (필터 영역) 추가
-      const filterRow = document.querySelector('[data-filter="member"]');
-      const addBtn = document.getElementById('addMemberBtn');
-      if (filterRow && addBtn) {
-        const chip = document.createElement('button');
-        chip.className = 'm-chip';
-        chip.dataset.member = id;
-        chip.innerHTML = `<span class="av av-${cls}">${newMember.avatar}</span>${newMember.name}`;
-        filterRow.insertBefore(chip, addBtn);
-      }
-      // 2. 멤버 카드 (members-grid) 추가
-      const grid = document.querySelector('.members-grid');
-      if (grid) {
-        const card = document.createElement('a');
-        card.className = 'mem-card';
-        card.href = '#feed';
-        card.dataset.memberGo = id;
-        card.innerHTML = `
-          <div class="av av-${cls}">${newMember.avatar}</div>
-          <div class="name">${newMember.name}</div>
-          <div class="role">${role}</div>
-          <div class="mem-card-stats">
-            <div class="mem-card-stat"><div class="num">0</div><div class="lbl">프로젝트</div></div>
-            <div class="mem-card-stat"><div class="num">0</div><div class="lbl">참여자</div></div>
-          </div>
-        `;
-        grid.appendChild(card);
-      }
-      showToast(`<span class="ok">✓</span>${trimmedName} 님 추가됐어요!`);
+      window.MEMBERS[id] = member;
+      // chip + 카드 갱신
+      rerenderMemberFilterChip(member);
+      rerenderMemberCard(member);
+      showToast(`<span class="ok">✓</span>${trimmedName} 님 ${isEdit ? '수정' : '추가'}했어요!`);
       window.closeMemberModal();
       return false;
     };
@@ -2054,6 +2146,7 @@
     //  Init
     // ════════════════════════════════════════════════
     renderGrid();
+    renderAllMembers();
     bindFilters();
 
     // === Year Dropdown ===
