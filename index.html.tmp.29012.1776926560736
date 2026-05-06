@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="robots" content="noindex, nofollow">
   <title>인사이트전략팀 B2C 대시보드</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
   <style>
@@ -142,8 +141,6 @@
     .hero-sub { font-size: 14px; color: var(--c-text-3); font-weight: 500; margin-bottom: 28px; }
 
     .hero-kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
-    .hero-kpi-grid.hero-kpi-grid-3 { grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
-    .hero-kpi-grid-3 .hero-kpi-num { font-size: 34px; }
     .hero-kpi-label { font-size: 12px; color: var(--c-text-3); font-weight: 600; margin-bottom: 8px; }
     .hero-kpi-num { font-size: 40px; font-weight: 800; color: var(--c-text); letter-spacing: -0.03em; line-height: 1; font-feature-settings: var(--tx-mono-feature); display: flex; align-items: baseline; gap: 8px; }
     .hero-kpi-num .target { font-size: 14px; font-weight: 600; color: var(--c-text-3); letter-spacing: -0.01em; }
@@ -223,33 +220,6 @@
       .row .stat .label { font-size: 10px; }
       .filter-btn { padding: 6px 10px; font-size: 11px; }
     }
-
-    /* === Devcon GA Section === */
-    .ga-section { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-lg); padding: 20px 24px; margin: 16px 0; }
-    .ga-head { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--c-border); }
-    .ga-title { font-size: 15px; font-weight: 800; color: var(--c-text); letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; }
-    .ga-tag { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: var(--r-pill); background: var(--c-danger-bg); color: var(--c-danger); letter-spacing: 0.02em; }
-    .ga-summary { font-size: 12px; color: var(--c-text-3); font-weight: 500; }
-    .ga-summary b { color: var(--c-text); font-weight: 800; font-feature-settings: var(--tx-mono-feature); }
-    .ga-table { width: 100%; border-collapse: collapse; font-feature-settings: var(--tx-mono-feature); }
-    .ga-table th { font-size: 11px; font-weight: 700; color: var(--c-text-3); text-align: right; padding: 10px 8px; border-bottom: 1px solid var(--c-border); letter-spacing: 0.02em; text-transform: uppercase; }
-    .ga-table th:first-child { text-align: left; }
-    .ga-table td { font-size: 13px; color: var(--c-text); font-weight: 700; padding: 12px 8px; border-bottom: 1px solid var(--c-border); text-align: right; }
-    .ga-table tr:last-child td { border-bottom: none; }
-    .ga-table tr:hover td { background: var(--c-surface-alt); }
-    .ga-table td:first-child { text-align: left; }
-    .ga-medium-name { font-weight: 700; font-size: 13px; color: var(--c-text); }
-    .ga-medium-raw { font-size: 11px; color: var(--c-text-4); font-weight: 500; margin-top: 2px; font-family: 'SF Mono', Menlo, monospace; }
-    .ga-bar-cell { display: flex; align-items: center; gap: 8px; justify-content: flex-end; min-width: 140px; }
-    .ga-bar { flex: 1; max-width: 80px; height: 6px; background: var(--c-border); border-radius: var(--r-pill); overflow: hidden; }
-    .ga-bar-fill { height: 100%; background: var(--c-danger); border-radius: var(--r-pill); }
-    .ga-pct { font-size: 12px; font-weight: 800; color: var(--c-text-2); min-width: 44px; text-align: right; }
-    .ga-foot { font-size: 11px; color: var(--c-text-4); margin-top: 12px; font-weight: 500; }
-    @media (max-width: 720px) {
-      .ga-table th, .ga-table td { padding: 8px 4px; font-size: 11px; }
-      .ga-bar { max-width: 40px; }
-      .ga-pct { min-width: 36px; font-size: 11px; }
-    }
   </style>
 </head>
 <body>
@@ -300,7 +270,7 @@
         <h2 class="hero-title">DEVCON</h2>
         <p class="hero-sub">AI 시대, 개발자 고민 완전 정복 · 4.23 (목)</p>
 
-        <div class="hero-kpi-grid hero-kpi-grid-3">
+        <div class="hero-kpi-grid">
           <div>
             <div class="hero-kpi-label">신청자</div>
             <div class="hero-kpi-num">1,511 <span class="target">/ 1,500</span></div>
@@ -309,22 +279,15 @@
           </div>
           <div>
             <div class="hero-kpi-label">이력서 업데이트</div>
-            <div class="hero-kpi-num">198 <span class="target">/ 150</span></div>
+            <div class="hero-kpi-num">156 <span class="target">/ 150</span></div>
             <div class="progress"><div class="progress-bar success" style="width:100%"></div></div>
-            <div class="hero-kpi-rate success">132% 달성 ✓</div>
-          </div>
-          <div>
-            <div class="hero-kpi-label">줌 라이브 참여</div>
-            <div class="hero-kpi-num">825 <span class="target">유니크</span></div>
-            <div class="progress"><div class="progress-bar success" style="width:54.6%"></div></div>
-            <div class="hero-kpi-rate success">신청 대비 54.6% · 누적 1,272</div>
+            <div class="hero-kpi-rate success">104% 달성 ✓</div>
           </div>
         </div>
 
         <div class="hero-meta">
-          <span class="meta-item" id="dday-meta">D+5 · 4.23 종료</span>
+          <span class="meta-item" id="dday-meta">D-Day · 오늘 종료</span>
           <span class="meta-item">광고 4,498,434원 (99.97%)</span>
-          <span class="meta-item">만족도 4.3/5</span>
           <a href="devcon-dashboard.html" class="hero-link" target="_blank">상세 →</a>
         </div>
       </div>
@@ -339,148 +302,6 @@
           이력서 업데이트 <b>500명</b>
         </div>
       </aside>
-    </section>
-
-    <!-- 2.5 데브콘 GA 유입 분석 -->
-    <section class="ga-section">
-      <div class="ga-head">
-        <div class="ga-title">DEVCON 26 · GA 유입 분석<span class="ga-tag">UTM · DEVCON26</span></div>
-        <div class="ga-summary">활성 사용자 <b>1,433</b> · 세션 <b>2,742</b> · 조회수 <b>23,036</b></div>
-      </div>
-      <table class="ga-table">
-        <thead>
-          <tr>
-            <th>매체 (소스 / 매체)</th>
-            <th>활성 사용자</th>
-            <th>세션</th>
-            <th>조회수</th>
-            <th style="min-width:160px">활성 사용자 비중</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <div class="ga-medium-name">게임잡 팝업</div>
-              <div class="ga-medium-raw">jobkorea / gamejob_popup</div>
-            </td>
-            <td>1,077</td>
-            <td>1,900</td>
-            <td>14,178</td>
-            <td>
-              <div class="ga-bar-cell">
-                <div class="ga-bar"><div class="ga-bar-fill" style="width:75.2%"></div></div>
-                <span class="ga-pct">75.2%</span>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div class="ga-medium-name">커튼 배너</div>
-              <div class="ga-medium-raw">jobkorea / banner_ct</div>
-            </td>
-            <td>197</td>
-            <td>392</td>
-            <td>4,796</td>
-            <td>
-              <div class="ga-bar-cell">
-                <div class="ga-bar"><div class="ga-bar-fill" style="width:13.7%"></div></div>
-                <span class="ga-pct">13.7%</span>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div class="ga-medium-name">리퍼럴</div>
-              <div class="ga-medium-raw">jobkorea / referral</div>
-            </td>
-            <td>86</td>
-            <td>115</td>
-            <td>268</td>
-            <td>
-              <div class="ga-bar-cell">
-                <div class="ga-bar"><div class="ga-bar-fill" style="width:6.0%"></div></div>
-                <span class="ga-pct">6.0%</span>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div class="ga-medium-name">CRM</div>
-              <div class="ga-medium-raw">jobkorea / CRM</div>
-            </td>
-            <td>31</td>
-            <td>193</td>
-            <td>2,727</td>
-            <td>
-              <div class="ga-bar-cell">
-                <div class="ga-bar"><div class="ga-bar-fill" style="width:2.2%"></div></div>
-                <span class="ga-pct">2.2%</span>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div class="ga-medium-name">컨퍼런스 리퍼럴</div>
-              <div class="ga-medium-raw">jobkorea / referral_con</div>
-            </td>
-            <td>28</td>
-            <td>84</td>
-            <td>573</td>
-            <td>
-              <div class="ga-bar-cell">
-                <div class="ga-bar"><div class="ga-bar-fill" style="width:2.0%"></div></div>
-                <span class="ga-pct">2.0%</span>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div class="ga-medium-name">인스타그램</div>
-              <div class="ga-medium-raw">jobkorea / instagram</div>
-            </td>
-            <td>11</td>
-            <td>32</td>
-            <td>354</td>
-            <td>
-              <div class="ga-bar-cell">
-                <div class="ga-bar"><div class="ga-bar-fill" style="width:0.8%"></div></div>
-                <span class="ga-pct">0.8%</span>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div class="ga-medium-name">링크드인</div>
-              <div class="ga-medium-raw">jobkorea / linkedin</div>
-            </td>
-            <td>7</td>
-            <td>19</td>
-            <td>59</td>
-            <td>
-              <div class="ga-bar-cell">
-                <div class="ga-bar"><div class="ga-bar-fill" style="width:0.5%"></div></div>
-                <span class="ga-pct">0.5%</span>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div class="ga-medium-name">메타 (광고)</div>
-              <div class="ga-medium-raw">jobkorea / meta</div>
-            </td>
-            <td>2</td>
-            <td>10</td>
-            <td>81</td>
-            <td>
-              <div class="ga-bar-cell">
-                <div class="ga-bar"><div class="ga-bar-fill" style="width:0.1%"></div></div>
-                <span class="ga-pct">0.1%</span>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="ga-foot">※ GA4 기준 · 캠페인 = DEVCON26 · 게임잡 팝업이 활성 사용자 75.2% · 자체 자산(팝업·커튼배너·CRM)이 91.1% 차지</div>
     </section>
 
     <!-- 3. 누적 한 줄 -->
@@ -602,19 +423,12 @@
     </div>
     </div>
     <!-- /2025 섹션 끝 -->
-      </div>
-    </section>
-    <!-- /collapse-monthly -->
 
-    <!-- 이벤트 비교 섹션 (collapse) -->
-    <section class="collapse" id="collapse-compare">
-      <button class="collapse-toggle" onclick="toggleCollapse('compare')">
-        <span>이벤트 비교</span>
-        <span class="ct-meta">올해+작년 이벤트 지표 대조</span>
-        <span class="ct-icon">▾</span>
-      </button>
-      <div class="collapse-body">
-      <div id="compare-panel" style="margin-top:4px">
+    <!-- 이벤트 비교 섹션 -->
+    <div style="margin-top:28px">
+      <button onclick="toggleCompare()" id="compare-btn" style="width:100%;padding:14px 20px;border-radius:14px;border:1.5px solid #3182F6;background:#fff;color:#3182F6;font-size:14px;font-family:Pretendard;font-weight:700;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:8px" onmouseenter="this.style.background='#e8f3ff'" onmouseleave="this.style.background='#fff'">📊 이벤트 비교하기</button>
+
+      <div id="compare-panel" style="display:none;margin-top:16px">
         <!-- STEP 1: 이벤트 선택 -->
         <div style="background:#fff;border-radius:16px;padding:24px;box-shadow:0 1px 3px rgba(4,4,4,0.04);margin-bottom:12px">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
@@ -664,14 +478,12 @@
           <div style="overflow-x:auto">
             <table id="compare-table" style="width:100%;border-collapse:collapse;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(4,4,4,0.04)"></table>
           </div>
-          <div style="font-size:11px;color:var(--c-text-4);margin-top:8px">* 신청 단가 = 광고비 ÷ 신청자 · 참석 단가 = 광고비 ÷ 참석자 · — 는 데이터 미수집</div>
+          <div style="font-size:11px;color:#B0B8C1;margin-top:8px">* 신청 단가 = 광고비 ÷ 신청자 · 참석 단가 = 광고비 ÷ 참석자 · — 는 데이터 미수집</div>
         </div>
       </div>
-      </div>
-    </section>
-    <!-- /collapse-compare -->
+    </div>
 
-  </main>
+  </div>
 
   <!-- AI 분석 챗 (채널톡 스타일 우하단 플로팅) -->
   <div id="ai-fab" onclick="toggleAiChat()" style="position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:#3182F6;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;box-shadow:0 4px 16px rgba(49,130,246,0.4);z-index:999;transition:transform 0.2s" onmouseenter="this.style.transform='scale(1.1)'" onmouseleave="this.style.transform='scale(1)'">🤖</div>
@@ -955,30 +767,14 @@
       }
     }
 
-    // === Sticky topbar shadow on scroll ===
+    // === Sticky header shadow on scroll ===
     (function() {
-      var header = document.querySelector('.topbar') || document.querySelector('.sticky-header');
+      var header = document.querySelector('.sticky-header');
       if (!header) return;
       window.addEventListener('scroll', function() {
         if (window.scrollY > 4) header.classList.add('is-stuck');
         else header.classList.remove('is-stuck');
       }, { passive: true });
-    })();
-
-    // === Collapse 토글 ===
-    function toggleCollapse(id) {
-      var el = document.getElementById('collapse-' + id);
-      if (el) el.classList.toggle('is-open');
-    }
-
-    // 첫 로드 시 월별 캘린더는 기본 닫힘. 비교는 닫힘.
-    // 필요 시 URL 해시로 자동 open: #monthly, #compare
-    (function() {
-      var hash = (location.hash || '').replace('#', '');
-      if (hash === 'monthly' || hash === 'compare') {
-        var el = document.getElementById('collapse-' + hash);
-        if (el) el.classList.add('is-open');
-      }
     })();
 
     // === 이벤트 추가 기능 ===
@@ -1217,7 +1013,7 @@
       'hreka': { name:'흐레카 (25)', budget:28440000, actual:19434768, adCost:1130362, applicants:470, attendees:178, resumeUpdate:null, kpi:'156.7%', satisfaction:'3.94/5', okaBang:null },
       'resume': { name:'퇴근 후 이력서 (25)', budget:13750000, actual:null, adCost:null, applicants:702, attendees:72, resumeUpdate:586, kpi:'58.6%', satisfaction:null, okaBang:null },
       'conf26': { name:'커리어 컨퍼런스 (26)', budget:9695588, actual:9695588, adCost:4905722, applicants:1566, attendees:562, resumeUpdate:110, kpi:'31.5%', satisfaction:'4.33/5', okaBang:null },
-      'devcon26': { name:'데브콘 (26)', budget:6000000, actual:null, adCost:4498434, applicants:1511, attendees:825, resumeUpdate:308, kpi:'100.7%', satisfaction:'4.3/5', okaBang:null }
+      'devcon26': { name:'데브콘 (26)', budget:6000000, actual:null, adCost:4498434, applicants:1511, attendees:null, resumeUpdate:308, kpi:'100.7%', satisfaction:null, okaBang:null }
     };
     var metricLabels = {
       budget:'총 예산(품의)', actual:'실 집행액', adCost:'광고비', applicants:'신청자 수', attendees:'참석자 수',
@@ -1255,7 +1051,7 @@
       '흐레카': { name:'흐레카(2025)', year:2025, type:'오프라인(B2B)', budget:28440000, actual:19434768, adCost:1130362, applicants:470, attendees:178, resume:null, satisfaction:'3.94/5', okaBang:null, kpiTarget:300, kpi:'156.7%', cpaTotal:41351, cpaAd:2405, period:'11.12', channels:'IAM 배너' },
       '퇴근후이력서': { name:'퇴근 후 이력서', year:2025, type:'오프라인', budget:13750000, actual:null, adCost:null, applicants:702, attendees:72, resume:586, satisfaction:null, okaBang:null, kpiTarget:1000, kpi:'58.6%', cpaTotal:null, cpaAd:null, period:'12.16~18', channels:'미정산' },
       '커리어컨퍼런스': { name:'커리어 컨퍼런스(2026)', year:2026, type:'웨비나', budget:9695588, actual:9695588, adCost:4905722, applicants:1566, attendees:562, resume:110, satisfaction:'4.33/5', okaBang:null, kpiTarget:5000, kpi:'31.5%', cpaTotal:6192, cpaAd:3133, period:'03.26', channels:'META' },
-      '데브콘': { name:'데브콘(2026)', year:2026, type:'웨비나', budget:6000000, actual:null, adCost:4498434, applicants:1511, attendees:825, resume:308, satisfaction:'4.3/5', okaBang:null, kpiTarget:1500, kpi:'100.7%', cpaTotal:null, cpaAd:2977, period:'04.23', channels:'META + CRM + 게임잡' }
+      '데브콘': { name:'데브콘(2026)', year:2026, type:'웨비나', budget:6000000, actual:null, adCost:4498434, applicants:1511, attendees:null, resume:308, satisfaction:null, okaBang:null, kpiTarget:1500, kpi:'100.7%', cpaTotal:null, cpaAd:2977, period:'04.23', channels:'META + CRM + 게임잡' }
     };
     var allEvents = Object.values(DB);
 
@@ -1370,7 +1166,7 @@
         return '밋업 <b>563%</b> · 흐레카 <b>157%</b> · 이력서 <b>59%</b><br>컨퍼런스 <b>32%</b> · 데브콘 <b>101%</b>';
       }
       if (q.match(/만족/)) {
-        return '밋업 <b>84%</b> · 흐레카 <b>3.94/5</b> · 컨퍼런스 <b>4.33/5</b> · 데브콘 <b>4.3/5</b>';
+        return '밋업 <b>84%</b> · 흐레카 <b>3.94/5</b> · 컨퍼런스 <b>4.33/5</b>';
       }
       if (q.match(/비교|전체|요약/)) {
         return '<table style="width:100%;font-size:11px;border-collapse:collapse"><tr style="background:#f2f4f6"><th style="padding:5px;text-align:left">이벤트</th><th style="text-align:right;padding:5px">신청</th><th style="text-align:right;padding:5px">이력서</th><th style="text-align:right;padding:5px">단가</th></tr>' +

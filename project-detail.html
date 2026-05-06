@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>프로젝트 상세 · 인사이트전략팀</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <style>
+    :root {
+      --c-bg: #FFFFFF;
+      --c-surface: #FFFFFF;
+      --c-surface-alt: #F9FAFB;
+      --c-surface-deep: #F2F4F6;
+      --c-border: #F2F4F6;
+      --c-border-strong: #E5E8EB;
+      --c-text: #191F28;
+      --c-text-2: #4E5968;
+      --c-text-3: #8B95A1;
+      --c-text-4: #B0B8C1;
+      --c-primary: #3182F6;
+      --c-primary-hover: #1B64DA;
+      --c-primary-bg: #E8F3FF;
+      --c-primary-deep: #0E4BC9;
+      --c-navy: #0F1A30;
+      --c-success: #00C896;
+      --c-success-bg: #E5F9F4;
+      --c-warning: #FFB700;
+      --c-warning-bg: #FFF7E0;
+      --c-danger: #F04452;
+      --c-danger-bg: #FFEBEC;
+      --r-sm: 10px; --r-md: 14px; --r-lg: 20px; --r-xl: 28px; --r-pill: 999px;
+      --sh-1: 0 2px 6px rgba(15,19,36,0.04);
+      --sh-2: 0 8px 24px rgba(15,19,36,0.08);
+      --sh-3: 0 16px 48px rgba(15,19,36,0.12);
+      --nav-h: 64px;
+      --tx-mono: "tnum" on, "lnum" on;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: calc(var(--nav-h) + 24px); }
+    body { font-family: 'Pretendard', -apple-system, sans-serif; background: var(--c-bg); color: var(--c-text); -webkit-font-smoothing: antialiased; line-height: 1.5; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+
+    /* ────────────────────────────────────────────────
+       Top Nav
+    ──────────────────────────────────────────────── */
+    .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: var(--nav-h); background: rgba(255,255,255,0.88); backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid var(--c-border); }
+    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 32px; height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .nav-brand { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 800; }
+    .nav-brand .logo { width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-primary-deep) 100%); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 13px; }
+    .nav-brand .year { font-size: 11px; font-weight: 700; color: var(--c-text-3); background: var(--c-surface-deep); padding: 3px 8px; border-radius: 6px; margin-left: 4px; }
+    .nav-actions { display: flex; align-items: center; gap: 8px; }
+    .back-link { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 600; color: var(--c-text-2); padding: 8px 12px; border-radius: 8px; transition: background 0.12s, color 0.12s; }
+    .back-link:hover { background: var(--c-surface-deep); color: var(--c-text); }
+    .top-edit { display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; background: var(--c-text); color: #fff; border-radius: 10px; font-size: 13px; font-weight: 700; border: none; transition: background 0.12s, transform 0.1s; }
+    .top-edit:hover { background: var(--c-navy); }
+    .top-edit:active { transform: scale(0.97); }
+    .top-del { padding: 9px 12px; background: transparent; color: var(--c-text-3); border-radius: 10px; font-size: 13px; font-weight: 700; border: none; }
+    .top-del:hover { background: var(--c-danger-bg); color: var(--c-danger); }
+
+    /* ────────────────────────────────────────────────
+       Hero (cover)
+    ──────────────────────────────────────────────── */
+    .cover {
+      padding: calc(var(--nav-h) + 32px) 0 0;
+      position: relative; overflow: hidden;
+    }
+    .cover-inner {
+      position: relative;
+      min-height: 480px;
+      border-radius: var(--r-xl);
+      padding: 56px 56px 48px;
+      display: flex; flex-direction: column; justify-content: space-between;
+      overflow: hidden;
+    }
+    .cover-inner::before {
+      content: ''; position: absolute; inset: 0;
+      background-size: 200% 200%;
+      animation: bgShift 8s ease-in-out infinite;
+      opacity: 0.95;
+    }
+    @keyframes bgShift {
+      0%, 100% { background-position: 0% 0%; }
+      50%      { background-position: 100% 100%; }
+    }
+    .cover-inner > * { position: relative; z-index: 2; }
+
+    .cv-hanna   { background: linear-gradient(135deg, #BCD8FF 0%, #7EAFFF 50%, #3182F6 100%); }
+    .cv-minji   { background: linear-gradient(135deg, #B5F0DC 0%, #5FE0BD 50%, #00C896 100%); }
+    .cv-jihoon  { background: linear-gradient(135deg, #FFCEC6 0%, #FFA89E 50%, #FF7B72 100%); }
+    .cv-suyoung { background: linear-gradient(135deg, #DFC4FF 0%, #C9A2FF 50%, #B981F5 100%); }
+    .cv-taeho   { background: linear-gradient(135deg, #FFE5A8 0%, #FFD566 50%, #FFB700 100%); }
+
+    .cover-emoji {
+      position: absolute; right: -40px; bottom: -40px;
+      font-size: 320px; opacity: 0.35;
+      line-height: 1; transform: rotate(-8deg);
+      filter: drop-shadow(0 12px 36px rgba(0,0,0,0.2));
+      pointer-events: none;
+    }
+    .cv-pattern {
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.18) 1px, transparent 0);
+      background-size: 20px 20px;
+      pointer-events: none;
+    }
+
+    .breadcrumb { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: rgba(255,255,255,0.85); font-weight: 600; }
+    .breadcrumb a:hover { color: #fff; text-decoration: underline; }
+    .breadcrumb .sep { opacity: 0.6; }
+
+    .cover-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: var(--r-pill);
+      margin-top: 20px; margin-bottom: 20px;
+      background: rgba(255,255,255,0.96); color: var(--c-text);
+      backdrop-filter: blur(8px);
+      align-self: flex-start;
+    }
+    .cover-tag.live { color: var(--c-danger); }
+    .cover-tag.live .pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--c-danger); animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.7); } }
+
+    .cover-cat {
+      font-size: 12px; font-weight: 800; color: rgba(255,255,255,0.85);
+      letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 14px;
+    }
+    .cover-title {
+      font-size: 64px; font-weight: 900; letter-spacing: -0.04em; line-height: 1.05;
+      color: #fff; margin-bottom: 20px; max-width: 760px;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    .cover-desc {
+      font-size: 18px; color: rgba(255,255,255,0.92); font-weight: 500;
+      line-height: 1.6; max-width: 640px;
+    }
+
+    .cover-meta {
+      display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+      margin-top: 32px;
+      padding-top: 28px;
+      border-top: 1px solid rgba(255,255,255,0.2);
+    }
+    .meta-author { display: inline-flex; align-items: center; gap: 12px; }
+    .meta-author .av {
+      width: 44px; height: 44px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 800; color: #fff;
+      background: rgba(255,255,255,0.95); color: var(--c-text);
+      border: 2px solid rgba(255,255,255,0.6);
+    }
+    .meta-author .name { font-size: 15px; font-weight: 800; color: #fff; }
+    .meta-author .role { font-size: 12px; color: rgba(255,255,255,0.7); font-weight: 600; }
+    .meta-divider { width: 1px; height: 32px; background: rgba(255,255,255,0.3); }
+    .meta-row { display: flex; flex-direction: column; gap: 2px; }
+    .meta-row .lbl { font-size: 11px; color: rgba(255,255,255,0.7); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+    .meta-row .val { font-size: 14px; color: #fff; font-weight: 700; font-feature-settings: var(--tx-mono); }
+
+    /* ────────────────────────────────────────────────
+       Body Layout
+    ──────────────────────────────────────────────── */
+    .body-wrap { padding: 64px 0 80px; }
+    .body-grid {
+      display: grid;
+      grid-template-columns: 1fr 240px;
+      gap: 64px;
+    }
+
+    .toc {
+      position: sticky; top: calc(var(--nav-h) + 24px);
+      align-self: start;
+    }
+    .toc-title { font-size: 11px; font-weight: 800; color: var(--c-text-3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 14px; }
+    .toc ul { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+    .toc a {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 12px; border-radius: 8px;
+      font-size: 13px; color: var(--c-text-3); font-weight: 600;
+      transition: background 0.12s, color 0.12s;
+    }
+    .toc a:hover { background: var(--c-surface-deep); color: var(--c-text); }
+    .toc a.is-active { background: var(--c-primary-bg); color: var(--c-primary); }
+    .toc a .num { font-size: 10px; font-weight: 700; opacity: 0.55; min-width: 16px; }
+
+    /* ────────────────────────────────────────────────
+       Section
+    ──────────────────────────────────────────────── */
+    .section { padding-bottom: 56px; }
+    .section + .section { padding-top: 8px; border-top: 1px solid var(--c-border); padding-top: 56px; }
+    .sec-eyebrow { display: inline-block; font-size: 11px; font-weight: 800; color: var(--c-primary); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+    .sec-title { font-size: 28px; font-weight: 900; letter-spacing: -0.025em; margin-bottom: 24px; line-height: 1.2; }
+
+    /* KPI grid - 큰 숫자 강조 */
+    .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .kpi-card {
+      background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-lg);
+      padding: 24px;
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+    }
+    .kpi-card:hover { transform: translateY(-2px); box-shadow: var(--sh-2); border-color: transparent; }
+    .kpi-card .lbl { font-size: 12px; color: var(--c-text-3); font-weight: 600; margin-bottom: 8px; letter-spacing: 0.02em; }
+    .kpi-card .val { font-size: 32px; font-weight: 900; letter-spacing: -0.025em; color: var(--c-text); font-feature-settings: var(--tx-mono); line-height: 1.1; }
+    .kpi-card .val.success { color: var(--c-success); }
+    .kpi-card .val.warning { color: var(--c-warning); }
+    .kpi-card .val.danger { color: var(--c-danger); }
+
+    /* Story */
+    .story p { font-size: 17px; color: var(--c-text-2); line-height: 1.8; }
+    .story p + p { margin-top: 18px; }
+    .story strong { color: var(--c-text); font-weight: 700; }
+
+    /* Quote block */
+    .quote-block {
+      margin: 36px 0 0;
+      padding: 32px 36px;
+      background: var(--c-surface-alt);
+      border-left: 4px solid var(--c-primary);
+      border-radius: 0 var(--r-md) var(--r-md) 0;
+      position: relative;
+    }
+    .quote-block::before {
+      content: '"';
+      position: absolute; top: -8px; left: 16px;
+      font-size: 88px; color: var(--c-primary);
+      font-weight: 900; line-height: 1; opacity: 0.18;
+    }
+    .quote-text { font-size: 19px; color: var(--c-text); font-weight: 600; line-height: 1.55; letter-spacing: -0.015em; }
+    .quote-who { font-size: 13px; color: var(--c-text-3); font-weight: 600; margin-top: 12px; }
+
+    /* Timeline */
+    .timeline { display: flex; flex-direction: column; gap: 0; position: relative; padding-left: 28px; }
+    .timeline::before { content: ''; position: absolute; left: 9px; top: 14px; bottom: 14px; width: 2px; background: var(--c-border-strong); border-radius: 2px; }
+    .tl-item { position: relative; padding: 4px 0 28px; }
+    .tl-item:last-child { padding-bottom: 0; }
+    .tl-item::before {
+      content: ''; position: absolute; left: -28px; top: 8px;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: #fff; border: 3px solid var(--c-border-strong);
+      transition: all 0.2s;
+    }
+    .tl-item.is-done::before { border-color: var(--c-success); background: var(--c-success); }
+    .tl-item.is-now::before { border-color: var(--c-primary); background: var(--c-primary); box-shadow: 0 0 0 5px rgba(49,130,246,0.18); animation: pulse 1.5s infinite; }
+    .tl-date { font-size: 12px; color: var(--c-text-3); font-weight: 700; letter-spacing: 0.04em; margin-bottom: 4px; font-feature-settings: var(--tx-mono); }
+    .tl-item.is-now .tl-date { color: var(--c-primary); }
+    .tl-label { font-size: 16px; color: var(--c-text); font-weight: 700; }
+
+    /* Next actions */
+    .actions {
+      background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-primary-deep) 100%);
+      color: #fff;
+      border-radius: var(--r-xl); padding: 40px;
+      position: relative; overflow: hidden;
+    }
+    .actions::before {
+      content: ''; position: absolute; right: -60px; top: -60px;
+      width: 240px; height: 240px; border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+    }
+    .actions::after {
+      content: ''; position: absolute; right: 40px; bottom: -40px;
+      width: 140px; height: 140px; border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+    }
+    .actions-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.85; margin-bottom: 12px; position: relative; z-index: 2; }
+    .actions h3 { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 24px; position: relative; z-index: 2; }
+    .actions ul { list-style: none; display: flex; flex-direction: column; gap: 12px; position: relative; z-index: 2; }
+    .actions li {
+      display: flex; align-items: flex-start; gap: 12px;
+      font-size: 15px; font-weight: 600;
+    }
+    .actions li::before {
+      content: '▸'; color: rgba(255,255,255,0.7); flex-shrink: 0;
+      font-weight: 800;
+    }
+
+    /* Related */
+    .rel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .rel-card {
+      background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-lg);
+      padding: 22px 22px 18px;
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+      cursor: pointer; display: flex; flex-direction: column; gap: 12px;
+      min-height: 160px;
+    }
+    .rel-card:hover { transform: translateY(-2px); box-shadow: var(--sh-2); border-color: transparent; }
+    .rel-card-cat { font-size: 11px; font-weight: 700; color: var(--c-text-3); letter-spacing: 0.06em; text-transform: uppercase; }
+    .rel-card-title { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.35; flex: 1; }
+    .rel-card-foot { display: flex; align-items: center; gap: 8px; padding-top: 14px; border-top: 1px solid var(--c-border); margin-top: auto; }
+    .rel-card-foot .av { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: #fff; }
+    .rel-card-foot .name { font-size: 12px; font-weight: 700; }
+    .rel-card-foot .meta { margin-left: auto; font-size: 11px; color: var(--c-text-3); font-weight: 500; font-feature-settings: var(--tx-mono); }
+
+    /* avatars */
+    .av-hanna   { background: linear-gradient(135deg, #5A9BFF 0%, #3182F6 100%); }
+    .av-minji   { background: linear-gradient(135deg, #2DDDB0 0%, #00C896 100%); }
+    .av-jihoon  { background: linear-gradient(135deg, #FFA89E 0%, #FF7B72 100%); }
+    .av-suyoung { background: linear-gradient(135deg, #D2A8FF 0%, #B981F5 100%); }
+    .av-taeho   { background: linear-gradient(135deg, #FFD566 0%, #FFB700 100%); }
+    .meta-author .av-hanna,
+    .meta-author .av-minji,
+    .meta-author .av-jihoon,
+    .meta-author .av-suyoung,
+    .meta-author .av-taeho { color: var(--c-text); background: rgba(255,255,255,0.95); }
+
+    /* Not found */
+    .not-found { padding: 120px 32px; text-align: center; min-height: 50vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .not-found .e { font-size: 56px; margin-bottom: 16px; }
+    .not-found h2 { font-size: 26px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.02em; }
+    .not-found p { font-size: 14px; color: var(--c-text-3); margin-bottom: 28px; }
+    .not-found a { display: inline-block; padding: 12px 24px; background: var(--c-primary); color: #fff; border-radius: 10px; font-weight: 700; font-size: 14px; }
+
+    /* Footer */
+    footer { padding: 40px 0; border-top: 1px solid var(--c-border); font-size: 12px; color: var(--c-text-3); font-weight: 500; }
+    footer .container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+    footer a { color: var(--c-primary); font-weight: 600; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--c-text); color: #fff; padding: 12px 20px; border-radius: var(--r-md); font-size: 13px; font-weight: 600; z-index: 300; opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s; box-shadow: var(--sh-2); }
+    .toast.is-open { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast .ok { color: var(--c-success); margin-right: 6px; font-weight: 800; }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .body-grid { grid-template-columns: 1fr; gap: 32px; }
+      .toc { display: none; }
+      .cover-title { font-size: 48px; }
+      .kpi-grid, .rel-grid { grid-template-columns: repeat(2, 1fr); }
+      .cover-emoji { font-size: 220px; }
+    }
+    @media (max-width: 640px) {
+      .container { padding: 0 20px; }
+      .cover-inner { padding: 36px 28px; min-height: 380px; }
+      .cover-title { font-size: 34px; }
+      .cover-desc { font-size: 15px; }
+      .cover-emoji { font-size: 160px; right: -20px; bottom: -20px; }
+      .kpi-grid, .rel-grid { grid-template-columns: 1fr; }
+      .kpi-card .val { font-size: 26px; }
+      .sec-title { font-size: 22px; }
+      .quote-block { padding: 24px 20px; }
+      .quote-text { font-size: 16px; }
+      .actions { padding: 28px 24px; }
+      .actions h3 { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="index-v2.html">
+        <span class="logo">IS</span>
+        <span>인사이트전략팀</span>
+        <span class="year">2026</span>
+      </a>
+      <div class="nav-actions">
+        <a class="back-link" href="index-v2.html">← 목록</a>
+        <button class="top-del" id="topDel" style="display:none">삭제</button>
+        <button class="top-edit" id="topEdit">✏️ 편집</button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main"></main>
+
+  <footer>
+    <div class="container">
+      <div>© 웍스피어 · 인사이트전략팀 · 2026</div>
+      <div><a href="index-v2.html">← 피드로 돌아가기</a></div>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="projects-data.js"></script>
+  <script>
+    function escapeHtml(s) {
+      return (s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+    }
+
+    const params = new URLSearchParams(location.search);
+    const id = params.get('id');
+    const p = id ? window.getProject(id) : null;
+    const main = document.getElementById('main');
+    const topEdit = document.getElementById('topEdit');
+    const topDel = document.getElementById('topDel');
+
+    if (!p) {
+      main.innerHTML = `
+        <div class="not-found">
+          <div class="e">🤷</div>
+          <h2>프로젝트를 찾을 수 없어요</h2>
+          <p>잘못된 링크이거나 삭제된 프로젝트일 수 있어요.</p>
+          <a href="index-v2.html">목록으로 돌아가기</a>
+        </div>`;
+      topEdit.style.display = 'none';
+    } else {
+      const m = window.MEMBERS[p.member] || { name: '게스트', avatar: '?', role: '', cls: 'hanna' };
+      const tagInner = p.status === 'live'
+        ? `<span class="pulse"></span>${escapeHtml(p.statusLabel || 'LIVE')}`
+        : escapeHtml(p.statusLabel || ({ ongoing:'진행중', soon:'예정', done:'완료' }[p.status] || ''));
+
+      const kpis = (p.extKpis && p.extKpis.length) ? p.extKpis : (p.kpis || []);
+      const kpiHtml = kpis.map(k => `
+        <div class="kpi-card">
+          <div class="lbl">${escapeHtml(k.label)}</div>
+          <div class="val ${escapeHtml(k.flavor || '')}">${escapeHtml(k.value)}</div>
+        </div>
+      `).join('');
+
+      const storyHtml = (p.story || '').split(/\n\n+/).filter(Boolean)
+        .map(t => `<p>${escapeHtml(t)}</p>`).join('') ||
+        '<p style="color:var(--c-text-3)">아직 정리된 이야기가 없어요. 편집 버튼으로 내용을 채워보세요.</p>';
+
+      const today = new Date().toISOString().slice(0, 10).replace(/-/g, '.');
+      const tlHtml = (p.timeline || []).map((t, i, arr) => {
+        const cls = (t.date <= today) ? 'is-done' : '';
+        const isCurrent = (t.date <= today) && (i === arr.length - 1 || arr[i+1].date > today);
+        return `
+          <div class="tl-item ${isCurrent && p.status !== 'done' ? 'is-now' : cls}">
+            <div class="tl-date">${escapeHtml(t.date)}</div>
+            <div class="tl-label">${escapeHtml(t.label)}</div>
+          </div>`;
+      }).join('') || '<div style="color:var(--c-text-3);font-size:13px">타임라인이 아직 등록되지 않았어요.</div>';
+
+      const quoteHtml = p.quote ? `
+        <div class="quote-block">
+          <div class="quote-text">${escapeHtml(p.quote.text)}</div>
+          <div class="quote-who">— ${escapeHtml(p.quote.who)}</div>
+        </div>` : '';
+
+      const actionsHtml = (p.nextActions && p.nextActions.length) ? `
+        <section class="section" id="next">
+          <span class="sec-eyebrow">Next Steps</span>
+          <h2 class="sec-title">다음 액션</h2>
+          <div class="actions">
+            <div class="actions-eyebrow">앞으로 할 일</div>
+            <h3>이 프로젝트 다음은요</h3>
+            <ul>${p.nextActions.map(a => `<li>${escapeHtml(a)}</li>`).join('')}</ul>
+          </div>
+        </section>` : '';
+
+      const relList = (p.related || []).map(rid => window.getProject(rid)).filter(Boolean).slice(0, 3);
+      const relHtml = relList.length ? `
+        <section class="section" id="related">
+          <span class="sec-eyebrow">More to read</span>
+          <h2 class="sec-title">관련 프로젝트</h2>
+          <div class="rel-grid">
+            ${relList.map(r => {
+              const rm = window.MEMBERS[r.member] || { name: '?', avatar: '?', cls: 'hanna' };
+              const detailHref = r.detailHref || ('project-detail.html?id=' + encodeURIComponent(r.id));
+              const target = (r.detailHref && r.detailHref.indexOf('http') === 0) ? ' target="_blank"' : '';
+              return `
+                <a class="rel-card" href="${escapeHtml(detailHref)}"${target}>
+                  <div class="rel-card-cat">${escapeHtml(r.categoryLabel || r.category)}</div>
+                  <div class="rel-card-title">${escapeHtml(r.title)}</div>
+                  <div class="rel-card-foot">
+                    <span class="av av-${rm.cls}">${escapeHtml(rm.avatar)}</span>
+                    <span class="name">${escapeHtml(rm.name)}</span>
+                    <span class="meta">${escapeHtml((r.date || '').replace(/-/g, '.'))}</span>
+                  </div>
+                </a>`;
+            }).join('')}
+          </div>
+        </section>` : '';
+
+      document.title = `${p.title} · 인사이트전략팀`;
+      topDel.style.display = '';
+
+      main.innerHTML = `
+        <section class="cover">
+          <div class="container">
+            <div class="cover-inner cv-${m.cls}">
+              <div class="cv-pattern"></div>
+              <div class="cover-emoji">${escapeHtml(p.emoji || '📌')}</div>
+              <div>
+                <div class="breadcrumb">
+                  <a href="index-v2.html">피드</a>
+                  <span class="sep">/</span>
+                  <a href="index-v2.html#feed">${escapeHtml(p.category)}</a>
+                </div>
+                <span class="cover-tag ${escapeHtml(p.status)}">${tagInner}</span>
+                <div class="cover-cat">${escapeHtml(p.categoryLabel || p.category)}</div>
+                <h1 class="cover-title">${escapeHtml(p.title)}</h1>
+                <p class="cover-desc">${escapeHtml(p.desc || '')}</p>
+              </div>
+              <div class="cover-meta">
+                <div class="meta-author">
+                  <span class="av av-${m.cls}">${escapeHtml(m.avatar)}</span>
+                  <div>
+                    <div class="name">${escapeHtml(m.name)}</div>
+                    <div class="role">${escapeHtml(m.role)}</div>
+                  </div>
+                </div>
+                <div class="meta-divider"></div>
+                <div class="meta-row">
+                  <span class="lbl">기간</span>
+                  <span class="val">${escapeHtml(p.period || (p.date || '').replace(/-/g, '.'))}</span>
+                </div>
+                <div class="meta-divider"></div>
+                <div class="meta-row">
+                  <span class="lbl">상태</span>
+                  <span class="val">${escapeHtml(p.statusLabel || ({ ongoing:'진행중', soon:'예정', done:'완료', live:'LIVE' }[p.status] || ''))}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="body-wrap">
+          <div class="container">
+            <div class="body-grid">
+              <div class="body-main">
+                <section class="section" id="kpi">
+                  <span class="sec-eyebrow">Key Metrics</span>
+                  <h2 class="sec-title">핵심 지표</h2>
+                  <div class="kpi-grid">${kpiHtml}</div>
+                </section>
+
+                <section class="section" id="story">
+                  <span class="sec-eyebrow">Story</span>
+                  <h2 class="sec-title">프로젝트 이야기</h2>
+                  <div class="story">${storyHtml}</div>
+                  ${quoteHtml}
+                </section>
+
+                <section class="section" id="timeline">
+                  <span class="sec-eyebrow">Timeline</span>
+                  <h2 class="sec-title">진행 타임라인</h2>
+                  <div class="timeline">${tlHtml}</div>
+                </section>
+
+                ${actionsHtml}
+                ${relHtml}
+              </div>
+
+              <aside class="toc">
+                <div class="toc-title">목차</div>
+                <ul>
+                  <li><a href="#kpi" data-toc><span class="num">01</span>핵심 지표</a></li>
+                  <li><a href="#story" data-toc><span class="num">02</span>이야기</a></li>
+                  <li><a href="#timeline" data-toc><span class="num">03</span>타임라인</a></li>
+                  ${(p.nextActions && p.nextActions.length) ? '<li><a href="#next" data-toc><span class="num">04</span>다음 액션</a></li>' : ''}
+                  ${relList.length ? '<li><a href="#related" data-toc><span class="num">' + ((p.nextActions && p.nextActions.length) ? '05' : '04') + '</span>관련 프로젝트</a></li>' : ''}
+                </ul>
+              </aside>
+            </div>
+          </div>
+        </section>
+      `;
+
+      // TOC active highlight
+      const tocLinks = document.querySelectorAll('.toc a[data-toc]');
+      const sections = Array.from(tocLinks).map(l => document.querySelector(l.getAttribute('href')));
+      function onScroll() {
+        const y = window.scrollY + 140;
+        let active = 0;
+        sections.forEach((s, i) => { if (s && s.offsetTop <= y) active = i; });
+        tocLinks.forEach((l, i) => l.classList.toggle('is-active', i === active));
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+
+      // Top edit / delete
+      topEdit.addEventListener('click', () => {
+        location.href = 'index-v2.html?edit=' + encodeURIComponent(p.id);
+      });
+      topDel.addEventListener('click', () => {
+        if (!confirm(`"${p.title}"\n정말 삭제할까요?`)) return;
+        window.deleteProject(p.id);
+        showToast(`<span class="ok">✓</span>삭제했어요. 목록으로 돌아갑니다.`);
+        setTimeout(() => { location.href = 'index-v2.html'; }, 800);
+      });
+    }
+
+    let toastTimer = null;
+    function showToast(html) {
+      const t = document.getElementById('toast');
+      t.innerHTML = html;
+      t.classList.add('is-open');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('is-open'), 2400);
+    }
+  </script>
+</body>
+</html>

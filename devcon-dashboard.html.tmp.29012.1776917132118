@@ -184,7 +184,7 @@
       <div class="stat-card">
         <div class="stat-label">이력서 전환 단가 (최종)</div>
         <div class="stat-num success">28,836원</div>
-        <div class="stat-sub">광고비 / DB 확인 업데이트 198명 기준 · vs 커컨 44,597원 (↓49%)</div>
+        <div class="stat-sub">광고비 / DB 확인 업데이트 156명 기준 · vs 커컨 44,597원 (↓35%)</div>
       </div>
     </div>
     <table class="ga-table">
@@ -229,29 +229,18 @@
   <!-- 줌 라이브 참여 -->
   <div class="ga-section">
     <h2>줌 라이브 참여</h2>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px" class="resp-grid-3">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div class="stat-card">
         <div class="stat-label">실참석자 (유니크)</div>
-        <div class="stat-num">825</div>
-        <div class="stat-sub">신청 1,511명 대비 <b>54.6%</b></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">누적 입장</div>
-        <div class="stat-num">1,272</div>
-        <div class="stat-sub">중복 포함 총 입장 횟수</div>
+        <div class="stat-num" style="color:var(--c-text-4);letter-spacing:2px;font-size:22px">COMING SOON</div>
+        <div class="stat-sub">4/23 컨퍼런스 종료 후</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">최대 동시 접속</div>
-        <div class="stat-num">505</div>
-        <div class="stat-sub">실참 825명 중 61.2%</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">진행 시간</div>
-        <div class="stat-num">240<span style="font-size:14px;color:var(--c-text-3);margin-left:4px">분</span></div>
-        <div class="stat-sub">4/23(목) 18:36 시작 · 4시간</div>
+        <div class="stat-num" style="color:var(--c-text-4);letter-spacing:2px;font-size:22px">COMING SOON</div>
+        <div class="stat-sub">4/23 컨퍼런스 종료 후</div>
       </div>
     </div>
-    <div class="ga-note" style="margin-top:8px">* 줌 웨비나 리포트 기준 (Webinar ID 883 3600 4098) · vs 컨퍼런스 실참 562명 / 참여율 35.9% → 데브콘 +47%</div>
   </div>
 
   <!-- 차트 -->
@@ -308,19 +297,9 @@
   <div class="feedback">
     <h2>참여자 피드백</h2>
     <div class="feedback-grid">
-      <div class="feedback-card" style="text-align:center;padding:40px 28px">
-        <div style="font-size:13px;color:var(--c-text-3);font-weight:600;margin-bottom:14px">전체 만족도</div>
-        <div style="font-size:56px;font-weight:800;color:var(--c-text);letter-spacing:-0.03em;line-height:1;font-feature-settings:var(--tx-mono-feature)">4.3<span style="font-size:22px;color:var(--c-text-3);font-weight:700;margin-left:6px">/ 5</span></div>
-        <div style="font-size:18px;color:#FFB700;letter-spacing:2px;margin-top:10px">★★★★☆</div>
-        <div style="font-size:12px;color:var(--c-text-4);margin-top:14px;font-weight:500">vs 커리어 컨퍼런스 4.33/5 (유사 수준)</div>
-      </div>
-      <div class="feedback-card" style="padding:32px 28px">
-        <h3 style="font-size:14px;color:var(--c-text-3);font-weight:600;margin-bottom:16px">평가 기준</h3>
-        <div style="font-size:12px;color:var(--c-text-2);line-height:1.9;font-weight:500">
-          • 실참 825명 대상 만족도 설문<br>
-          • 5점 척도 (매우 불만족 ~ 매우 만족)<br>
-          • 신청 1,511명 대비 응답률은 별도 집계
-        </div>
+      <div class="feedback-card" style="text-align:center;padding:48px 28px">
+        <div style="font-size:20px;font-weight:800;color:var(--c-text-4);letter-spacing:2px">COMING SOON</div>
+        <div style="font-size:12px;color:var(--c-text-4);margin-top:10px;font-weight:500">만족도 · 신청 이유</div>
       </div>
     </div>
   </div>
@@ -391,7 +370,7 @@
 
     // === 정적 데이터 (폴백용, 4/22 기준) ===
     const STATIC_DATA = {
-      total: 1511, uniqueTotal: 1463, todayN: 11, ydN: 60, resume: 308, resumeVerified: 296, resumeDbConfirmed: 198, sns: 16,
+      total: 1511, uniqueTotal: 1463, todayN: 11, ydN: 60, resume: 308, resumeVerified: 296, resumeDbConfirmed: 156, sns: 16,
       eventPart: 417, confOnly: 1094, updateTime: '4/22 10:30',
       dailyMap: {'03/26':11,'03/27':4,'03/29':1,'03/30':2,'03/31':8,'04/01':169,'04/02':160,'04/03':107,'04/04':69,'04/05':45,'04/06':80,'04/07':46,'04/08':123,'04/09':118,'04/10':67,'04/11':54,'04/12':20,'04/13':57,'04/14':64,'04/15':38,'04/16':54,'04/17':34,'04/18':32,'04/19':23,'04/20':54,'04/21':60,'04/22':11},
       srcTop: [["광고(SNS)",762],["지인 추천",231],["잡플래닛 이메일",108],["잡코리아 상단 배너",97],["연사 SNS(인스타, 스레드, 오카방 등)",68],["잡코리아 팝업 메시지",60],["잡코리아 홈페이지(공지사항 및 콘텐츠LAB)",42],["게임잡 팝업 메시지",40],["잡코리아 인스타그램",39],["커리어 컨퍼런스에서 알게 됨",12]],
@@ -554,7 +533,7 @@
       var resumeSubEl = document.getElementById('resumeSub');
       if (resumeSubEl) {
         if (resumeDbConfirmed != null) {
-          resumeSubEl.innerHTML = '기간 내 실제 업데이트 <b>' + resumeDbConfirmed + '명</b> (메타베이스 DB 검증)<br><span style="font-size:10px;color:#b0b8c1">제출 ' + resume + '명 · 유효 ID ' + (resumeVerified || '—') + '명 · DB 매칭 194명</span>';
+          resumeSubEl.innerHTML = '기간 내 실제 업데이트 <b>' + resumeDbConfirmed + '명</b> (메타베이스 DB 검증)<br><span style="font-size:10px;color:#b0b8c1">제출 ' + resume + '명 · 유효 ID ' + (resumeVerified || '—') + '명 · DB 매칭 211명</span>';
         } else if (resumeVerified) {
           resumeSubEl.innerHTML = '유효 ID <b>' + resumeVerified + '명</b> / 제출 ' + resume + '명';
         } else {
@@ -595,22 +574,22 @@
       // === 차트: 일별 ===
       const eventMap = { '03/26':'연사 공유', '04/01':'광고/CRM/게임잡/오카방', '04/02':'IG', '04/03':'PR', '04/06':'링크드인', '04/07':'블로그/콘텐츠랩', '04/08':'잡플래닛/배너' };
       const spikeSet = new Set(dailyEntries.slice(0, 2).map(e => e[0]));
-      const barColors = dates.map(d => spikeSet.has(d) ? '#F04452' : '#90c2ff');
+      const barColors = dates.map(d => spikeSet.has(d) ? '#f04452' : '#90c2ff');
       const spikeMap = {};
-      spikeSet.forEach(d => { spikeMap[d] = '#F04452'; });
+      spikeSet.forEach(d => { spikeMap[d] = '#f04452'; });
 
       new Chart(document.getElementById('dailyChart'), {
         type: 'bar',
         data: { labels: dates, datasets: [
-          { type: 'bar', label: '일별 신청자', data: daily, backgroundColor: barColors, borderRadius: 6, borderSkipped: false, order: 2 },
-          { type: 'line', label: '누적 신청자', data: cumulative, borderColor: '#3182F6', backgroundColor: 'transparent', borderWidth: 2, tension: 0.35, pointRadius: 2, pointBackgroundColor: '#3182F6', pointBorderColor: '#fff', pointBorderWidth: 1, yAxisID: 'y1', order: 1 }
+          { type: 'bar', label: '일별 신청자', data: daily, backgroundColor: barColors, borderRadius: 4, order: 2 },
+          { type: 'line', label: '누적 신청자', data: cumulative, borderColor: '#f04452', backgroundColor: 'transparent', tension: 0.3, pointRadius: 3, yAxisID: 'y1', order: 1 }
         ]},
         plugins: [{ id: 'barLabels', afterDraw(chart) {
           const ctx = chart.ctx; const meta = chart.getDatasetMeta(0); ctx.save(); ctx.textAlign = 'center';
           dates.forEach((d, i) => {
             const bar = meta.data[i]; if (!bar) return;
-            if (eventMap[d]) { ctx.font = '9px Pretendard'; ctx.fillStyle = '#8B95A1'; ctx.save(); ctx.translate(bar.x, bar.y - 8); ctx.rotate(-Math.PI/4); ctx.textAlign = 'left'; ctx.fillText(eventMap[d], 0, 0); ctx.restore(); }
-            if (spikeMap[d]) { ctx.font = 'bold 11px Pretendard'; ctx.fillStyle = '#F04452'; ctx.fillText('\u25B2'+daily[i], bar.x, bar.y - 6); }
+            if (eventMap[d]) { ctx.font = '9px Pretendard'; ctx.fillStyle = '#4e5968'; ctx.save(); ctx.translate(bar.x, bar.y - 8); ctx.rotate(-Math.PI/4); ctx.textAlign = 'left'; ctx.fillText(eventMap[d], 0, 0); ctx.restore(); }
+            if (spikeMap[d]) { ctx.font = 'bold 11px Pretendard'; ctx.fillStyle = '#f04452'; ctx.fillText('\u25B2'+daily[i], bar.x, bar.y - 6); }
           });
           ctx.restore();
         }}],
@@ -620,28 +599,28 @@
       // 신청 경로
       new Chart(document.getElementById('channelChart'), {
         type: 'doughnut',
-        data: { labels: srcTop.map(s=>s[0]), datasets: [{ data: srcTop.map(s=>s[1]), backgroundColor: pastel, borderColor: '#FFFFFF', borderWidth: 2 }] },
+        data: { labels: srcTop.map(s=>s[0]), datasets: [{ data: srcTop.map(s=>s[1]), backgroundColor: pastel }] },
         options: doughnutOpts()
       });
 
       // 연차별
       new Chart(document.getElementById('yearChart'), {
         type: 'bar',
-        data: { labels: yearLabels, datasets: [{ label: '신청자 수', data: yearData, backgroundColor: ['#8b5cf6','#3182f6','#00c48c','#ff9500','#F04452'], borderRadius: 6 }] },
+        data: { labels: yearLabels, datasets: [{ label: '신청자 수', data: yearData, backgroundColor: ['#8b5cf6','#3182f6','#00c48c','#ff9500','#f04452'], borderRadius: 6 }] },
         options: { responsive: true, indexAxis: 'y', plugins: { legend: { display: false } } }
       });
 
       // 직무별 TOP 10
       new Chart(document.getElementById('jobChart'), {
         type: 'doughnut',
-        data: { labels: jobSorted.map(s=>s[0]), datasets: [{ data: jobSorted.map(s=>s[1]), backgroundColor: pastel, borderColor: '#FFFFFF', borderWidth: 2 }] },
+        data: { labels: jobSorted.map(s=>s[0]), datasets: [{ data: jobSorted.map(s=>s[1]), backgroundColor: pastel }] },
         options: doughnutOpts()
       });
 
       // 신청 유형
       new Chart(document.getElementById('eventTypeChart'), {
         type: 'doughnut',
-        data: { labels: ['컨퍼런스 + 이벤트 참여 ('+eventPart+'명)', '컨퍼런스만 ('+confOnly+'명)'], datasets: [{ data: [eventPart, confOnly], backgroundColor: ['#3182F6', '#A1C5FC'], borderColor: '#FFFFFF', borderWidth: 2 }] },
+        data: { labels: ['컨퍼런스 + 이벤트 참여 ('+eventPart+'명)', '컨퍼런스만 ('+confOnly+'명)'], datasets: [{ data: [eventPart, confOnly], backgroundColor: ['#ff9500', '#3182f6'] }] },
         options: { responsive: true, plugins: { legend: { position: 'bottom' }, datalabels: { display: true, color: '#191f28', font: { size: 13, weight: 'bold' }, formatter: (v, ctx) => { const t = ctx.dataset.data.reduce((a,b)=>a+b,0); return (v/t*100).toFixed(1)+'%'; } } } }
       });
     }

@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>퇴근 후 이력서 성과 대시보드</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Pretendard', -apple-system, sans-serif; background: #f2f4f6; color: #191F28; padding: 32px; }
+    h1 { text-align: center; margin-bottom: 4px; font-size: 26px; font-weight: 800; color: #191F28; }
+    .subtitle { text-align: center; color: #8B95A1; margin-bottom: 36px; font-size: 14px; font-weight: 400; }
+    .card { background: #fff; border-radius: 16px; padding: 24px 28px; box-shadow: 0 1px 3px rgba(4,4,4,0.04); text-align: center; min-width: 150px; }
+    .card .label { font-size: 13px; color: #8B95A1; margin-bottom: 6px; font-weight: 500; }
+    .card .number { font-size: 34px; font-weight: 800; color: #3182F6; }
+    .card .sub { font-size: 11px; color: #B0B8C1; margin-top: 4px; font-weight: 400; }
+
+    .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 1200px; margin: 0 auto 28px; overflow: hidden; }
+    .chart-box { background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 1px 3px rgba(4,4,4,0.04); overflow: hidden; min-width: 0; }
+    .chart-box h3 { margin-bottom: 12px; font-size: 15px; color: #333D4B; font-weight: 700; }
+    .chart-box canvas { max-height: 220px; max-width: 100%; }
+    .chart-box.full { grid-column: 1 / -1; }
+
+    .ga-section { max-width: 1200px; margin: 0 auto 28px; }
+    .ga-section h2 { font-size: 19px; margin-bottom: 14px; font-weight: 800; color: #191F28; }
+    .ga-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(4,4,4,0.04); }
+    .ga-table th { text-align: left; padding: 14px 16px; font-size: 12px; color: #8B95A1; border-bottom: 1px solid #F2F4F6; background: #FAFBFC; font-weight: 600; }
+    .ga-table td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid #F2F4F6; color: #333D4B; }
+    .ga-table tr:hover { background: #F8F9FA; }
+    .ga-note { font-size: 11px; color: #B0B8C1; margin-top: 8px; }
+
+    .feedback { max-width: 1200px; margin: 0 auto 28px; }
+    .feedback h2 { font-size: 19px; margin-bottom: 14px; font-weight: 800; color: #191F28; }
+    .feedback-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .feedback-card { background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px rgba(4,4,4,0.04); }
+    .feedback-card h3 { font-size: 15px; color: #333D4B; margin-bottom: 14px; font-weight: 700; }
+
+    .note-box { background: #fff8e1; border: 1px solid #ffe082; border-radius: 16px; padding: 14px 18px; font-size: 12px; color: #8d6e00; max-width: 1200px; margin: 0 auto 28px; line-height: 1.6; }
+    .pending { color: #B0B8C1; font-style: italic; }
+    .no-data { background: #fff; border-radius: 16px; padding: 40px 20px; box-shadow: 0 1px 3px rgba(4,4,4,0.04); text-align: center; color: #B0B8C1; font-size: 14px; font-style: italic; }
+
+    @media (max-width: 768px) {
+      body { padding: 20px 16px; }
+      h1 { font-size: 22px; }
+      .charts { grid-template-columns: 1fr; }
+      .feedback-grid { grid-template-columns: 1fr; }
+      .ga-table { font-size: 11px; }
+      .ga-table th, .ga-table td { padding: 10px 8px; }
+    }
+    @media (max-width: 480px) {
+      body { padding: 16px 12px; font-size: 14px; }
+      h1 { font-size: 20px; }
+      .subtitle { font-size: 12px; margin-bottom: 24px; }
+      .card { padding: 16px 12px; min-width: 0; }
+      .card .number { font-size: 24px; }
+      .card .label { font-size: 11px; }
+      .card .sub { font-size: 10px; }
+      .ga-section { overflow: hidden; }
+      .ga-section h2 { font-size: 16px; }
+      .ga-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .ga-table th, .ga-table td { min-width: 70px; white-space: nowrap; padding: 8px 6px; font-size: 10px; }
+      .chart-box { padding: 14px; }
+      .chart-box h3 { font-size: 13px; }
+      .chart-box canvas { max-height: 180px; }
+      .charts { gap: 12px; }
+      .kpi-cards { display: grid !important; grid-template-columns: 1fr 1fr; gap: 10px !important; }
+      .resp-grid-3 { grid-template-columns: 1fr !important; }
+      .resp-grid-4 { grid-template-columns: 1fr 1fr !important; }
+    }
+  </style>
+</head>
+<body>
+  <a href="./index.html" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:#8b95a1;font-size:13px;font-weight:500;margin-bottom:16px">&#8592; B2C &#45824;&#49884;&#48372;&#46300;</a>
+  <div style="text-align:center;margin-bottom:8px"><span style="display:inline-block;font-size:11px;padding:4px 12px;border-radius:8px;background:#fff3e0;color:#FF9500;font-weight:700">오프라인</span></div>
+  <h1>퇴근 후 이력서</h1>
+  <p class="subtitle">이력서 업데이트하고 1:1 코칭권 받자 | 2025.12.16~18 | 종료</p>
+
+  <!-- 인사이트 -->
+  <div style="max-width:1200px;margin:0 auto 32px;background:#fff;border-radius:16px;padding:28px 32px;box-shadow:0 1px 3px rgba(4,4,4,0.04);font-size:14px;color:#333d4b">
+    <h2 style="font-size:18px;margin-bottom:20px;color:#191f28">인사이트</h2>
+    <div style="line-height:1.8;font-size:13px;color:#191f28">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <span style="font-weight:700">KPI 달성률</span> — 58.6% (1,000건 목표 대비 586건 이력서 업데이트)<br>
+          <span style="font-weight:700">전환율</span> — 신청자 702명 중 586명 이력서 업데이트 (83.5%)<br>
+          <span style="font-weight:700">골든티켓</span> — 72명 오프라인 참석 (상위 10.3%)
+        </div>
+        <div>
+          <span style="font-weight:700">프로그램</span> — 강의 + 이력서 수정 + 1:1 코칭 + 채용 지원 연계<br>
+          <span style="font-weight:700">예산</span> — 품의 13,750,000원 (실제 집행 데이터 미수집)<br>
+          <span style="font-weight:700">참여 퍼널</span> — 702명 신청 &#8594; 586명 업데이트 &#8594; 72명 골든티켓
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 핵심 지표 -->
+  <div class="kpi-cards" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;max-width:1200px;margin:0 auto 32px">
+    <div class="card">
+      <div class="label">KPI 달성률</div>
+      <div class="number" style="color:#ff9500">58.6%</div>
+      <div class="sub">586건 / 1,000건 목표 (이력서 업데이트)</div>
+    </div>
+    <div class="card">
+      <div class="label">총 신청자</div>
+      <div class="number" style="color:#191f28">702</div>
+      <div class="sub">이벤트 신청자</div>
+    </div>
+    <div class="card">
+      <div class="label">이력서 업데이트</div>
+      <div class="number" style="color:#191f28">586</div>
+      <div class="sub">신청 대비 전환율 83.5%</div>
+    </div>
+    <div class="card">
+      <div class="label">골든티켓 참석자</div>
+      <div class="number" style="color:#191f28">72</div>
+      <div class="sub">오프라인 1:1 코칭 참석</div>
+    </div>
+  </div>
+
+  <!-- 예산 및 단가 분석 -->
+  <div class="ga-section">
+    <h2>예산 및 단가 분석</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px" class="resp-grid-3">
+      <div style="background:#fff;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(4,4,4,0.04);text-align:center">
+        <div style="font-size:13px;color:#8b95a1">총 집행액</div>
+        <div style="font-size:22px;font-weight:800;color:#B0B8C1;margin-top:8px;font-style:italic">데이터 없음</div>
+        <div style="font-size:11px;color:#b0b8c1;margin-top:4px">컨커(SAP Concur) 정산 데이터 미수집</div>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(4,4,4,0.04);text-align:center">
+        <div style="font-size:13px;color:#8b95a1">신청 단가</div>
+        <div style="font-size:22px;font-weight:800;color:#B0B8C1;margin-top:8px;font-style:italic">데이터 없음</div>
+        <div style="font-size:11px;color:#b0b8c1;margin-top:4px">실제 광고비 집행액 확인 필요</div>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(4,4,4,0.04);text-align:center">
+        <div style="font-size:13px;color:#8b95a1">전환 단가</div>
+        <div style="font-size:22px;font-weight:800;color:#B0B8C1;margin-top:8px;font-style:italic">데이터 없음</div>
+        <div style="font-size:11px;color:#b0b8c1;margin-top:4px">실제 광고비 집행액 확인 필요</div>
+      </div>
+    </div>
+    <table class="ga-table">
+      <thead>
+        <tr><th>항목</th><th style="text-align:right">품의 금액</th><th style="text-align:right">실제 집행액</th><th>비고</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>연사(코치)비</td><td style="text-align:right">1,800,000</td><td style="text-align:right" class="pending">&#8212;</td><td></td></tr>
+        <tr><td>광고비</td><td style="text-align:right">5,000,000</td><td style="text-align:right" class="pending">&#8212;</td><td></td></tr>
+        <tr><td>경품/이벤트</td><td style="text-align:right">4,000,000</td><td style="text-align:right" class="pending">&#8212;</td><td>에어팟4, 스벅 기프트, 네이버페이 1만원</td></tr>
+        <tr><td>다과비</td><td style="text-align:right">800,000</td><td style="text-align:right" class="pending">&#8212;</td><td></td></tr>
+        <tr><td>연사 사은품</td><td style="text-align:right">200,000</td><td style="text-align:right" class="pending">&#8212;</td><td></td></tr>
+        <tr><td>준비물</td><td style="text-align:right">200,000</td><td style="text-align:right" class="pending">&#8212;</td><td></td></tr>
+        <tr><td>콘텐츠 제작</td><td style="text-align:right">500,000</td><td style="text-align:right" class="pending">&#8212;</td><td></td></tr>
+        <tr><td>예비비</td><td style="text-align:right">1,250,000</td><td style="text-align:right" class="pending">&#8212;</td><td></td></tr>
+        <tr style="background:#fff3e0;font-weight:700"><td>합계</td><td style="text-align:right">13,750,000</td><td style="text-align:right;color:#B0B8C1;font-style:italic">미수집</td><td>컨커(SAP Concur) 정산 데이터 필요</td></tr>
+      </tbody>
+    </table>
+    <div class="ga-note" style="margin-top:12px">* 실제 집행액은 컨커(SAP Concur) 정산 데이터 수집 후 업데이트 예정</div>
+  </div>
+
+  <!-- 광고 효율 분석 - 데이터 없음 -->
+  <div class="ga-section">
+    <h2>광고 효율 분석</h2>
+    <div class="no-data" style="padding:40px 20px">데이터 없음 &#8212; 광고 매체 리포트(노출/클릭/CTR/CPC) 미수집</div>
+  </div>
+
+  <!-- 멘토 & 프로그램 -->
+  <div class="ga-section">
+    <h2>멘토 & 프로그램</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+      <div>
+        <h3 style="margin-bottom:12px;font-size:15px;color:#4e5968">멘토 구성</h3>
+        <table class="ga-table">
+          <thead>
+            <tr><th>멘토</th><th>분야</th><th>소속</th></tr>
+          </thead>
+          <tbody>
+            <tr><td style="font-weight:600">김미진</td><td>마케팅</td><td>롯데카드</td></tr>
+            <tr><td style="font-weight:600">박혜빈</td><td>PM/PO</td><td>아모레퍼시픽</td></tr>
+            <tr><td style="font-weight:600">김동회</td><td>개발</td><td>토스뱅크</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h3 style="margin-bottom:12px;font-size:15px;color:#4e5968">프로그램 타임라인</h3>
+        <table class="ga-table">
+          <thead>
+            <tr><th>시간</th><th>내용</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>19:00</td><td>강의 시작</td></tr>
+            <tr><td>19:15</td><td>이력서 수정 시간</td></tr>
+            <tr><td>19:30</td><td>1:1 코칭 세션</td></tr>
+            <tr><td>21:40</td><td>채용 지원 연계</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 당첨자 혜택 -->
+  <div class="ga-section">
+    <h2>경품 / 당첨 혜택</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px" class="resp-grid-3">
+      <div style="background:#fff;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(4,4,4,0.04);text-align:center">
+        <div style="font-size:32px;margin-bottom:8px">🎧</div>
+        <div style="font-size:15px;font-weight:700;color:#191f28">에어팟 4</div>
+        <div style="font-size:11px;color:#b0b8c1;margin-top:4px">골든티켓 추첨</div>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(4,4,4,0.04);text-align:center">
+        <div style="font-size:32px;margin-bottom:8px">☕</div>
+        <div style="font-size:15px;font-weight:700;color:#191f28">스벅 기프트</div>
+        <div style="font-size:11px;color:#b0b8c1;margin-top:4px">참여자 추첨</div>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(4,4,4,0.04);text-align:center">
+        <div style="font-size:32px;margin-bottom:8px">💳</div>
+        <div style="font-size:15px;font-weight:700;color:#191f28">네이버페이 1만원</div>
+        <div style="font-size:11px;color:#b0b8c1;margin-top:4px">이력서 업데이트 완료자</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 차트 -->
+  <div class="charts">
+    <!-- 참여 퍼널 -->
+    <div class="chart-box">
+      <h3>참여 퍼널</h3>
+      <canvas id="funnelChart"></canvas>
+    </div>
+    <!-- KPI 달성 -->
+    <div class="chart-box">
+      <h3>KPI 달성률</h3>
+      <canvas id="kpiChart"></canvas>
+    </div>
+    <!-- 일별 신청자 추이 - 데이터 없음 -->
+    <div class="chart-box">
+      <h3>일별 신청자 추이</h3>
+      <div class="no-data">데이터 없음 &#8212; 구글폼 원본 타임스탬프 데이터 필요</div>
+    </div>
+    <!-- 신청 경로 - 데이터 없음 -->
+    <div class="chart-box">
+      <h3>신청 경로 분석</h3>
+      <div class="no-data">데이터 없음 &#8212; 신청 경로 수집 항목 없음</div>
+    </div>
+    <!-- 연차별 분포 - 데이터 없음 -->
+    <div class="chart-box">
+      <h3>연차별 분포</h3>
+      <div class="no-data">데이터 없음 &#8212; 신청 시 연차 정보 미수집</div>
+    </div>
+    <!-- 직무별 분포 - 데이터 없음 -->
+    <div class="chart-box">
+      <h3>직무별 분포</h3>
+      <div class="no-data">데이터 없음 &#8212; 신청 시 직무 정보 미수집</div>
+    </div>
+  </div>
+
+  <!-- 만족도 - 데이터 없음 -->
+  <div class="feedback">
+    <h2>참여자 피드백</h2>
+    <div class="feedback-grid">
+      <div class="feedback-card" style="text-align:center;padding:40px">
+        <div style="font-size:16px;font-weight:700;color:#B0B8C1;font-style:italic">데이터 없음</div>
+        <div style="font-size:12px;color:#b0b8c1;margin-top:8px">만족도 설문 결과 미수집</div>
+      </div>
+      <div class="feedback-card" style="text-align:center;padding:40px">
+        <div style="font-size:16px;font-weight:700;color:#B0B8C1;font-style:italic">데이터 없음</div>
+        <div style="font-size:12px;color:#b0b8c1;margin-top:8px">참여자 후기 데이터 미수집</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note-box">
+    * 퇴근 후 이력서는 이력서 업데이트 이벤트(온라인) + 골든티켓 1:1 코칭(오프라인) 결합 프로그램입니다. 실제 집행액은 컨커(SAP Concur) 정산 데이터 수집 후, 광고 효율은 매체 리포트 확보 후, 만족도는 설문 결과 수집 후 업데이트 예정입니다.
+  </div>
+
+  <script>
+    Chart.register(ChartDataLabels);
+    Chart.defaults.plugins.datalabels = { display: false };
+    const pastel = ['#3182f6','#f04452','#ff9500','#00c48c','#8b5cf6','#6b7684','#1b64da','#e5e8eb','#4593fc','#b0b8c1'];
+
+    // 참여 퍼널
+    new Chart(document.getElementById('funnelChart'), {
+      type: 'bar',
+      data: {
+        labels: ['신청자', '이력서 업데이트', '골든티켓 참석'],
+        datasets: [{
+          label: '인원',
+          data: [702, 586, 72],
+          backgroundColor: ['#3182f6', '#ff9500', '#00c48c'],
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        indexAxis: 'y',
+        plugins: {
+          legend: { display: false },
+          datalabels: {
+            display: true,
+            color: '#191f28',
+            font: { size: 13, weight: 'bold' },
+            anchor: 'end',
+            align: 'right',
+            formatter: (v, ctx) => {
+              if (ctx.dataIndex === 0) return v + '명';
+              const prev = ctx.dataset.data[ctx.dataIndex - 1];
+              const pct = (v / prev * 100).toFixed(1);
+              return v + '명 (' + pct + '%)';
+            }
+          }
+        },
+        scales: { x: { beginAtZero: true } }
+      }
+    });
+
+    // KPI 달성
+    new Chart(document.getElementById('kpiChart'), {
+      type: 'bar',
+      data: {
+        labels: ['이력서 업데이트 KPI'],
+        datasets: [
+          {
+            label: '목표',
+            data: [1000],
+            backgroundColor: '#e5e8eb',
+            borderRadius: 6
+          },
+          {
+            label: '달성',
+            data: [586],
+            backgroundColor: '#ff9500',
+            borderRadius: 6
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'bottom' },
+          datalabels: {
+            display: true,
+            color: '#191f28',
+            font: { size: 13, weight: 'bold' },
+            anchor: 'end',
+            align: 'top',
+            formatter: (v) => v.toLocaleString() + '건'
+          }
+        },
+        scales: { y: { beginAtZero: true, max: 1200 } }
+      }
+    });
+  </script>
+</body>
+</html>
