@@ -869,6 +869,47 @@
     </div>
   </footer>
 
+  <!-- Modal: 멤버 추가 -->
+  <div class="modal-overlay" id="memberModal" hidden>
+    <div class="modal" style="max-width: 460px;">
+      <button class="modal-close" onclick="closeMemberModal()" aria-label="닫기">×</button>
+      <h2 class="modal-title">+ 새 멤버 추가</h2>
+      <p class="modal-sub">팀원을 추가해 보세요. 이름·역할·이니셜·색상 입력!</p>
+      <form id="memberForm" class="member-form">
+        <div class="field">
+          <label>이름</label>
+          <input type="text" name="name" placeholder="예: 김한나" required maxlength="10">
+        </div>
+        <div class="field">
+          <label>역할</label>
+          <input type="text" name="role" placeholder="예: 이벤트 · 캠페인" required maxlength="20">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>아바타 이니셜 <span class="opt">(1~2자)</span></label>
+            <input type="text" name="avatar" placeholder="예: 한" required maxlength="2">
+          </div>
+          <div class="field">
+            <label>색상</label>
+            <select name="cls" required>
+              <option value="hanna">🔴 빨강 (한나)</option>
+              <option value="sujin">🟠 주황 (수진)</option>
+              <option value="jia">🟡 노랑 (지아)</option>
+              <option value="junghyun">🟢 초록 (정현)</option>
+              <option value="eunhye">🔵 파랑 (은혜)</option>
+              <option value="minji">🟣 보라 (민지)</option>
+              <option value="jihoon">🩷 분홍 (지훈)</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button type="button" class="btn-text" onclick="closeMemberModal()">취소</button>
+          <button type="submit" class="btn-fill">멤버 추가</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Modal: 휴지통 -->
   <div class="modal-overlay" id="trashModal" hidden>
     <div class="modal" style="max-width: 520px;">
@@ -1295,7 +1336,59 @@
         });
       });
       document.getElementById('addMemberBtn').addEventListener('click', () => {
-        showToast('🚧 멤버 추가 기능은 곧 지원돼요. 지금은 가짜 데이터 모드!');
+        const modal = document.getElementById('memberModal');
+        modal.hidden = false;
+        document.body.style.overflow = 'hidden';
+        modal.querySelector('input[name="name"]')?.focus();
+      });
+      window.closeMemberModal = function() {
+        const modal = document.getElementById('memberModal');
+        if (!modal) return;
+        modal.hidden = true;
+        document.body.style.overflow = '';
+        document.getElementById('memberForm')?.reset();
+      };
+      document.getElementById('memberModal')?.addEventListener('click', e => {
+        if (e.target.id === 'memberModal') window.closeMemberModal();
+      });
+      document.getElementById('memberForm')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const o = Object.fromEntries(fd.entries());
+        const id = 'mem_' + Date.now();
+        const newMember = {
+          id, name: o.name.trim(), role: o.role.trim(),
+          avatar: o.avatar.trim(), cls: o.cls
+        };
+        // LocalStorage에 저장
+        const saved = JSON.parse(localStorage.getItem('b2c_members') || '[]');
+        saved.push(newMember);
+        localStorage.setItem('b2c_members', JSON.stringify(saved));
+        // window.MEMBERS에도 추가 (런타임)
+        if (window.MEMBERS) {
+          window.MEMBERS[id] = newMember;
+        }
+        // 멤버 카드 영역에 새 카드 추가
+        const memGrid = document.querySelector('.mem-grid') || document.querySelector('.members-sec .container');
+        const addBtn = document.getElementById('addMemberBtn');
+        if (addBtn) {
+          const card = document.createElement('a');
+          card.className = 'mem-card';
+          card.href = '#feed';
+          card.dataset.memberGo = id;
+          card.innerHTML = `
+            <div class="av av-${newMember.cls}">${newMember.avatar}</div>
+            <div class="name">${newMember.name}</div>
+            <div class="role">${newMember.role}</div>
+            <div class="mem-card-stats">
+              <div class="mem-card-stat"><div class="num">0</div><div class="lbl">프로젝트</div></div>
+              <div class="mem-card-stat"><div class="num">0</div><div class="lbl">참여자</div></div>
+            </div>
+          `;
+          addBtn.parentNode.insertBefore(card, addBtn);
+        }
+        showToast(`<span class="ok">✓</span>${newMember.name} 님 추가됐어요!`);
+        window.closeMemberModal();
       });
     }
 
@@ -1378,6 +1471,18 @@
     });
     searchInput.addEventListener('keydown', e => {
       if (e.key === 'Escape') { searchInput.value = ''; searchPop.classList.remove('is-open'); searchInput.blur(); }
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const q = e.target.value.trim();
+        if (!q) return;
+        // 결과 첫 항목 클릭 (있으면)
+        const firstLink = searchPop.querySelector('a[href]');
+        if (firstLink) {
+          firstLink.click();
+        } else {
+          showToast('🔍 "' + q + '" 검색 결과가 없어용 ㅠ');
+        }
+      }
     });
 
     // ════════════════════════════════════════════════
@@ -1670,11 +1775,6 @@
 
     // === Trash Modal ===
     window.openTrash = function () {
-      const deletedIds = window.getDeletedIds() || [];
-      if (deletedIds.length === 0) {
-        showToast('🗑 버려진 카드가 없어요 ㅠ');
-        return;
-      }
       const modal = document.getElementById('trashModal');
       if (!modal) return;
       modal.hidden = false;
