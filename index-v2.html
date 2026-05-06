@@ -967,11 +967,8 @@
     <div class="modal" style="max-width: 520px;">
       <button class="modal-close" onclick="closeTrash()" aria-label="닫기">×</button>
       <h2 class="modal-title">🗑 휴지통</h2>
-      <p class="modal-sub">숨긴 카드를 개별 복원하거나 전체 데모를 복원할 수 있어요.</p>
+      <p class="modal-sub">삭제한 프로젝트를 다시 살릴 수 있어요.</p>
       <div id="trashList" class="trash-list"></div>
-      <div class="trash-foot">
-        <button type="button" class="btn-ghost" onclick="resetDemo()">전체 데모 복원</button>
-      </div>
     </div>
   </div>
 
@@ -1815,7 +1812,7 @@
     window.deleteCard = function(id) {
       const p = window.getProject(id);
       const name = p ? p.title : '이 프로젝트';
-      if (!confirm(`"${name}"\n정말 삭제할까요?\n(데모 카드는 숨김 처리되며, 모두 초기화하려면 푸터의 "데모 복원" 버튼을 눌러주세요.)`)) return;
+      if (!confirm(`"${name}"\n정말 삭제할까요?\n(휴지통에서 다시 살릴 수 있어요)`)) return;
       window.deleteProject(id);
       renderGrid();
       showToast(`<span class="ok">✓</span>삭제했어요.`);
@@ -1823,10 +1820,10 @@
 
     // reset (called from footer link)
     window.resetDemo = function() {
-      if (!confirm('수정·삭제·추가한 내용이 모두 사라지고 데모 데이터로 초기화돼요. 진행할까요?')) return;
+      if (!confirm('지금까지 추가·수정·삭제한 내용이 모두 사라져요. 진행할까요?')) return;
       window.resetAll();
       renderGrid();
-      showToast(`<span class="ok">✓</span>데모로 복원했어요.`);
+      showToast(`<span class="ok">✓</span>전체 초기화했어요.`);
     };
 
     // URL ?edit=xxx 파라미터로 편집 모달 자동 오픈 (디테일 페이지에서 진입 시)
