@@ -2452,6 +2452,17 @@
     // ════════════════════════════════════════════════
     //  Init
     // ════════════════════════════════════════════════
+    // ?reset=1 URL 파라미터로 진입 시 1회 초기화
+    (function() {
+      const params = new URLSearchParams(location.search);
+      if (params.get('reset') === '1') {
+        if (confirm('내가 만든 프로젝트·멤버·카테고리·KPI 라벨을 모두 삭제하고 빈 대시보드로 초기화할까요?')) {
+          window.resetAll();
+        }
+        // URL에서 ?reset=1 제거 (재초기화 방지)
+        history.replaceState(null, '', location.pathname);
+      }
+    })();
     renderGrid();
     renderAllMembers();
     bindFilters();
