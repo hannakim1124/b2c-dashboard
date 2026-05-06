@@ -565,9 +565,48 @@
     .emoji-opt:hover { background: var(--c-primary-bg); border-color: var(--c-primary); }
     .emoji-opt.is-selected { background: var(--c-primary-bg); border-color: var(--c-primary); }
 
-    /* done card grayscale */
-    .card[data-status="done"] { opacity: 0.7; filter: grayscale(0.35); transition: all 0.18s; }
-    .card[data-status="done"]:hover { opacity: 1; filter: none; }
+    /* done card — finished look */
+    .card[data-status="done"] {
+      opacity: 0.55;
+      filter: grayscale(0.7);
+      background: linear-gradient(180deg, #FAFBFC 0%, #F4F4F4 100%) !important;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    .card[data-status="done"]:hover {
+      opacity: 1;
+      filter: none;
+      background: var(--c-surface) !important;
+    }
+    .card[data-status="done"]::before {
+      content: '✓ 완료됨';
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: rgba(106, 106, 106, 0.92);
+      color: #fff;
+      padding: 4px 9px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      z-index: 5;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+      pointer-events: none;
+    }
+    .card[data-status="done"]:hover::before {
+      background: var(--c-primary);
+    }
+    .card[data-status="done"] .card-title,
+    .card[data-status="done"] .card-desc,
+    .card[data-status="done"] .card-kpi-num {
+      color: #6A6A6A;
+    }
+    .card[data-status="done"]:hover .card-title,
+    .card[data-status="done"]:hover .card-desc,
+    .card[data-status="done"]:hover .card-kpi-num {
+      color: var(--c-text);
+    }
 
     /* trash modal */
     .trash-list { max-height: 400px; overflow-y: auto; margin: 16px 0; }
