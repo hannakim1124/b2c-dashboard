@@ -530,8 +530,15 @@
         const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
         return m ? m[1] : null;
       }
-      const links = p.links || {};
-      const linkItems = [links.notion, links.sheet, links.pdf, links.event]
+      function getDriveFileId(url) {
+        const m = url.match(/\/file\/d\/([\w-]+)/) || url.match(/[?&]id=([\w-]+)/);
+        return m ? m[1] : null;
+      }
+      // resources 배열 또는 기존 links 객체에서 URL 모음
+      const linkUrls = (p.resources && p.resources.length)
+        ? p.resources
+        : [p.links?.notion, p.links?.sheet, p.links?.pdf, p.links?.event].filter(Boolean);
+      const linkItems = linkUrls
         .filter(Boolean)
         .map(url => ({ url, ...detectLinkType(url) }));
       const linksHtml = linkItems.length ? `
@@ -550,6 +557,31 @@
                       <iframe src="https://www.youtube.com/embed/${yid}" frameborder="0" allowfullscreen></iframe>
                     </div>
                     <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener" class="link-embed-link">유튜브에서 열기 ↗</a>
+                  </div>`;
+              }
+              // 구글 드라이브 파일: preview 임베드 (이미지·PDF·영상 다 OK)
+              if (l.type === 'drive-file' || (l.type === 'drive' && /\/file\/d\//.test(l.url))) {
+                const fid = getDriveFileId(l.url);
+                if (fid) return `
+                  <div class="link-embed">
+                    <div class="link-embed-head">${l.icon} 구글 드라이브 파일</div>
+                    <div class="link-embed-frame">
+                      <iframe src="https://drive.google.com/file/d/${fid}/preview" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                    <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener" class="link-embed-link">드라이브에서 열기 ↗</a>
+                  </div>`;
+              }
+              // 구글 시트/문서/슬라이드: publish iframe
+              if (l.type === 'sheet' || l.type === 'doc' || l.type === 'slides') {
+                const embedUrl = l.url.includes('/pubhtml') || l.url.includes('/pub') ? l.url
+                  : l.url.replace(/\/edit.*$/, '/preview');
+                return `
+                  <div class="link-embed">
+                    <div class="link-embed-head">${l.icon} ${l.label}</div>
+                    <div class="link-embed-frame">
+                      <iframe src="${escapeHtml(embedUrl)}" frameborder="0"></iframe>
+                    </div>
+                    <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener" class="link-embed-link">${l.label}에서 열기 ↗</a>
                   </div>`;
               }
               // 일반 링크 카드

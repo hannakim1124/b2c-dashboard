@@ -618,6 +618,19 @@
       color: var(--c-text); outline: none;
     }
     .link-row input::placeholder { color: var(--c-text-3); }
+    .link-row .resource-remove {
+      background: none; border: none; color: var(--c-text-3); cursor: pointer;
+      font-size: 16px; padding: 0 4px; line-height: 1;
+    }
+    .link-row .resource-remove:hover { color: var(--c-danger); }
+    .resource-add-btn {
+      margin-top: 10px; padding: 10px 16px;
+      background: var(--c-surface-deep); border: 1px dashed var(--c-border-strong);
+      border-radius: 8px; color: var(--c-primary);
+      font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
+      width: 100%; transition: all 0.12s;
+    }
+    .resource-add-btn:hover { border-color: var(--c-primary); background: var(--c-primary-bg); }
 
     /* emoji picker */
     .emoji-picker { display: flex; flex-direction: column; gap: 8px; }
@@ -1051,23 +1064,9 @@
         </div>
 
         <div class="field" style="margin-top:14px">
-          <label>📎 외부 자료 링크 <span class="opt">(생략 가능)</span></label>
-          <div class="link-row">
-            <span class="link-ic">📝</span>
-            <input type="url" name="linkNotion" placeholder="노션 페이지 URL">
-          </div>
-          <div class="link-row">
-            <span class="link-ic">📊</span>
-            <input type="url" name="linkSheet" placeholder="구글 시트/문서 URL">
-          </div>
-          <div class="link-row">
-            <span class="link-ic">📄</span>
-            <input type="url" name="linkPdf" placeholder="PDF 또는 외부 자료 URL">
-          </div>
-          <div class="link-row">
-            <span class="link-ic">🌐</span>
-            <input type="url" name="linkEvent" placeholder="외부 행사·이벤트 페이지 URL">
-          </div>
+          <label>📎 외부 자료 링크 <span class="opt">(URL 넣으면 노션·시트·유튜브 등 자동 분류)</span></label>
+          <div id="resourcesList"></div>
+          <button type="button" class="resource-add-btn" onclick="addResourceRow()">+ 링크 추가</button>
         </div>
 
         <div class="kpi-block">
@@ -1350,6 +1349,20 @@
       });
     }
 
+    // === Resources (URL list, dynamic) ===
+    window.addResourceRow = function(value) {
+      const list = document.getElementById('resourcesList');
+      if (!list) return;
+      const row = document.createElement('div');
+      row.className = 'link-row';
+      row.innerHTML = `
+        <span class="link-ic">🔗</span>
+        <input type="url" class="resource-input" placeholder="URL 입력 (노션·시트·유튜브 등 자동 분류)" value="${value || ''}">
+        <button type="button" class="resource-remove" onclick="this.parentElement.remove()" aria-label="제거">×</button>
+      `;
+      list.appendChild(row);
+    };
+
     // === Member Modal (global) ===
     window.closeMemberModal = function() {
       const modal = document.getElementById('memberModal');
@@ -1558,12 +1571,19 @@
       form.querySelector('[name="desc"]').value = p.desc || '';  // hidden, 자동 생성용
       form.querySelector('[name="emoji"]').value = p.emoji || '📌';
       form.querySelector('[name="statusLabel"]').value = p.statusLabel || '';
-      // 외부 자료 링크 복원
-      const links = p.links || {};
-      form.querySelector('[name="linkNotion"]').value = links.notion || '';
-      form.querySelector('[name="linkSheet"]').value = links.sheet || '';
-      form.querySelector('[name="linkPdf"]').value = links.pdf || '';
-      form.querySelector('[name="linkEvent"]').value = links.event || '';
+      // 외부 자료 링크 복원 (resources 또는 기존 links 둘 다 지원)
+      const resourcesList = document.getElementById('resourcesList');
+      if (resourcesList) {
+        resourcesList.innerHTML = '';
+        const existing = p.resources && p.resources.length ? p.resources : [
+          p.links?.notion, p.links?.sheet, p.links?.pdf, p.links?.event
+        ].filter(Boolean);
+        if (existing.length === 0) {
+          window.addResourceRow();  // 빈 row 1개
+        } else {
+          existing.forEach(url => window.addResourceRow(url));
+        }
+      }
       const k = p.kpis || [];
       [1,2,3].forEach((n, i) => {
         const kk = k[i] || { label: '', value: '', flavor: '' };
@@ -1654,12 +1674,8 @@
         period: (o.periodStart && o.periodEnd)
           ? `${o.periodStart.replace(/-/g, '.')} — ${o.periodEnd.replace(/-/g, '.')}`
           : (base.period && isEdit ? base.period : o.date.replace(/-/g, '.')),
-        links: {
-          notion: (o.linkNotion || '').trim(),
-          sheet: (o.linkSheet || '').trim(),
-          pdf: (o.linkPdf || '').trim(),
-          event: (o.linkEvent || '').trim()
-        },
+        resources: Array.from(document.querySelectorAll('.resource-input'))
+          .map(i => i.value.trim()).filter(Boolean),
         emoji: (o.emoji || '📌').trim(),
         desc: finalDesc,
         kpis: [
