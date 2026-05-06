@@ -547,18 +547,6 @@
           <h2 class="sec-title">📎 외부 자료</h2>
           <div class="links-grid">
             ${linkItems.map(l => {
-              // 유튜브: 임베드 카드
-              if (l.type === 'youtube') {
-                const yid = getYoutubeId(l.url);
-                if (yid) return `
-                  <div class="link-embed">
-                    <div class="link-embed-head">${l.icon} ${l.label}</div>
-                    <div class="link-embed-frame">
-                      <iframe src="https://www.youtube.com/embed/${yid}" frameborder="0" allowfullscreen></iframe>
-                    </div>
-                    <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener" class="link-embed-link">유튜브에서 열기 ↗</a>
-                  </div>`;
-              }
               // 구글 드라이브 파일: preview 임베드 (이미지·PDF·영상 다 OK)
               if (l.type === 'drive-file' || (l.type === 'drive' && /\/file\/d\//.test(l.url))) {
                 const fid = getDriveFileId(l.url);
