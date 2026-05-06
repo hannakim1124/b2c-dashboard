@@ -801,9 +801,11 @@
       <ul class="nav-menu">
         <li><a href="#feed" data-nav class="is-active">피드</a></li>
         <li><a href="#members" data-nav>멤버</a></li>
-        <li><a href="#feed" data-cat-link="이벤트">이벤트</a></li>
         <li><a href="#feed" data-cat-link="웨비나">웨비나</a></li>
-        <li><a href="#feed" data-cat-link="콘텐츠">콘텐츠</a></li>
+        <li><a href="#feed" data-cat-link="이벤트">이벤트</a></li>
+        <li><a href="#feed" data-cat-link="아티클">아티클</a></li>
+        <li><a href="#feed" data-cat-link="인스타그램">인스타그램</a></li>
+        <li><a href="#feed" data-cat-link="AI아티클">AI아티클</a></li>
       </ul>
       <div class="nav-actions">
         <div class="nav-search-wrap">
@@ -853,20 +855,15 @@
     <div class="container">
       <div class="filters-row" data-filter="member">
         <button class="m-chip is-all is-active" data-member="all">전체</button>
-        <button class="m-chip" data-member="hanna"><span class="av av-hanna">한</span>한나</button>
-        <button class="m-chip" data-member="minji"><span class="av av-minji">민</span>김민지</button>
-        <button class="m-chip" data-member="jihoon"><span class="av av-jihoon">박</span>박지훈</button>
-        <button class="m-chip" data-member="suyoung"><span class="av av-suyoung">수</span>이수영</button>
-        <button class="m-chip" data-member="taeho"><span class="av av-taeho">태</span>최태호</button>
         <button class="m-chip is-add" id="addMemberBtn">+ 멤버 추가</button>
       </div>
       <div class="filters-row" data-filter="category">
         <button class="c-chip is-active" data-category="all">전체</button>
-        <button class="c-chip" data-category="이벤트">이벤트</button>
         <button class="c-chip" data-category="웨비나">웨비나</button>
-        <button class="c-chip" data-category="콘텐츠">콘텐츠</button>
-        <button class="c-chip" data-category="캠페인">캠페인</button>
-        <button class="c-chip" data-category="자동화">자동화</button>
+        <button class="c-chip" data-category="이벤트">이벤트</button>
+        <button class="c-chip" data-category="아티클">아티클</button>
+        <button class="c-chip" data-category="인스타그램">인스타그램</button>
+        <button class="c-chip" data-category="AI아티클">AI아티클</button>
       </div>
     </div>
   </div>
@@ -903,52 +900,10 @@
         <h2>팀원별 누적 성과</h2>
         <p>각자 어떤 일을 얼마나 진행했는지 한눈에.</p>
       </div>
-      <div class="members-grid">
-        <a class="mem-card" href="#feed" data-member-go="hanna">
-          <div class="av av-hanna">한</div>
-          <div class="name">한나</div>
-          <div class="role">기획 · 이벤트 PM</div>
-          <div class="mem-card-stats">
-            <div class="mem-card-stat"><div class="num">0</div><div class="lbl">프로젝트</div></div>
-            <div class="mem-card-stat"><div class="num">0</div><div class="lbl">참여자</div></div>
-          </div>
-        </a>
-        <a class="mem-card" href="#feed" data-member-go="minji">
-          <div class="av av-minji">민</div>
-          <div class="name">김민지</div>
-          <div class="role">자동화 · 콘텐츠</div>
-          <div class="mem-card-stats">
-            <div class="mem-card-stat"><div class="num">0</div><div class="lbl">프로젝트</div></div>
-            <div class="mem-card-stat"><div class="num">1,932</div><div class="lbl">참여자</div></div>
-          </div>
-        </a>
-        <a class="mem-card" href="#feed" data-member-go="jihoon">
-          <div class="av av-jihoon">박</div>
-          <div class="name">박지훈</div>
-          <div class="role">웨비나 · 외부 협업</div>
-          <div class="mem-card-stats">
-            <div class="mem-card-stat"><div class="num">0</div><div class="lbl">프로젝트</div></div>
-            <div class="mem-card-stat"><div class="num">801</div><div class="lbl">참여자</div></div>
-          </div>
-        </a>
-        <a class="mem-card" href="#feed" data-member-go="suyoung">
-          <div class="av av-suyoung">수</div>
-          <div class="name">이수영</div>
-          <div class="role">SNS · 영상 콘텐츠</div>
-          <div class="mem-card-stats">
-            <div class="mem-card-stat"><div class="num">0</div><div class="lbl">프로젝트</div></div>
-            <div class="mem-card-stat"><div class="num">0</div><div class="lbl">참여자</div></div>
-          </div>
-        </a>
-        <a class="mem-card" href="#feed" data-member-go="taeho">
-          <div class="av av-taeho">태</div>
-          <div class="name">최태호</div>
-          <div class="role">광고 · 퍼포먼스</div>
-          <div class="mem-card-stats">
-            <div class="mem-card-stat"><div class="num">0</div><div class="lbl">프로젝트</div></div>
-            <div class="mem-card-stat"><div class="num">0</div><div class="lbl">참여자</div></div>
-          </div>
-        </a>
+      <div class="members-grid" id="membersGrid">
+        <div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--c-text-3);font-size:14px;border:1px dashed var(--c-border-strong);border-radius:12px">
+          👤 아직 멤버가 없어요. 위에 + 멤버 추가 버튼으로 시작해 보세요!
+        </div>
       </div>
     </div>
   </section>
@@ -1040,11 +995,11 @@
           <div class="field">
             <label>카테고리</label>
             <select name="category" required>
-              <option value="이벤트">이벤트</option>
               <option value="웨비나">웨비나</option>
-              <option value="콘텐츠">콘텐츠</option>
-              <option value="캠페인">캠페인</option>
-              <option value="자동화">자동화</option>
+              <option value="이벤트">이벤트</option>
+              <option value="아티클">아티클</option>
+              <option value="인스타그램">인스타그램</option>
+              <option value="AI아티클">AI아티클</option>
             </select>
           </div>
         </div>
@@ -1646,7 +1601,7 @@
       editingIdField.value = id;
       // 폼 채우기
       form.querySelector('[name="member"]').value = p.member || 'hanna';
-      form.querySelector('[name="category"]').value = p.category || '이벤트';
+      form.querySelector('[name="category"]').value = p.category || '웨비나';
       form.querySelector('[name="status"]').value = p.status || 'ongoing';
       form.querySelector('[name="date"]').value = p.date || new Date().toISOString().slice(0, 10);
       // period 기존값 복원 (예: "2026.04.01 — 2026.04.23")
@@ -1926,12 +1881,18 @@
       document.querySelectorAll('.year-option').forEach(opt => {
         opt.addEventListener('click', () => {
           const year = opt.dataset.year;
-          if (year === '2025') {
-            showToast('🚧 2025년도 데이터는 준비 중이에요!');
-          } else {
-            document.querySelectorAll('.year-option').forEach(o => o.classList.remove('is-active'));
-            opt.classList.add('is-active');
+          document.querySelectorAll('.year-option').forEach(o => o.classList.remove('is-active'));
+          opt.classList.add('is-active');
+          // 년도 토글 라벨 업데이트
+          const trigger = document.getElementById('yearToggle');
+          if (trigger) {
+            trigger.firstChild.textContent = year + ' ';
           }
+          // hero 타이틀·태그도 년도 반영
+          const heroH1 = document.querySelector('.hero h1');
+          if (heroH1) heroH1.innerHTML = heroH1.innerHTML.replace(/\d{4}년/, year + '년');
+          const heroTag = document.querySelector('.hero-tag');
+          if (heroTag) heroTag.textContent = year + ' · 인사이트전략팀 성과 보드';
           yearDropdown.hidden = true;
           yearWrap.classList.remove('open');
         });

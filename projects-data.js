@@ -2,13 +2,14 @@
 //  Projects data — single source of truth
 //  index-v2.html (피드) + project-detail.html (상세) 둘 다 사용
 // ════════════════════════════════════════════════════════════
-window.MEMBERS = {
-  hanna:   { name: '한나',     role: '기획 · 이벤트 PM',    avatar: '한', cls: 'hanna'   },
-  minji:   { name: '김민지',   role: '자동화 · 콘텐츠',     avatar: '민', cls: 'minji'   },
-  jihoon:  { name: '박지훈',   role: '웨비나 · 외부 협업',  avatar: '박', cls: 'jihoon'  },
-  suyoung: { name: '이수영',   role: 'SNS · 영상 콘텐츠',   avatar: '수', cls: 'suyoung' },
-  taeho:   { name: '최태호',   role: '광고 · 퍼포먼스',     avatar: '태', cls: 'taeho'   },
-};
+window.MEMBERS = {};
+// LocalStorage에 저장된 사용자 추가 멤버 자동 복원
+(function loadSavedMembers(){
+  try {
+    const saved = JSON.parse(localStorage.getItem('b2c_members') || '[]');
+    saved.forEach(m => { window.MEMBERS[m.id] = m; });
+  } catch(e) {}
+})();
 window.PROJECTS = {};
 
 
