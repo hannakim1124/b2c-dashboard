@@ -597,7 +597,13 @@
     .kpi-row + .kpi-row { margin-top: 8px; }
     .kpi-row .lbl-i { background: #fff; }
 
-    .modal-foot { display: flex; gap: 10px; justify-content: flex-end; margin-top: 28px; }
+    .modal-foot { display: flex; gap: 10px; justify-content: flex-end; align-items: center; margin-top: 28px; }
+    .modal-foot .btn-danger {
+      margin-right: auto; padding: 9px 16px; border-radius: 10px; border: 1px solid var(--c-danger);
+      background: #fff; color: var(--c-danger); font-weight: 700; font-size: 13px;
+      cursor: pointer; font-family: inherit; transition: all 0.12s;
+    }
+    .modal-foot .btn-danger:hover { background: var(--c-danger); color: #fff; }
     .btn-text {
       padding: 11px 16px; border-radius: 10px; border: none; background: transparent;
       font-size: 13px; font-weight: 700; color: var(--c-text-2); cursor: pointer;
@@ -1036,8 +1042,8 @@
           </select>
         </div>
         <div class="modal-foot">
+          <button type="button" class="btn-danger" id="memDeleteBtn" onclick="deleteMember()" style="display:none">🗑 삭제</button>
           <button type="button" class="btn-text" onclick="closeMemberModal()">취소</button>
-          <button type="button" class="btn-text" id="memDeleteBtn" onclick="deleteMember()" style="color:var(--c-danger);display:none">삭제</button>
           <button type="submit" class="btn-fill" id="memSubmitBtn">멤버 추가</button>
         </div>
       </form>
