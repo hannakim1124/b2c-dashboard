@@ -554,6 +554,44 @@
     .toast.is-open { opacity: 1; transform: translateX(-50%) translateY(0); }
     .toast .ok { color: var(--c-success); margin-right: 6px; font-weight: 800; }
 
+    /* modal overlay (휴지통, 멤버 추가) */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(15, 20, 25, 0.45);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200; padding: 20px;
+      animation: modalFadeIn 0.18s ease-out;
+    }
+    .modal-overlay[hidden] { display: none; }
+    .modal-overlay .modal {
+      width: 100%; max-width: 520px;
+      background: #fff; border-radius: 16px;
+      padding: 28px 24px 20px; position: relative;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+      animation: modalSlideUp 0.2s ease-out;
+    }
+    .modal-overlay .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      width: 32px; height: 32px;
+      border: none; background: var(--c-surface-deep);
+      cursor: pointer; color: var(--c-text-3);
+      font-size: 22px; line-height: 1;
+      border-radius: 50%; padding: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.12s, color 0.12s;
+    }
+    .modal-overlay .modal-close:hover { background: var(--c-surface-deeper); color: var(--c-text); }
+    .modal-overlay .modal-title { font-size: 20px; font-weight: 800; margin: 0 0 8px; color: var(--c-text); }
+    .modal-overlay .modal-sub { font-size: 13px; color: var(--c-text-3); margin: 0 0 20px; line-height: 1.5; }
+    @keyframes modalFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes modalSlideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     /* link rows in form */
     .link-row {
       display: flex; align-items: center; gap: 8px;
