@@ -36,6 +36,18 @@
       --sh-3: 0 16px 48px rgba(15,19,36,0.12);
       --nav-h: 64px;
       --tx-mono: "tnum" on, "lnum" on;
+      --c-primary-rgb: 49,130,246;
+      --c-hero-tint: #F5F9FF;
+    }
+
+    /* 2025년 모드 — 핑크 테마 */
+    body.year-2025 {
+      --c-primary: #F04C7A;
+      --c-primary-hover: #DC3D6A;
+      --c-primary-bg: #FFE9F0;
+      --c-primary-deep: #B12C58;
+      --c-primary-rgb: 240,76,122;
+      --c-hero-tint: #FFF5F8;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -135,7 +147,7 @@
     .nav-search-input::placeholder { color: var(--c-text-3); }
     .nav-search-input:focus {
       border-color: var(--c-primary); background: #fff; width: 320px;
-      box-shadow: 0 0 0 3px rgba(49,130,246,0.12);
+      box-shadow: 0 0 0 3px rgba(var(--c-primary-rgb),0.12);
     }
     .search-pop {
       position: absolute; top: calc(100% + 8px); right: 0; width: 360px;
@@ -184,7 +196,7 @@
     ──────────────────────────────────────────────── */
     .hero {
       padding: calc(var(--nav-h) + 72px) 0 56px;
-      background: linear-gradient(180deg, #F5F9FF 0%, #FFFFFF 100%);
+      background: linear-gradient(180deg, var(--c-hero-tint) 0%, #FFFFFF 100%);
     }
     .hero-tag {
       display: inline-flex; align-items: center; gap: 6px;
@@ -406,14 +418,14 @@
     .card[data-user="1"]::before {
       content: ''; position: absolute; top: 14px; left: 14px; z-index: 4;
       width: 8px; height: 8px; border-radius: 50%;
-      background: var(--c-primary); box-shadow: 0 0 0 3px rgba(49,130,246,0.25);
+      background: var(--c-primary); box-shadow: 0 0 0 3px rgba(var(--c-primary-rgb),0.25);
     }
 
     /* "방금 추가됨" highlight */
     .card.is-new { animation: newPulse 0.8s ease-out; }
     @keyframes newPulse {
-      0%   { transform: scale(0.96); box-shadow: 0 0 0 0 rgba(49,130,246,0.4); }
-      50%  { transform: scale(1.02); box-shadow: 0 0 0 12px rgba(49,130,246,0); }
+      0%   { transform: scale(0.96); box-shadow: 0 0 0 0 rgba(var(--c-primary-rgb),0.4); }
+      50%  { transform: scale(1.02); box-shadow: 0 0 0 12px rgba(var(--c-primary-rgb),0); }
       100% { transform: scale(1); }
     }
 
@@ -524,7 +536,7 @@
       transition: border-color 0.12s, box-shadow 0.12s;
     }
     .field input:focus, .field select:focus, .field textarea:focus {
-      border-color: var(--c-primary); box-shadow: 0 0 0 3px rgba(49,130,246,0.12);
+      border-color: var(--c-primary); box-shadow: 0 0 0 3px rgba(var(--c-primary-rgb),0.12);
     }
     .field textarea { resize: vertical; min-height: 60px; }
     .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
@@ -799,13 +811,8 @@
         </div>
       </div>
       <ul class="nav-menu">
-        <li><a href="#feed" data-nav class="is-active">피드</a></li>
+        <li><a href="#feed" data-nav class="is-active">프로젝트</a></li>
         <li><a href="#members" data-nav>멤버</a></li>
-        <li><a href="#feed" data-cat-link="웨비나">웨비나</a></li>
-        <li><a href="#feed" data-cat-link="이벤트">이벤트</a></li>
-        <li><a href="#feed" data-cat-link="아티클">아티클</a></li>
-        <li><a href="#feed" data-cat-link="인스타그램">인스타그램</a></li>
-        <li><a href="#feed" data-cat-link="AI아티클">AI아티클</a></li>
       </ul>
       <div class="nav-actions">
         <div class="nav-search-wrap">
@@ -872,7 +879,7 @@
   <section class="feed" id="feed">
     <div class="container">
       <div class="feed-head">
-        <h2>최근 프로젝트<span class="count" id="cardCount">14건</span></h2>
+        <h2>프로젝트<span class="count" id="cardCount">14건</span></h2>
         <div class="feed-sort">
           <button class="is-active" data-sort="recent">최신순</button>
           <button data-sort="impact">성과순</button>
@@ -897,7 +904,7 @@
     <div class="container">
       <div class="members-head">
         <div class="members-eyebrow">Team Members</div>
-        <h2>팀원별 누적 프로젝트</h2>
+        <h2>누적 프로젝트</h2>
         <p>각자 어떤 일을 얼마나 진행했는지 한눈에.</p>
       </div>
       <div class="members-grid" id="membersGrid">
@@ -1893,6 +1900,8 @@
           if (heroH1) heroH1.innerHTML = heroH1.innerHTML.replace(/\d{4}년/, year + '년');
           const heroTag = document.querySelector('.hero-tag');
           if (heroTag) heroTag.textContent = year + ' · 인사이트전략팀 프로젝트 보드';
+          // 2025 = 핑크 모드, 2026 = 기본 블루
+          document.body.classList.toggle('year-2025', year === '2025');
           yearDropdown.hidden = true;
           yearWrap.classList.remove('open');
         });
