@@ -421,6 +421,14 @@
     .av-hanna   { background: linear-gradient(135deg, #5A9BFF 0%, #3182F6 100%); }
     .av-minji   { background: linear-gradient(135deg, #2DDDB0 0%, #00C896 100%); }
     .av-jihoon  { background: linear-gradient(135deg, #FFA89E 0%, #FF7B72 100%); }
+    .av-red     { background: linear-gradient(135deg, #FF7676 0%, #E83A3A 100%); }
+    .av-orange  { background: linear-gradient(135deg, #FFB876 0%, #FF8A2B 100%); }
+    .av-yellow  { background: linear-gradient(135deg, #FFD96E 0%, #F5A623 100%); color: #6A4500; }
+    .av-green   { background: linear-gradient(135deg, #6FE08D 0%, #2BB958 100%); }
+    .av-blue    { background: linear-gradient(135deg, #5A9BFF 0%, #3182F6 100%); }
+    .av-purple  { background: linear-gradient(135deg, #C29CFF 0%, #8C5BFF 100%); }
+    .av-pink    { background: linear-gradient(135deg, #FFB3CF 0%, #FF6FA1 100%); }
+    .av-gray    { background: linear-gradient(135deg, #BCC4CC 0%, #6B7684 100%); }
     .av-suyoung { background: linear-gradient(135deg, #D2A8FF 0%, #B981F5 100%); }
     .av-taeho   { background: linear-gradient(135deg, #FFD566 0%, #FFB700 100%); }
 
@@ -482,6 +490,7 @@
     .modal-bg.is-open { display: flex; }
     .modal {
       background: #fff; width: 100%; max-width: 600px;
+      max-height: calc(100vh - 80px); overflow-y: auto;
       border-radius: var(--r-xl); padding: 32px;
       box-shadow: var(--sh-3);
       animation: modalIn 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.2);
@@ -565,6 +574,7 @@
     .modal-overlay[hidden] { display: none; }
     .modal-overlay .modal {
       width: 100%; max-width: 520px;
+      max-height: calc(100vh - 80px); overflow-y: auto;
       background: #fff; border-radius: 16px;
       padding: 28px 24px 20px; position: relative;
       box-shadow: 0 24px 60px rgba(0,0,0,0.18);
@@ -930,13 +940,14 @@
           <div class="field">
             <label>색상</label>
             <select name="cls" required>
-              <option value="hanna">🔴 빨강 (한나)</option>
-              <option value="sujin">🟠 주황 (수진)</option>
-              <option value="jia">🟡 노랑 (지아)</option>
-              <option value="junghyun">🟢 초록 (정현)</option>
-              <option value="eunhye">🔵 파랑 (은혜)</option>
-              <option value="minji">🟣 보라 (민지)</option>
-              <option value="jihoon">🩷 분홍 (지훈)</option>
+              <option value="red">🔴</option>
+              <option value="orange">🟠</option>
+              <option value="yellow">🟡</option>
+              <option value="green">🟢</option>
+              <option value="blue">🔵</option>
+              <option value="purple">🟣</option>
+              <option value="pink">🩷</option>
+              <option value="gray">⚪</option>
             </select>
           </div>
         </div>
@@ -1407,9 +1418,9 @@
           window.MEMBERS[id] = newMember;
         }
         // 멤버 카드 영역에 새 카드 추가
-        const memGrid = document.querySelector('.mem-grid') || document.querySelector('.members-sec .container');
+        const grid = document.querySelector('.members-grid');
         const addBtn = document.getElementById('addMemberBtn');
-        if (addBtn) {
+        if (grid && addBtn) {
           const card = document.createElement('a');
           card.className = 'mem-card';
           card.href = '#feed';
@@ -1423,7 +1434,7 @@
               <div class="mem-card-stat"><div class="num">0</div><div class="lbl">참여자</div></div>
             </div>
           `;
-          addBtn.parentNode.insertBefore(card, addBtn);
+          grid.insertBefore(card, addBtn);
         }
         showToast(`<span class="ok">✓</span>${newMember.name} 님 추가됐어요!`);
         window.closeMemberModal();
