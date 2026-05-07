@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════════════
 //  Projects data — single source of truth
-//  index-v2.html (피드) + project-detail.html (상세) 둘 다 사용
+//  index.html (피드) + project-detail.html (상세) 둘 다 사용
 // ════════════════════════════════════════════════════════════
 window.MEMBERS = {};
 // LocalStorage에 저장된 사용자 추가 멤버 자동 복원

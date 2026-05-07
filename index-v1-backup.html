@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>인사이트전략팀 B2C 대시보드</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <style>
+    /* === Toss-style Design Tokens === */
+    :root {
+      --c-bg: #FFFFFF;
+      --c-surface: #FFFFFF;
+      --c-surface-alt: #F9FAFB;
+      --c-border: #F2F4F6;
+      --c-border-strong: #E5E8EB;
+      --c-text: #191F28;
+      --c-text-2: #4E5968;
+      --c-text-3: #8B95A1;
+      --c-text-4: #B0B8C1;
+      --c-primary: #3182F6;
+      --c-primary-bg: #E8F3FF;
+      --c-primary-strong: #1B64DA;
+      --c-success: #00C896;
+      --c-success-bg: #E5F9F4;
+      --c-warning: #FFB700;
+      --c-warning-bg: #FFF7E0;
+      --c-danger: #F04452;
+      --c-danger-bg: #FFEBEC;
+
+      --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 20px; --r-pill: 999px;
+      --sh-1: 0 1px 2px rgba(15,19,36,0.04);
+      --sh-2: 0 4px 12px rgba(15,19,36,0.06);
+      --sh-3: 0 8px 24px rgba(15,19,36,0.08);
+      --tx-mono-feature: "tnum" on, "lnum" on;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Pretendard', -apple-system, sans-serif; background: var(--c-bg); color: var(--c-text); padding: 56px 24px 80px; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    h1 { text-align: left; font-size: 32px; margin-bottom: 4px; font-weight: 800; color: var(--c-text); letter-spacing: -0.02em; line-height: 1.2; }
+    .subtitle { text-align: left; color: var(--c-text-3); font-size: 14px; margin-bottom: 40px; font-weight: 500; }
+    .container { max-width: 1080px; margin: 0 auto; }
+
+    /* === Sticky Header === */
+    .sticky-header { position: sticky; top: 0; z-index: 100; background: var(--c-bg); padding: 24px 0 12px; margin: -56px -24px 28px; padding-left: 24px; padding-right: 24px; border-bottom: 1px solid transparent; transition: border-color 0.2s; }
+    .sticky-header.is-stuck { border-bottom-color: var(--c-border); }
+    .sticky-inner { max-width: 1080px; margin: 0 auto; }
+
+    /* === Summary KPI Cards (Hero) === */
+    .summary-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 0 0 16px; }
+    .kpi-card { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-lg); padding: 24px 24px 20px; transition: border-color 0.15s, transform 0.15s; cursor: pointer; position: relative; overflow: hidden; }
+    .kpi-card:hover { border-color: var(--c-border-strong); }
+    .kpi-card .kpi-label { font-size: 13px; color: var(--c-text-3); font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+    .kpi-card .kpi-num { font-size: 30px; font-weight: 800; color: var(--c-text); letter-spacing: -0.025em; line-height: 1.1; font-feature-settings: var(--tx-mono-feature); }
+    .kpi-card .kpi-sub { font-size: 12px; color: var(--c-text-4); margin-top: 6px; font-weight: 500; line-height: 1.4; }
+    .kpi-card .kpi-sub a { color: var(--c-primary); text-decoration: none; font-weight: 600; }
+    .kpi-card .kpi-sub a:hover { text-decoration: underline; }
+
+    /* === Year tabs / filter buttons === */
+    .toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding-top: 4px; }
+    .toolbar .group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .toolbar .group-label { font-size: 12px; color: var(--c-text-3); font-weight: 600; margin-right: 4px; }
+    .filter-btn { font-size: 12px; padding: 7px 14px; border-radius: var(--r-sm); border: 1px solid var(--c-border-strong); background: var(--c-surface); cursor: pointer; color: var(--c-text-2); font-family: inherit; font-weight: 600; transition: background 0.12s, border-color 0.12s, color 0.12s; }
+    .filter-btn:hover { background: var(--c-surface-alt); }
+    .filter-btn.is-on { background: var(--c-text); color: #fff; border-color: var(--c-text); }
+    .year-btn { font-size: 13px; padding: 7px 14px; border-radius: var(--r-sm); border: 1px solid var(--c-border-strong); background: var(--c-surface); cursor: pointer; color: var(--c-text-2); font-family: inherit; font-weight: 700; transition: background 0.12s, color 0.12s, border-color 0.12s; }
+    .year-btn:hover { background: var(--c-surface-alt); }
+    .year-btn.active { background: var(--c-text); color: #fff; border-color: var(--c-text); }
+
+    /* === Month / Section labels === */
+    .month { margin-bottom: 32px; }
+    .month-header { font-size: 11px; font-weight: 800; color: var(--c-text-3); letter-spacing: 0.06em; margin-bottom: 12px; padding-left: 4px; text-transform: uppercase; }
+    .category-label { font-size: 11px; color: var(--c-text-4); padding-left: 4px; margin-bottom: 6px; margin-top: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+
+    /* === Event Row === */
+    .row { display: flex; align-items: center; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-lg); padding: 18px 24px; margin-bottom: 8px; text-decoration: none; color: var(--c-text); transition: background 0.12s, border-color 0.12s; cursor: pointer; position: relative; }
+    .row:hover { background: var(--c-surface-alt); border-color: var(--c-border-strong); }
+    .row .tag { display: inline-block; font-size: 11px; padding: 4px 10px; border-radius: var(--r-sm); font-weight: 700; margin-right: 16px; min-width: 60px; text-align: center; letter-spacing: 0.02em; }
+    .row .tag.done { background: var(--c-border); color: var(--c-text-3); }
+    .row .tag.live { background: var(--c-danger-bg); color: var(--c-danger); }
+    .row .tag.soon { background: var(--c-border); color: var(--c-text-3); }
+    .row .name { font-weight: 700; font-size: 15px; min-width: 180px; color: var(--c-text); }
+    .row .desc { font-size: 12px; color: var(--c-text-3); flex: 1; }
+    .row .stats { display: flex; gap: 28px; margin-left: auto; align-items: center; }
+    .row .stat { text-align: right; min-width: 60px; }
+    .row .stat .num { font-size: 18px; font-weight: 800; color: var(--c-text); letter-spacing: -0.02em; font-feature-settings: var(--tx-mono-feature); }
+    .row .stat .num.red { color: var(--c-danger); }
+    .row .stat .num.orange { color: var(--c-warning); }
+    .row .stat .label { font-size: 11px; color: var(--c-text-4); font-weight: 500; margin-top: 2px; }
+
+    .row.empty { border: 1px dashed var(--c-border-strong); background: var(--c-surface-alt); box-shadow: none; cursor: pointer; justify-content: center; padding: 20px; }
+    .row.empty:hover { background: var(--c-bg); border-color: var(--c-primary); }
+    .row.empty .placeholder { color: var(--c-text-3); font-size: 13px; font-weight: 600; }
+    .row.faded { opacity: 0.55; }
+    .dot { position: absolute; top: -3px; left: -5px; width: 6px; height: 6px; background: var(--c-danger); border-radius: 50%; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.85); } }
+
+    .footer { text-align: center; margin-top: 56px; font-size: 12px; color: var(--c-text-4); font-weight: 500; }
+    .cmp-label { display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: var(--r-sm); border: 1px solid var(--c-border-strong); cursor: pointer; font-size: 12px; font-weight: 600; color: var(--c-text-2); font-family: inherit; transition: background 0.12s, border-color 0.12s; }
+    .cmp-label:hover { background: var(--c-surface-alt); border-color: var(--c-text-3); }
+    #compare-table th { text-align: left; padding: 14px 16px; font-size: 12px; color: var(--c-text-3); border-bottom: 1px solid var(--c-border); background: var(--c-surface-alt); font-weight: 600; letter-spacing: 0.02em; }
+    #compare-table td { padding: 13px 16px; font-size: 13px; border-bottom: 1px solid var(--c-border); color: var(--c-text); text-align: right; font-feature-settings: var(--tx-mono-feature); }
+    #compare-table td:first-child { text-align: left; font-weight: 600; color: var(--c-text-2); }
+    #compare-table tr:last-child td { border-bottom: none; }
+    #compare-table tr:hover td { background: var(--c-surface-alt); }
+    .ai-chip { padding: 8px 14px; border-radius: var(--r-pill); border: 1px solid var(--c-border-strong); background: var(--c-surface); font-size: 12px; font-family: inherit; font-weight: 600; color: var(--c-text-2); cursor: pointer; transition: background 0.12s, border-color 0.12s, color 0.12s; }
+    .ai-chip:hover { background: var(--c-primary-bg); border-color: var(--c-primary); color: var(--c-primary); }
+
+    /* === Top bar (slim) === */
+    .topbar { position: sticky; top: 0; z-index: 100; background: var(--c-bg); padding: 18px 0; margin: -56px -24px 28px; padding-left: 24px; padding-right: 24px; border-bottom: 1px solid transparent; transition: border-color 0.2s; }
+    .topbar.is-stuck { border-bottom-color: var(--c-border); }
+    .topbar-inner { max-width: 1080px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .topbar h1 { font-size: 18px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.2; margin: 0; }
+    .topbar-meta { font-size: 12px; color: var(--c-text-3); font-weight: 500; margin-top: 2px; }
+    .topbar-actions { display: flex; gap: 8px; align-items: center; }
+
+    /* === Mini KPI strip === */
+    .kpi-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 32px; }
+    .kpi-mini { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-lg); padding: 18px 20px; transition: border-color 0.12s; cursor: default; }
+    .kpi-mini.clickable { cursor: pointer; }
+    .kpi-mini:hover { border-color: var(--c-border-strong); }
+    .kpi-mini .km-label { font-size: 12px; color: var(--c-text-3); font-weight: 600; margin-bottom: 8px; }
+    .kpi-mini .km-num { font-size: 22px; font-weight: 800; color: var(--c-text); letter-spacing: -0.02em; line-height: 1.1; font-feature-settings: var(--tx-mono-feature); }
+    .kpi-mini .km-sub { font-size: 11px; color: var(--c-text-4); margin-top: 4px; font-weight: 500; }
+    .kpi-mini .km-sub a { color: var(--c-text-3); text-decoration: none; font-weight: 600; }
+    .kpi-mini .km-sub a:hover { color: var(--c-primary); }
+
+    /* === Hero (이번 달 진행 이벤트) === */
+    .hero { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .hero-card { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-xl); padding: 32px; transition: border-color 0.12s; position: relative; overflow: hidden; }
+    .hero-card:hover { border-color: var(--c-border-strong); }
+    .hero-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--c-primary); border-radius: 2px 0 0 2px; opacity: 0; transition: opacity 0.15s; }
+    .hero-card.is-live::before { opacity: 1; background: var(--c-danger); }
+    .hero-card.is-soon::before { opacity: 1; }
+    .hero-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; padding: 5px 10px; border-radius: var(--r-pill); font-weight: 700; margin-bottom: 12px; letter-spacing: 0.04em; }
+    .hero-tag.live { background: var(--c-danger-bg); color: var(--c-danger); }
+    .hero-tag.soon { background: var(--c-primary-bg); color: var(--c-primary); }
+    .hero-tag.done { background: var(--c-border); color: var(--c-text-3); }
+    .hero-tag .pulse { width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: pulse 1.5s infinite; }
+    .hero-title { font-size: 32px; font-weight: 800; color: var(--c-text); letter-spacing: -0.025em; line-height: 1.15; margin-bottom: 6px; }
+    .hero-sub { font-size: 14px; color: var(--c-text-3); font-weight: 500; margin-bottom: 28px; }
+
+    .hero-kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+    .hero-kpi-grid.hero-kpi-grid-3 { grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+    .hero-kpi-grid-3 .hero-kpi-num { font-size: 34px; }
+    .hero-kpi-label { font-size: 12px; color: var(--c-text-3); font-weight: 600; margin-bottom: 8px; }
+    .hero-kpi-num { font-size: 40px; font-weight: 800; color: var(--c-text); letter-spacing: -0.03em; line-height: 1; font-feature-settings: var(--tx-mono-feature); display: flex; align-items: baseline; gap: 8px; }
+    .hero-kpi-num .target { font-size: 14px; font-weight: 600; color: var(--c-text-3); letter-spacing: -0.01em; }
+    .hero-kpi-rate { font-size: 13px; font-weight: 700; margin-top: 8px; display: inline-flex; align-items: center; gap: 4px; }
+    .hero-kpi-rate.success { color: var(--c-success); }
+    .hero-kpi-rate.warning { color: var(--c-warning); }
+    .hero-kpi-rate.danger { color: var(--c-danger); }
+
+    .progress { width: 100%; height: 6px; background: var(--c-border); border-radius: 3px; overflow: hidden; margin-top: 10px; }
+    .progress-bar { height: 100%; border-radius: 3px; background: var(--c-primary); transition: width 0.4s ease; }
+    .progress-bar.success { background: var(--c-success); }
+    .progress-bar.warning { background: var(--c-warning); }
+    .progress-bar.danger { background: var(--c-danger); }
+
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; padding-top: 20px; border-top: 1px solid var(--c-border); font-size: 12px; color: var(--c-text-3); font-weight: 500; }
+    .hero-meta .meta-item { display: inline-flex; align-items: center; gap: 4px; }
+    .hero-meta .hero-link { margin-left: auto; color: var(--c-primary); text-decoration: none; font-weight: 700; font-size: 13px; }
+    .hero-meta .hero-link:hover { text-decoration: underline; }
+
+    /* === Hero next (보조) === */
+    .hero-next { background: var(--c-surface-alt); border: 1px solid var(--c-border); border-radius: var(--r-xl); padding: 28px 24px; display: flex; flex-direction: column; gap: 8px; }
+    .hero-next-label { font-size: 11px; color: var(--c-text-3); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 4px; }
+    .hero-next-name { font-size: 22px; font-weight: 800; color: var(--c-text); letter-spacing: -0.02em; line-height: 1.2; }
+    .hero-next-dday { display: inline-block; font-size: 12px; padding: 3px 10px; border-radius: var(--r-pill); background: var(--c-primary-bg); color: var(--c-primary); font-weight: 700; align-self: flex-start; margin-top: 4px; }
+    .hero-next-meta { font-size: 12px; color: var(--c-text-3); font-weight: 500; line-height: 1.6; margin-top: auto; padding-top: 12px; border-top: 1px solid var(--c-border); }
+    .hero-next-meta b { color: var(--c-text); font-weight: 700; }
+
+    /* === Summary one-line === */
+    .summary-row { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-lg); padding: 18px 24px; margin-bottom: 32px; display: flex; align-items: center; flex-wrap: wrap; gap: 16px; }
+    .summary-row .summary-label { font-size: 11px; color: var(--c-text-3); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+    .summary-row .summary-num { font-size: 14px; color: var(--c-text); font-weight: 500; font-feature-settings: var(--tx-mono-feature); }
+    .summary-row .summary-num b { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; }
+    .summary-row .summary-delta { font-size: 12px; color: var(--c-success); font-weight: 700; margin-left: auto; }
+
+    /* === Collapse sections === */
+    .collapse { border-bottom: 1px solid var(--c-border); }
+    .collapse:first-of-type { border-top: 1px solid var(--c-border); }
+    .collapse-toggle { width: 100%; padding: 22px 4px; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; font-family: inherit; font-size: 15px; font-weight: 700; color: var(--c-text); text-align: left; transition: color 0.12s; }
+    .collapse-toggle:hover { color: var(--c-primary); }
+    .collapse-toggle .ct-meta { font-size: 12px; color: var(--c-text-3); font-weight: 500; margin-left: auto; margin-right: 12px; }
+    .collapse-toggle .ct-icon { width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; transition: transform 0.2s; color: var(--c-text-3); }
+    .collapse.is-open .ct-icon { transform: rotate(180deg); }
+    .collapse-body { display: none; padding: 4px 0 32px; }
+    .collapse.is-open .collapse-body { display: block; }
+
+    @media (max-width: 900px) {
+      .summary-cards { grid-template-columns: 1fr 1fr; }
+      .kpi-strip { grid-template-columns: 1fr 1fr; }
+      .hero { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      body { padding: 32px 16px 60px; }
+      h1 { font-size: 24px; }
+      .sticky-header, .topbar { margin-left: -16px; margin-right: -16px; padding-left: 16px; padding-right: 16px; }
+      .hero-card { padding: 24px 20px; }
+      .hero-title { font-size: 26px; }
+      .hero-kpi-num { font-size: 32px; }
+      .hero-kpi-grid { grid-template-columns: 1fr; gap: 20px; }
+      .row { flex-wrap: wrap; padding: 16px; gap: 8px; }
+      .row .name { min-width: auto; font-size: 14px; }
+      .row .stats { margin-left: 0; width: 100%; justify-content: space-between; gap: 12px; margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--c-border); }
+      .row .stat { text-align: left; min-width: 0; flex: 1; }
+      .row .tag { margin-right: 8px; }
+      .row .desc { width: 100%; }
+    }
+    @media (max-width: 480px) {
+      body { padding: 24px 14px 60px; }
+      h1 { font-size: 22px; margin-bottom: 4px; }
+      .subtitle { font-size: 12px; margin-bottom: 24px; }
+      .summary-cards { gap: 8px; }
+      .kpi-card { padding: 18px 16px 16px; }
+      .kpi-card .kpi-num { font-size: 24px; }
+      .kpi-card .kpi-label { font-size: 12px; margin-bottom: 8px; }
+      .kpi-card .kpi-sub { font-size: 10px; }
+      .row { padding: 14px 16px; }
+      .row .stat .num { font-size: 15px; }
+      .row .stat .label { font-size: 10px; }
+      .filter-btn { padding: 6px 10px; font-size: 11px; }
+    }
+
+    /* === Devcon GA Section === */
+    .ga-section { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-lg); padding: 20px 24px; margin: 16px 0; }
+    .ga-head { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--c-border); }
+    .ga-title { font-size: 15px; font-weight: 800; color: var(--c-text); letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; }
+    .ga-tag { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: var(--r-pill); background: var(--c-danger-bg); color: var(--c-danger); letter-spacing: 0.02em; }
+    .ga-summary { font-size: 12px; color: var(--c-text-3); font-weight: 500; }
+    .ga-summary b { color: var(--c-text); font-weight: 800; font-feature-settings: var(--tx-mono-feature); }
+    .ga-table { width: 100%; border-collapse: collapse; font-feature-settings: var(--tx-mono-feature); }
+    .ga-table th { font-size: 11px; font-weight: 700; color: var(--c-text-3); text-align: right; padding: 10px 8px; border-bottom: 1px solid var(--c-border); letter-spacing: 0.02em; text-transform: uppercase; }
+    .ga-table th:first-child { text-align: left; }
+    .ga-table td { font-size: 13px; color: var(--c-text); font-weight: 700; padding: 12px 8px; border-bottom: 1px solid var(--c-border); text-align: right; }
+    .ga-table tr:last-child td { border-bottom: none; }
+    .ga-table tr:hover td { background: var(--c-surface-alt); }
+    .ga-table td:first-child { text-align: left; }
+    .ga-medium-name { font-weight: 700; font-size: 13px; color: var(--c-text); }
+    .ga-medium-raw { font-size: 11px; color: var(--c-text-4); font-weight: 500; margin-top: 2px; font-family: 'SF Mono', Menlo, monospace; }
+    .ga-bar-cell { display: flex; align-items: center; gap: 8px; justify-content: flex-end; min-width: 140px; }
+    .ga-bar { flex: 1; max-width: 80px; height: 6px; background: var(--c-border); border-radius: var(--r-pill); overflow: hidden; }
+    .ga-bar-fill { height: 100%; background: var(--c-danger); border-radius: var(--r-pill); }
+    .ga-pct { font-size: 12px; font-weight: 800; color: var(--c-text-2); min-width: 44px; text-align: right; }
+    .ga-foot { font-size: 11px; color: var(--c-text-4); margin-top: 12px; font-weight: 500; }
+    @media (max-width: 720px) {
+      .ga-table th, .ga-table td { padding: 8px 4px; font-size: 11px; }
+      .ga-bar { max-width: 40px; }
+      .ga-pct { min-width: 36px; font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 상단 토픽바 (Slim) -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div>
+        <h1>인사이트전략팀 · B2C 대시보드</h1>
+        <p class="topbar-meta">웍스피어 B2C 이벤트 성과 · <span id="topUpdate">4/22 10:30</span> 기준</p>
+      </div>
+      <div class="topbar-actions">
+        <button onclick="switchYear(2026)" id="year-btn-2026" class="year-btn active">2026</button>
+        <button onclick="switchYear(2025)" id="year-btn-2025" class="year-btn">2025</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- 1. 미니 KPI 4개 (팀장님 시점, 가벼운 위계) -->
+    <section class="kpi-strip">
+      <div class="kpi-mini">
+        <div class="km-label">총 신청자</div>
+        <div class="km-num" id="totalApplicants">3,077</div>
+        <div class="km-sub" id="totalApplicantsSub">커컨 1,566 + 데브콘 1,511</div>
+      </div>
+      <div class="kpi-mini">
+        <div class="km-label">총 이력서 업데이트</div>
+        <div class="km-num" id="totalResume">418</div>
+        <div class="km-sub" id="totalResumeSub">커컨 110 + 데브콘 308</div>
+      </div>
+      <div class="kpi-mini clickable" id="instaCard" onclick="editCardLink('insta')">
+        <div class="km-label">인스타 팔로워</div>
+        <div class="km-num" id="instaFollowers">168</div>
+        <div class="km-sub" id="instaSub"><a href="https://www.instagram.com/worxtory/" target="_blank" onclick="event.stopPropagation()">@worxtory</a> · 4/21</div>
+      </div>
+      <div class="kpi-mini clickable" id="okaCard" onclick="editCardLink('oka')">
+        <div class="km-label">오카방 총 참여자</div>
+        <div class="km-num" id="okaTotal">510</div>
+        <div class="km-sub" id="okaSub"><a href="https://www.notion.so/worxphere/c8c7d8322b048205949701cca47a0550" target="_blank" onclick="event.stopPropagation()">성과 노션</a> · 4/21</div>
+      </div>
+    </section>
+
+    <!-- 2. 히어로: 이번 달 진행 이벤트 (한나님 시점, 큰 카드) -->
+    <section class="hero" id="hero-section">
+      <div class="hero-card is-live" id="hero-current">
+        <span class="hero-tag live"><span class="pulse"></span>진행 중</span>
+        <h2 class="hero-title">DEVCON</h2>
+        <p class="hero-sub">AI 시대, 개발자 고민 완전 정복 · 4.23 (목)</p>
+
+        <div class="hero-kpi-grid hero-kpi-grid-3">
+          <div>
+            <div class="hero-kpi-label">신청자</div>
+            <div class="hero-kpi-num">1,511 <span class="target">/ 1,500</span></div>
+            <div class="progress"><div class="progress-bar success" style="width:100%"></div></div>
+            <div class="hero-kpi-rate success">100.7% 달성 ✓</div>
+          </div>
+          <div>
+            <div class="hero-kpi-label">이력서 업데이트</div>
+            <div class="hero-kpi-num">198 <span class="target">/ 150</span></div>
+            <div class="progress"><div class="progress-bar success" style="width:100%"></div></div>
+            <div class="hero-kpi-rate success">132% 달성 ✓</div>
+          </div>
+          <div>
+            <div class="hero-kpi-label">줌 라이브 참여</div>
+            <div class="hero-kpi-num">825 <span class="target">유니크</span></div>
+            <div class="progress"><div class="progress-bar success" style="width:54.6%"></div></div>
+            <div class="hero-kpi-rate success">신청 대비 54.6% · 누적 1,272</div>
+          </div>
+        </div>
+
+        <div class="hero-meta">
+          <span class="meta-item" id="dday-meta">D+5 · 4.23 종료</span>
+          <span class="meta-item">광고 4,498,434원 (99.97%)</span>
+          <span class="meta-item">만족도 4.3/5</span>
+          <a href="devcon-dashboard.html" class="hero-link" target="_blank">상세 →</a>
+        </div>
+      </div>
+
+      <aside class="hero-next">
+        <div class="hero-next-label">다음 일정</div>
+        <div class="hero-next-name">WORK FEST</div>
+        <span class="hero-next-dday">D-7 · 5/1 시작</span>
+        <div class="hero-next-meta">
+          이력서 페스티벌 · 4주 진행<br>
+          목표 신청 <b>2,000명</b><br>
+          이력서 업데이트 <b>500명</b>
+        </div>
+      </aside>
+    </section>
+
+    <!-- 2.5 데브콘 GA 유입 분석 -->
+    <section class="ga-section">
+      <div class="ga-head">
+        <div class="ga-title">DEVCON 26 · GA 유입 분석<span class="ga-tag">UTM · DEVCON26</span></div>
+        <div class="ga-summary">활성 사용자 <b>1,433</b> · 세션 <b>2,742</b> · 조회수 <b>23,036</b></div>
+      </div>
+      <table class="ga-table">
+        <thead>
+          <tr>
+            <th>매체 (소스 / 매체)</th>
+            <th>활성 사용자</th>
+            <th>세션</th>
+            <th>조회수</th>
+            <th style="min-width:160px">활성 사용자 비중</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="ga-medium-name">게임잡 팝업</div>
+              <div class="ga-medium-raw">jobkorea / gamejob_popup</div>
+            </td>
+            <td>1,077</td>
+            <td>1,900</td>
+            <td>14,178</td>
+            <td>
+              <div class="ga-bar-cell">
+                <div class="ga-bar"><div class="ga-bar-fill" style="width:75.2%"></div></div>
+                <span class="ga-pct">75.2%</span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="ga-medium-name">커튼 배너</div>
+              <div class="ga-medium-raw">jobkorea / banner_ct</div>
+            </td>
+            <td>197</td>
+            <td>392</td>
+            <td>4,796</td>
+            <td>
+              <div class="ga-bar-cell">
+                <div class="ga-bar"><div class="ga-bar-fill" style="width:13.7%"></div></div>
+                <span class="ga-pct">13.7%</span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="ga-medium-name">리퍼럴</div>
+              <div class="ga-medium-raw">jobkorea / referral</div>
+            </td>
+            <td>86</td>
+            <td>115</td>
+            <td>268</td>
+            <td>
+              <div class="ga-bar-cell">
+                <div class="ga-bar"><div class="ga-bar-fill" style="width:6.0%"></div></div>
+                <span class="ga-pct">6.0%</span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="ga-medium-name">CRM</div>
+              <div class="ga-medium-raw">jobkorea / CRM</div>
+            </td>
+            <td>31</td>
+            <td>193</td>
+            <td>2,727</td>
+            <td>
+              <div class="ga-bar-cell">
+                <div class="ga-bar"><div class="ga-bar-fill" style="width:2.2%"></div></div>
+                <span class="ga-pct">2.2%</span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="ga-medium-name">컨퍼런스 리퍼럴</div>
+              <div class="ga-medium-raw">jobkorea / referral_con</div>
+            </td>
+            <td>28</td>
+            <td>84</td>
+            <td>573</td>
+            <td>
+              <div class="ga-bar-cell">
+                <div class="ga-bar"><div class="ga-bar-fill" style="width:2.0%"></div></div>
+                <span class="ga-pct">2.0%</span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="ga-medium-name">인스타그램</div>
+              <div class="ga-medium-raw">jobkorea / instagram</div>
+            </td>
+            <td>11</td>
+            <td>32</td>
+            <td>354</td>
+            <td>
+              <div class="ga-bar-cell">
+                <div class="ga-bar"><div class="ga-bar-fill" style="width:0.8%"></div></div>
+                <span class="ga-pct">0.8%</span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="ga-medium-name">링크드인</div>
+              <div class="ga-medium-raw">jobkorea / linkedin</div>
+            </td>
+            <td>7</td>
+            <td>19</td>
+            <td>59</td>
+            <td>
+              <div class="ga-bar-cell">
+                <div class="ga-bar"><div class="ga-bar-fill" style="width:0.5%"></div></div>
+                <span class="ga-pct">0.5%</span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="ga-medium-name">메타 (광고)</div>
+              <div class="ga-medium-raw">jobkorea / meta</div>
+            </td>
+            <td>2</td>
+            <td>10</td>
+            <td>81</td>
+            <td>
+              <div class="ga-bar-cell">
+                <div class="ga-bar"><div class="ga-bar-fill" style="width:0.1%"></div></div>
+                <span class="ga-pct">0.1%</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="ga-foot">※ GA4 기준 · 캠페인 = DEVCON26 · 게임잡 팝업이 활성 사용자 75.2% · 자체 자산(팝업·커튼배너·CRM)이 91.1% 차지</div>
+    </section>
+
+    <!-- 3. 누적 한 줄 -->
+    <section class="summary-row">
+      <span class="summary-label">2026 누적</span>
+      <span class="summary-num">신청 <b>3,077</b>명 · 이력서 <b>418</b>명</span>
+      <span class="summary-delta">vs 2025 (밋업·흐레카·이력서) · 신청 +8% / 이력서 ↓29%</span>
+    </section>
+
+    <!-- 4. 토글 섹션들 -->
+    <section class="collapse" id="collapse-monthly">
+      <button class="collapse-toggle" onclick="toggleCollapse('monthly')">
+        <span>월별 캘린더</span>
+        <span class="ct-meta">2026 진행 이벤트 · 필터/추가</span>
+        <span class="ct-icon">▾</span>
+      </button>
+      <div class="collapse-body">
+        <!-- 상태 필터 -->
+        <div class="toolbar" style="margin-bottom:16px">
+          <div class="group">
+            <span class="group-label">상태</span>
+            <button onclick="toggleFilter('done')" id="btn-done" class="filter-btn">완료 숨기기</button>
+            <button onclick="toggleFilter('soon')" id="btn-soon" class="filter-btn">예정 숨기기</button>
+          </div>
+        </div>
+
+  <div class="container">
+
+    <!-- 2026 섹션 -->
+    <div id="year-2026">
+    <!-- 3월 -->
+    <div class="month">
+      <div class="month-header">3월</div>
+      <div class="category-label" data-cat="이벤트">이벤트</div>
+      <a class="row faded" data-cat="이벤트" href="career-conf-dashboard.html" target="_blank">
+        <span class="tag done">완료</span>
+        <span class="name">커리어 컨퍼런스</span>
+        <span class="desc">선배가 알려주는 이직 치트키 · 3.26 · 한나 · 4/14 업데이트</span>
+        <div class="stats">
+          <div class="stat"><div class="num red">31.5%</div><div class="label">KPI</div></div>
+          <div class="stat"><div class="num">1,566</div><div class="label">신청자</div></div>
+          <div class="stat"><div class="num">110</div><div class="label">이력서</div></div>
+          <div class="stat"><div class="num" style="color:#00C896">6,192원</div><div class="label">신청 단가</div></div>
+        </div>
+      </a>
+    </div>
+
+    <!-- 4월 -->
+    <div class="month">
+      <div class="month-header">4월</div>
+      <div class="category-label" data-cat="이벤트">이벤트</div>
+      <a class="row" data-cat="이벤트" data-event="DEVCON" href="devcon-dashboard.html" target="_blank">
+        <span class="tag live">진행 중</span>
+        <span class="name" style="position:relative"><span class="dot"></span>DEVCON</span>
+        <span class="desc">AI 시대, 개발자 고민 완전 정복 · 4.23 · 한나 · 4/22 업데이트</span>
+        <span id="dday-badge" style="display:inline-block;font-size:11px;padding:3px 10px;border-radius:8px;background:#FEE;color:#F04452;font-weight:700;margin-right:8px"></span>
+        <div class="stats">
+          <div class="stat"><div class="num" style="color:#00C896">100.7%</div><div class="label">KPI</div></div>
+          <div class="stat"><div class="num">1,511</div><div class="label">신청자</div></div>
+          <div class="stat"><div class="num">308</div><div class="label">이력서</div></div>
+          <div class="stat"><div class="num" style="color:#b0b8c1;font-size:13px">미정산</div><div class="label">신청 단가</div></div>
+        </div>
+      </a>
+    </div>
+
+    <!-- 커스텀 이벤트 영역 -->
+    <div id="customEvents"></div>
+
+    <!-- 이벤트 추가 버튼 -->
+    <div style="margin-top:20px">
+      <div class="row empty" onclick="openModal()" style="cursor:pointer">
+        <span class="placeholder" style="font-size:22px;color:#B0B8C1;margin-right:8px">+</span>
+        <span class="placeholder">이벤트 추가</span>
+      </div>
+    </div>
+    </div>
+    <!-- /2026 섹션 끝 -->
+
+    <!-- 2025 섹션 -->
+    <div id="year-2025" style="display:none">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+        <span style="font-size:14px;font-weight:800;color:#FFB700">📅 2025 히스토리</span>
+        <span style="font-size:11px;color:#B0B8C1;font-weight:500">작년 이벤트 성과 아카이브</span>
+      </div>
+      <div class="category-label" data-cat="이벤트">이벤트</div>
+      <a class="row" href="2025-career-day.html" target="_blank">
+        <span class="tag" style="background:#fff3e0;color:#FFB700">완료</span>
+        <span class="name">퇴근 후 밋업</span>
+        <span class="desc">AI로 다시 만드는 커리어 · 10.28~30</span>
+        <div class="stats">
+          <div class="stat"><div class="num" style="color:#00C896">563%</div><div class="label">KPI</div></div>
+          <div class="stat"><div class="num">1,688</div><div class="label">신청자</div></div>
+          <div class="stat"><div class="num">117</div><div class="label">이력서</div></div>
+          <div class="stat"><div class="num" style="color:#00C896">9,724원</div><div class="label">신청 단가</div></div>
+        </div>
+      </a>
+      <a class="row" href="2025-hreka.html" target="_blank">
+        <span class="tag" style="background:#fff3e0;color:#FFB700">완료</span>
+        <span class="name">흐레카(B2B)</span>
+        <span class="desc">AI와 일하는 조직, HR이 준비할 미래 · 11.12</span>
+        <div class="stats">
+          <div class="stat"><div class="num" style="color:#00C896">156.7%</div><div class="label">KPI</div></div>
+          <div class="stat"><div class="num">470</div><div class="label">신청자</div></div>
+          <div class="stat"><div class="num" style="color:#B0B8C1">—</div><div class="label">이력서</div></div>
+          <div class="stat"><div class="num" style="color:#00C896">41,351원</div><div class="label">신청 단가</div></div>
+        </div>
+      </a>
+      <a class="row" href="2025-after-work-resume.html" target="_blank">
+        <span class="tag" style="background:#fff3e0;color:#FFB700">완료</span>
+        <span class="name">퇴근 후 이력서</span>
+        <span class="desc">이력서 업데이트하고 1:1 코칭권 받자 · 12.16~18</span>
+        <div class="stats">
+          <div class="stat"><div class="num" style="color:#FFB700">58.6%</div><div class="label">KPI</div></div>
+          <div class="stat"><div class="num">702</div><div class="label">신청자</div></div>
+          <div class="stat"><div class="num">586</div><div class="label">이력서</div></div>
+          <div class="stat"><div class="num" style="color:#B0B8C1">미정산</div><div class="label">신청 단가</div></div>
+        </div>
+      </a>
+    </div>
+    </div>
+    <!-- /2025 섹션 끝 -->
+      </div>
+    </section>
+    <!-- /collapse-monthly -->
+
+    <!-- 이벤트 비교 섹션 (collapse) -->
+    <section class="collapse" id="collapse-compare">
+      <button class="collapse-toggle" onclick="toggleCollapse('compare')">
+        <span>이벤트 비교</span>
+        <span class="ct-meta">올해+작년 이벤트 지표 대조</span>
+        <span class="ct-icon">▾</span>
+      </button>
+      <div class="collapse-body">
+      <div id="compare-panel" style="margin-top:4px">
+        <!-- STEP 1: 이벤트 선택 -->
+        <div style="background:#fff;border-radius:16px;padding:24px;box-shadow:0 1px 3px rgba(4,4,4,0.04);margin-bottom:12px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+            <span style="background:#3182F6;color:#fff;font-size:11px;font-weight:800;padding:3px 8px;border-radius:6px">1</span>
+            <span style="font-size:13px;font-weight:700;color:#333D4B">이벤트 선택</span>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap" id="compare-checks">
+            <label class="cmp-label"><input type="checkbox" value="career-day" onchange="updateCompare()" style="accent-color:#FFB700"> 퇴근 후 밋업 (25)</label>
+            <label class="cmp-label"><input type="checkbox" value="hreka" onchange="updateCompare()" style="accent-color:#8b5cf6"> 흐레카 (25)</label>
+            <label class="cmp-label"><input type="checkbox" value="resume" onchange="updateCompare()" style="accent-color:#FFB700"> 퇴근 후 이력서 (25)</label>
+            <label class="cmp-label"><input type="checkbox" value="conf26" onchange="updateCompare()" style="accent-color:#3182F6"> 커리어 컨퍼런스 (26)</label>
+            <label class="cmp-label"><input type="checkbox" value="devcon26" onchange="updateCompare()" style="accent-color:#F04452"> 데브콘 (26)</label>
+          </div>
+        </div>
+
+        <!-- STEP 2: 비교 항목 선택 -->
+        <div style="background:#fff;border-radius:16px;padding:24px;box-shadow:0 1px 3px rgba(4,4,4,0.04);margin-bottom:12px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+            <span style="background:#3182F6;color:#fff;font-size:11px;font-weight:800;padding:3px 8px;border-radius:6px">2</span>
+            <span style="font-size:13px;font-weight:700;color:#333D4B">비교 항목 선택</span>
+            <div style="margin-left:auto;display:flex;gap:8px">
+              <button onclick="selectAllMetrics(true)" style="font-size:11px;color:#3182F6;background:none;border:none;cursor:pointer;font-family:Pretendard;font-weight:600">전체 선택</button>
+              <button onclick="selectAllMetrics(false)" style="font-size:11px;color:#B0B8C1;background:none;border:none;cursor:pointer;font-family:Pretendard;font-weight:600">전체 해제</button>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap" id="metric-checks">
+            <label class="cmp-label"><input type="checkbox" value="budget" onchange="updateCompare()" checked> 총 예산(품의)</label>
+            <label class="cmp-label"><input type="checkbox" value="actual" onchange="updateCompare()" checked> 실 집행액</label>
+            <label class="cmp-label"><input type="checkbox" value="adCost" onchange="updateCompare()" checked> 광고비</label>
+            <label class="cmp-label"><input type="checkbox" value="applicants" onchange="updateCompare()" checked> 신청자 수</label>
+            <label class="cmp-label"><input type="checkbox" value="attendees" onchange="updateCompare()" checked> 참석자 수</label>
+            <label class="cmp-label"><input type="checkbox" value="resumeUpdate" onchange="updateCompare()"> 이력서 업데이트</label>
+            <label class="cmp-label"><input type="checkbox" value="cpa" onchange="updateCompare()" checked> 신청 단가</label>
+            <label class="cmp-label"><input type="checkbox" value="cpAttend" onchange="updateCompare()"> 참석 단가</label>
+            <label class="cmp-label"><input type="checkbox" value="kpi" onchange="updateCompare()" checked> KPI 달성률</label>
+            <label class="cmp-label"><input type="checkbox" value="satisfaction" onchange="updateCompare()"> 만족도</label>
+            <label class="cmp-label"><input type="checkbox" value="okaBang" onchange="updateCompare()"> 오카방 유입</label>
+          </div>
+        </div>
+
+        <!-- STEP 3: 결과 -->
+        <div id="compare-result" style="display:none">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+            <span style="background:#3182F6;color:#fff;font-size:11px;font-weight:800;padding:3px 8px;border-radius:6px">3</span>
+            <span style="font-size:13px;font-weight:700;color:#333D4B">비교 결과</span>
+          </div>
+          <div style="overflow-x:auto">
+            <table id="compare-table" style="width:100%;border-collapse:collapse;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(4,4,4,0.04)"></table>
+          </div>
+          <div style="font-size:11px;color:var(--c-text-4);margin-top:8px">* 신청 단가 = 광고비 ÷ 신청자 · 참석 단가 = 광고비 ÷ 참석자 · — 는 데이터 미수집</div>
+        </div>
+      </div>
+      </div>
+    </section>
+    <!-- /collapse-compare -->
+
+  </main>
+
+  <!-- AI 분석 챗 (채널톡 스타일 우하단 플로팅) -->
+  <div id="ai-fab" onclick="toggleAiChat()" style="position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:#3182F6;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;box-shadow:0 4px 16px rgba(49,130,246,0.4);z-index:999;transition:transform 0.2s" onmouseenter="this.style.transform='scale(1.1)'" onmouseleave="this.style.transform='scale(1)'">🤖</div>
+
+  <div id="ai-chat-panel" style="display:none;position:fixed;bottom:92px;right:24px;width:380px;max-width:calc(100vw - 48px);background:#fff;border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,0.15);z-index:999;overflow:hidden;flex-direction:column;max-height:500px">
+    <div style="background:#3182F6;color:#fff;padding:16px 20px;display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:18px">🤖</span>
+        <div>
+          <div style="font-size:14px;font-weight:700">클로 AI 분석</div>
+          <div style="font-size:10px;opacity:0.8">대시보드 데이터 기반 분석</div>
+        </div>
+      </div>
+      <button onclick="toggleAiChat()" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:4px">✕</button>
+    </div>
+    <div id="ai-messages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px;min-height:200px;max-height:340px">
+      <div style="background:#f2f4f6;border-radius:12px;padding:12px 16px;font-size:13px;color:#6B7684;align-self:flex-start">무엇이 궁금하세요?</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;align-self:flex-start" id="ai-step0">
+        <button onclick="aiStep1('광고비')" class="ai-chip">광고비</button>
+        <button onclick="aiStep1('경품')" class="ai-chip">경품</button>
+        <button onclick="aiStep1('신청단가')" class="ai-chip">신청 단가</button>
+        <button onclick="aiStep1('예산')" class="ai-chip">예산</button>
+        <button onclick="aiStep1('이력서')" class="ai-chip">이력서</button>
+        <button onclick="aiStep1('KPI')" class="ai-chip">KPI</button>
+        <button onclick="aiStep1('만족도')" class="ai-chip">만족도</button>
+        <button onclick="aiStep1('workfest')" class="ai-chip" style="background:#3182F6;color:#fff;border-color:#3182F6">Work Fest 추천</button>
+      </div>
+    </div>
+    <div style="padding:12px 16px;border-top:1px solid #F2F4F6;display:flex;gap:8px">
+      <input id="ai-input" type="text" placeholder="질문을 입력하세요..." style="flex:1;padding:10px 14px;border:1px solid #E5E8EB;border-radius:10px;font-size:13px;font-family:Pretendard;outline:none" onkeydown="if(event.key==='Enter')sendAiQuestion()">
+      <button onclick="sendAiQuestion()" style="padding:10px 16px;border-radius:10px;border:none;background:#3182F6;color:#fff;font-size:13px;font-family:Pretendard;font-weight:700;cursor:pointer">전송</button>
+    </div>
+  </div>
+
+  <!-- 이벤트 추가 모달 -->
+  <div id="modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:999;justify-content:center;align-items:center">
+    <div style="background:#fff;border-radius:20px;padding:32px;width:480px;max-width:90vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.15)">
+      <h2 style="font-size:18px;font-weight:800;margin-bottom:20px">이벤트 추가</h2>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div>
+          <label style="font-size:12px;color:#8B95A1;font-weight:600;display:block;margin-bottom:4px">이벤트명 *</label>
+          <input id="f-name" type="text" placeholder="예: WORK FESTIVAL" style="width:100%;padding:10px 14px;border:1px solid #E5E8EB;border-radius:10px;font-size:14px;font-family:Pretendard;outline:none">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <label style="font-size:12px;color:#8B95A1;font-weight:600;display:block;margin-bottom:4px">구분</label>
+            <select id="f-type" style="width:100%;padding:10px 14px;border:1px solid #E5E8EB;border-radius:10px;font-size:13px;font-family:Pretendard;background:#fff">
+              <option>이벤트</option><option>SNS</option><option>커뮤니티</option><option>아티클</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:12px;color:#8B95A1;font-weight:600;display:block;margin-bottom:4px">상태</label>
+            <select id="f-status" style="width:100%;padding:10px 14px;border:1px solid #E5E8EB;border-radius:10px;font-size:13px;font-family:Pretendard;background:#fff">
+              <option>예정</option><option>진행 중</option><option>상시</option><option>완료</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+          <div>
+            <label style="font-size:12px;color:#8B95A1;font-weight:600;display:block;margin-bottom:4px">월</label>
+            <select id="f-month" style="width:100%;padding:10px 14px;border:1px solid #E5E8EB;border-radius:10px;font-size:13px;font-family:Pretendard;background:#fff">
+              <option value="3">3월</option><option value="4">4월</option><option value="5">5월</option><option value="6">6월</option><option value="7">7월</option><option value="8">8월</option><option value="9">9월</option><option value="10">10월</option><option value="11">11월</option><option value="12">12월</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:12px;color:#8B95A1;font-weight:600;display:block;margin-bottom:4px">시작일</label>
+            <input id="f-start" type="date" style="width:100%;padding:10px 14px;border:1px solid #E5E8EB;border-radius:10px;font-size:13px;font-family:Pretendard">
+          </div>
+          <div>
+            <label style="font-size:12px;color:#8B95A1;font-weight:600;display:block;margin-bottom:4px">마감일</label>
+            <input id="f-end" type="date" style="width:100%;padding:10px 14px;border:1px solid #E5E8EB;border-radius:10px;font-size:13px;font-family:Pretendard">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <label style="font-size:12px;color:#8B95A1;font-weight:600;display:block;margin-bottom:4px">KPI 목표</label>
+            <input id="f-kpi" type="number" placeholder="예: 2000" style="width:100%;padding:10px 14px;border:1px solid #E5E8EB;border-radius:10px;font-size:14px;font-family:Pretendard;outline:none">
+          </div>
+          <div>
+            <label style="font-size:12px;color:#8B95A1;font-weight:600;display:block;margin-bottom:4px">sub KPI 목표</label>
+            <input id="f-subkpi" type="number" placeholder="예: 500" style="width:100%;padding:10px 14px;border:1px solid #E5E8EB;border-radius:10px;font-size:14px;font-family:Pretendard;outline:none">
+          </div>
+        </div>
+        <div>
+          <label style="font-size:12px;color:#8B95A1;font-weight:600;display:block;margin-bottom:6px">담당자</label>
+          <div id="f-owner-tabs" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+          <input id="f-owner" type="hidden">
+        </div>
+        <script>
+          (function(){
+            var names = ['한나','수진','정현','지아'];
+            var container = document.getElementById('f-owner-tabs');
+            names.forEach(function(n){
+              var btn = document.createElement('button');
+              btn.type = 'button';
+              btn.textContent = n;
+              btn.style.cssText = 'padding:8px 16px;border-radius:10px;border:1px solid #E5E8EB;background:#fff;font-size:13px;font-family:Pretendard;font-weight:600;color:#6B7684;cursor:pointer;transition:all 0.15s';
+              btn.onclick = function(){
+                var input = document.getElementById('f-owner');
+                if (input.value === n) { input.value = ''; btn.style.background='#fff'; btn.style.color='#6B7684'; btn.style.borderColor='#E5E8EB'; }
+                else {
+                  input.value = n;
+                  container.querySelectorAll('button').forEach(function(b){ b.style.background='#fff'; b.style.color='#6B7684'; b.style.borderColor='#E5E8EB'; });
+                  btn.style.background='#191F28'; btn.style.color='#fff'; btn.style.borderColor='#191F28';
+                }
+              };
+              container.appendChild(btn);
+            });
+          })();
+        </script>
+        <div>
+          <label style="font-size:12px;color:#8B95A1;font-weight:600;display:block;margin-bottom:4px">데이터 문서 <span id="f-doc-count" style="font-size:11px;color:#B0B8C1;font-weight:500;margin-left:6px">0/11</span></label>
+          <div style="font-size:11px;color:#6B7684;margin-bottom:12px;line-height:1.5">구글 드라이브 링크나 시트 URL을 넣으면 대시보드가 더 정확해져요</div>
+
+          <!-- 🟢 필수 -->
+          <div style="background:#f9fafb;border-radius:12px;padding:14px 16px;margin-bottom:10px">
+            <div style="font-size:11px;color:#00C896;font-weight:700;margin-bottom:10px">🟢 필수 <span id="f-doc-req" style="color:#B0B8C1;font-weight:500;margin-left:4px">0/4</span></div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div><div style="font-size:11px;color:#6B7684;margin-bottom:3px">1. 예산 품의서</div><input id="f-doc-1" type="url" placeholder="EDA / 드라이브 URL" class="doc-input" style="width:100%;padding:8px 12px;border:1px solid #E5E8EB;border-radius:8px;font-size:12px;font-family:Pretendard;outline:none"></div>
+              <div><div style="font-size:11px;color:#6B7684;margin-bottom:3px">2. 정산 내역 (VAT 별도)</div><input id="f-doc-2" type="url" placeholder="시트/문서 URL" class="doc-input" style="width:100%;padding:8px 12px;border:1px solid #E5E8EB;border-radius:8px;font-size:12px;font-family:Pretendard;outline:none"></div>
+              <div><div style="font-size:11px;color:#6B7684;margin-bottom:3px">3. 신청자 원본 (구글폼)</div><input id="f-doc-3" type="url" placeholder="구글 시트 URL" class="doc-input" style="width:100%;padding:8px 12px;border:1px solid #E5E8EB;border-radius:8px;font-size:12px;font-family:Pretendard;outline:none"></div>
+              <div><div style="font-size:11px;color:#6B7684;margin-bottom:3px">4. 광고 리포트 (Meta 등)</div><input id="f-doc-4" type="url" placeholder="시트/리포트 URL" class="doc-input" style="width:100%;padding:8px 12px;border:1px solid #E5E8EB;border-radius:8px;font-size:12px;font-family:Pretendard;outline:none"></div>
+            </div>
+          </div>
+
+          <!-- 🟡 있으면 좋은 -->
+          <div style="background:#f9fafb;border-radius:12px;padding:14px 16px;margin-bottom:10px">
+            <div style="font-size:11px;color:#FFB700;font-weight:700;margin-bottom:10px">🟡 있으면 좋은 <span id="f-doc-opt" style="color:#B0B8C1;font-weight:500;margin-left:4px">0/5</span></div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div><div style="font-size:11px;color:#6B7684;margin-bottom:3px">5. 참여 실적 (줌 참석자 CSV 등)</div><input id="f-doc-5" type="url" placeholder="시트/CSV URL" class="doc-input" style="width:100%;padding:8px 12px;border:1px solid #E5E8EB;border-radius:8px;font-size:12px;font-family:Pretendard;outline:none"></div>
+              <div><div style="font-size:11px;color:#6B7684;margin-bottom:3px">6. GA 데이터 (UTM 유입)</div><input id="f-doc-6" type="url" placeholder="시트 URL" class="doc-input" style="width:100%;padding:8px 12px;border:1px solid #E5E8EB;border-radius:8px;font-size:12px;font-family:Pretendard;outline:none"></div>
+              <div><div style="font-size:11px;color:#6B7684;margin-bottom:3px">7. 만족도 설문</div><input id="f-doc-7" type="url" placeholder="시트 URL" class="doc-input" style="width:100%;padding:8px 12px;border:1px solid #E5E8EB;border-radius:8px;font-size:12px;font-family:Pretendard;outline:none"></div>
+              <div><div style="font-size:11px;color:#6B7684;margin-bottom:3px">8. 이력서 DB 검증 (PDA팀)</div><input id="f-doc-8" type="url" placeholder="시트/메타베이스 URL" class="doc-input" style="width:100%;padding:8px 12px;border:1px solid #E5E8EB;border-radius:8px;font-size:12px;font-family:Pretendard;outline:none"></div>
+              <div><div style="font-size:11px;color:#6B7684;margin-bottom:3px">9. SNS 후기·기대평</div><input id="f-doc-9" type="url" placeholder="링크 모음 URL" class="doc-input" style="width:100%;padding:8px 12px;border:1px solid #E5E8EB;border-radius:8px;font-size:12px;font-family:Pretendard;outline:none"></div>
+            </div>
+          </div>
+
+          <!-- 🔵 있으면 완벽 -->
+          <div style="background:#f9fafb;border-radius:12px;padding:14px 16px">
+            <div style="font-size:11px;color:#3182F6;font-weight:700;margin-bottom:10px">🔵 있으면 완벽 <span id="f-doc-per" style="color:#B0B8C1;font-weight:500;margin-left:4px">0/2</span></div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div><div style="font-size:11px;color:#6B7684;margin-bottom:3px">10. 사후 리포트 / WBR</div><input id="f-doc-10" type="url" placeholder="문서 URL" class="doc-input" style="width:100%;padding:8px 12px;border:1px solid #E5E8EB;border-radius:8px;font-size:12px;font-family:Pretendard;outline:none"></div>
+              <div><div style="font-size:11px;color:#6B7684;margin-bottom:3px">11. 노션 업무일지</div><input id="f-doc-11" type="url" placeholder="노션 URL" class="doc-input" style="width:100%;padding:8px 12px;border:1px solid #E5E8EB;border-radius:8px;font-size:12px;font-family:Pretendard;outline:none"></div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          // 문서 입력 카운터
+          document.querySelectorAll('.doc-input').forEach(el => {
+            el.addEventListener('input', updateDocCount);
+          });
+          function updateDocCount() {
+            const req = Array.from({length:4},(_,i)=>document.getElementById('f-doc-'+(i+1)).value.trim()).filter(Boolean).length;
+            const opt = Array.from({length:5},(_,i)=>document.getElementById('f-doc-'+(i+5)).value.trim()).filter(Boolean).length;
+            const per = Array.from({length:2},(_,i)=>document.getElementById('f-doc-'+(i+10)).value.trim()).filter(Boolean).length;
+            document.getElementById('f-doc-req').textContent = req + '/4';
+            document.getElementById('f-doc-opt').textContent = opt + '/5';
+            document.getElementById('f-doc-per').textContent = per + '/2';
+            document.getElementById('f-doc-count').textContent = (req+opt+per) + '/11';
+          }
+        </script>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:24px;justify-content:flex-end">
+        <button onclick="closeModal()" style="padding:10px 20px;border-radius:10px;border:1px solid #E5E8EB;background:#fff;font-size:13px;font-family:Pretendard;font-weight:600;color:#6B7684;cursor:pointer">취소</button>
+        <button onclick="saveEvent()" style="padding:10px 20px;border-radius:10px;border:none;background:#191F28;color:#fff;font-size:13px;font-family:Pretendard;font-weight:700;cursor:pointer">추가</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 삭제 확인 모달 -->
+  <div id="deleteModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:1000;justify-content:center;align-items:center" onclick="if(event.target===this)closeDeleteModal()">
+    <div style="background:#fff;border-radius:20px;padding:32px;width:360px;max-width:90vw;box-shadow:0 8px 32px rgba(0,0,0,0.15);text-align:center">
+      <div style="font-size:40px;margin-bottom:12px">🗑️</div>
+      <h3 style="font-size:17px;font-weight:800;margin-bottom:8px;color:#191F28">정말 삭제하시겠어요?</h3>
+      <p style="font-size:13px;color:#8B95A1;margin-bottom:24px">삭제하면 되돌릴 수 없어요</p>
+      <div style="display:flex;gap:10px;justify-content:center">
+        <button onclick="closeDeleteModal()" style="padding:10px 24px;border-radius:10px;border:1px solid #E5E8EB;background:#fff;font-size:13px;font-family:Pretendard;font-weight:600;color:#6B7684;cursor:pointer">취소</button>
+        <button onclick="confirmDelete()" style="padding:10px 24px;border-radius:10px;border:none;background:#F04452;color:#fff;font-size:13px;font-family:Pretendard;font-weight:700;cursor:pointer">삭제</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer" id="footerText">인사이트전략팀 · 로딩 중...</div>
+
+  <script>
+    // 필터
+    const hidden = { done: false, soon: false };
+    function toggleFilter(type) {
+      hidden[type] = !hidden[type];
+      const btn = document.getElementById('btn-' + type);
+      btn.style.background = hidden[type] ? '#f2f4f6' : '#fff';
+      btn.textContent = hidden[type] ? (type === 'done' ? '완료 보이기' : '예정 보이기') : (type === 'done' ? '완료 숨기기' : '예정 숨기기');
+      // 행 숨기기
+      document.querySelectorAll('.row').forEach(row => {
+        const tag = row.querySelector('.tag');
+        if (tag && tag.classList.contains(type)) {
+          row.style.display = hidden[type] ? 'none' : 'flex';
+        }
+      });
+      // 월 전체가 비면 월도 숨기기
+      document.querySelectorAll('.month').forEach(month => {
+        const visibleRows = month.querySelectorAll('.row:not(.empty)');
+        let anyVisible = false;
+        visibleRows.forEach(r => { if (r.style.display !== 'none') anyVisible = true; });
+        month.style.display = anyVisible ? 'block' : 'none';
+      });
+    }
+
+    // 카테고리 필터
+    let activeCat = 'all';
+    function filterCategory(cat) {
+      activeCat = cat;
+      // 버튼 스타일
+      document.querySelectorAll('.filter-btn').forEach(b => {
+        if (b.id && b.id.startsWith('btn-cat-')) {
+          if ((cat === 'all' && b.id === 'btn-cat-all') || b.id === 'btn-cat-' + cat) {
+            b.style.background = '#191f28'; b.style.color = '#fff'; b.style.borderColor = '#191f28';
+          } else {
+            b.style.background = '#fff'; b.style.color = '#6b7684'; b.style.borderColor = '#e5e8eb';
+          }
+        }
+      });
+      // 행 + 라벨 보이기/숨기기
+      document.querySelectorAll('[data-cat]').forEach(el => {
+        if (cat === 'all') { el.style.display = ''; }
+        else { el.style.display = el.dataset.cat === cat ? '' : 'none'; }
+      });
+      // 월 전체가 비면 월도 숨기기
+      document.querySelectorAll('.month').forEach(month => {
+        const items = month.querySelectorAll('[data-cat]');
+        let any = false;
+        items.forEach(el => { if (el.style.display !== 'none') any = true; });
+        month.style.display = any ? 'block' : 'none';
+      });
+    }
+
+    // === 연도별 요약 데이터 ===
+    var yearData = {
+      2026: {
+        applicants: { total: '3,077', sub: '커리어 컨퍼런스 1,566 + 데브콘 1,511' },
+        resume: { total: '418', sub: '커리어 컨퍼런스 110 + 데브콘 308' }
+      },
+      2025: {
+        applicants: { total: '2,860', sub: '밋업 1,688 + 흐레카 470 + 이력서 702' },
+        resume: { total: '586', sub: '퇴근 후 이력서 이벤트 기간 내 업데이트' }
+      }
+    };
+
+    // === 연도 전환 ===
+    function switchYear(year) {
+      document.getElementById('year-2026').style.display = year === 2026 ? '' : 'none';
+      document.getElementById('year-2025').style.display = year === 2025 ? '' : 'none';
+      document.getElementById('year-btn-2026').classList.toggle('active', year === 2026);
+      document.getElementById('year-btn-2025').classList.toggle('active', year === 2025);
+      // 요약 카드 전환
+      var d = yearData[year];
+      if (d) {
+        document.getElementById('totalApplicants').textContent = d.applicants.total;
+        document.getElementById('totalApplicantsSub').textContent = d.applicants.sub;
+        document.getElementById('totalResume').textContent = d.resume.total;
+        document.getElementById('totalResumeSub').textContent = d.resume.sub;
+      }
+      // 인스타 카드
+      if (year === 2025) {
+        document.getElementById('instaFollowers').textContent = '—';
+        document.getElementById('instaFollowers').style.color = 'var(--c-text-4)';
+        document.getElementById('instaSub').textContent = '2025년 미개설';
+      } else {
+        document.getElementById('instaFollowers').textContent = '168';
+        document.getElementById('instaFollowers').style.color = '';
+        document.getElementById('instaSub').innerHTML = '<a href="https://www.instagram.com/worxtory/" target="_blank" onclick="event.stopPropagation()">@worxtory</a> · 게시물 17 · 4/21 기준';
+      }
+      // 오카방 카드
+      if (year === 2025) {
+        document.getElementById('okaTotal').textContent = '261';
+        document.getElementById('okaSub').textContent = '2025.12 기준';
+      } else {
+        document.getElementById('okaTotal').textContent = '510';
+        document.getElementById('okaSub').innerHTML = '<a href="https://www.notion.so/worxphere/c8c7d8322b048205949701cca47a0550" target="_blank" onclick="event.stopPropagation()">성과 지표 노션</a> · 4/21 기준';
+      }
+    }
+
+    // === Sticky topbar shadow on scroll ===
+    (function() {
+      var header = document.querySelector('.topbar') || document.querySelector('.sticky-header');
+      if (!header) return;
+      window.addEventListener('scroll', function() {
+        if (window.scrollY > 4) header.classList.add('is-stuck');
+        else header.classList.remove('is-stuck');
+      }, { passive: true });
+    })();
+
+    // === Collapse 토글 ===
+    function toggleCollapse(id) {
+      var el = document.getElementById('collapse-' + id);
+      if (el) el.classList.toggle('is-open');
+    }
+
+    // 첫 로드 시 월별 캘린더는 기본 닫힘. 비교는 닫힘.
+    // 필요 시 URL 해시로 자동 open: #monthly, #compare
+    (function() {
+      var hash = (location.hash || '').replace('#', '');
+      if (hash === 'monthly' || hash === 'compare') {
+        var el = document.getElementById('collapse-' + hash);
+        if (el) el.classList.add('is-open');
+      }
+    })();
+
+    // === 이벤트 추가 기능 ===
+    function openModal() { document.getElementById('modal').style.display = 'flex'; }
+    function closeModal() { document.getElementById('modal').style.display = 'none'; }
+    document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+
+    function getEvents() { return JSON.parse(localStorage.getItem('b2c_events') || '[]'); }
+    function setEvents(arr) { localStorage.setItem('b2c_events', JSON.stringify(arr)); }
+
+    function renderEvents() {
+      const container = document.getElementById('customEvents');
+      const events = getEvents();
+      container.innerHTML = '';
+      // 월별 그룹핑
+      const byMonth = {};
+      events.forEach((ev, i) => {
+        const m = ev.month || (ev.start ? new Date(ev.start).getMonth() + 1 : 0);
+        const key = m ? m + '월' : '미정';
+        if (!byMonth[key]) byMonth[key] = [];
+        byMonth[key].push({ ...ev, idx: i });
+      });
+      Object.entries(byMonth).forEach(([month, evts]) => {
+        const div = document.createElement('div');
+        div.className = 'month';
+        const statusMap = { '완료': 'done', '진행 중': 'live', '상시': 'live', '예정': 'soon' };
+        const statusClass = (s) => statusMap[s] || 'soon';
+        const fadedClass = (s) => s === '완료' ? ' faded' : '';
+        div.innerHTML = '<div class="month-header">' + month + '</div>' +
+          '<div class="category-label" data-cat="이벤트">이벤트</div>' +
+          evts.map(ev => {
+            const pct = ev.kpi && ev.current ? (ev.current / ev.kpi * 100).toFixed(1) + '%' : '—';
+            const pctColor = ev.kpi && ev.current ? (ev.current / ev.kpi >= 0.8 ? '#00C896' : ev.current / ev.kpi >= 0.5 ? '#ff9500' : '#f04452') : '#b0b8c1';
+            const noData = !ev.kpi && !ev.current;
+            return '<div class="row' + fadedClass(ev.status) + '" data-cat="이벤트" style="position:relative">' +
+              '<span class="tag ' + statusClass(ev.status) + '">' + ev.status + '</span>' +
+              '<span class="name">' + (ev.status === '진행 중' ? '<span class="dot"></span>' : '') + ev.name + '</span>' +
+              '<span class="desc">' + (ev.desc || '') + (ev.owner ? ' · ' + ev.owner : '') + '</span>' +
+              '<div class="stats">' +
+                (ev.kpi ? '<div class="stat"><div class="num" style="color:' + pctColor + '">' + pct + '</div><div class="label">KPI ' + Number(ev.kpi).toLocaleString() + '</div></div>' : '') +
+                (ev.subkpi ? '<div class="stat"><div class="num" style="color:#8b5cf6;font-size:13px">sub ' + Number(ev.subkpi).toLocaleString() + '</div><div class="label">sub KPI</div></div>' : '') +
+                (ev.current ? '<div class="stat"><div class="num">' + Number(ev.current).toLocaleString() + '</div><div class="label">신청자</div></div>' : '') +
+                (noData ? '<div class="stat"><div class="num" style="color:#B0B8C1;font-size:11px">업데이트 해주시면<br>더 정확해져요!</div></div>' : '') +
+                (ev.docs && ev.docs.length ? '<div class="stat" title="' + ev.docs.map(d => d.label).join(', ') + '"><div class="num" style="font-size:14px;color:#6B7684">📋 ' + ev.docs.length + '</div><div class="label">문서 / 11</div></div>' : '') +
+              '</div>' +
+              '<button onclick="event.stopPropagation();deleteEvent(' + ev.idx + ')" style="position:absolute;top:10px;right:12px;font-size:11px;padding:4px 10px;border-radius:8px;border:1px solid #E5E8EB;background:#fff;color:#F04452;cursor:pointer;font-family:Pretendard;font-weight:600;transition:all 0.15s" onmouseenter="this.style.background=\'#FEE\'" onmouseleave="this.style.background=\'#fff\'">삭제</button>' +
+            '</div>';
+          }).join('');
+        container.appendChild(div);
+      });
+    }
+
+    function saveEvent() {
+      const name = document.getElementById('f-name').value.trim();
+      if (!name) { alert('이벤트명을 입력해주세요'); return; }
+      const events = getEvents();
+      // 첨부 파일 처리
+      const fileInput = document.getElementById('f-files');
+      const fileNames = [];
+      const filePromises = [];
+      for (let i = 0; i < fileInput.files.length; i++) {
+        const file = fileInput.files[i];
+        fileNames.push(file.name);
+      }
+
+      // 문서 URL 11개 수집
+      const docLabels = ['예산 품의서','정산 내역','신청자 원본','광고 리포트','참여 실적','GA 데이터','만족도 설문','이력서 DB','SNS 후기','사후 리포트','노션 업무일지'];
+      const docs = [];
+      for (let i = 1; i <= 11; i++) {
+        const url = document.getElementById('f-doc-' + i).value.trim();
+        if (url) docs.push({ id: i, label: docLabels[i-1], url });
+      }
+
+      events.push({
+        name: name,
+        type: document.getElementById('f-type').value,
+        status: document.getElementById('f-status').value,
+        month: document.getElementById('f-month').value,
+        start: document.getElementById('f-start').value,
+        end: document.getElementById('f-end').value,
+        desc: '',
+        kpi: document.getElementById('f-kpi').value,
+        subkpi: document.getElementById('f-subkpi').value,
+        current: '',
+        owner: document.getElementById('f-owner').value.trim(),
+        docs: docs
+      });
+      setEvents(events);
+      renderEvents();
+      closeModal();
+      // 폼 초기화
+      ['f-name','f-kpi','f-subkpi','f-owner','f-start','f-end'].forEach(id => document.getElementById(id).value = '');
+      for (let i = 1; i <= 11; i++) document.getElementById('f-doc-' + i).value = '';
+      document.getElementById('f-doc-count').textContent = '0/11';
+      document.getElementById('f-doc-req').textContent = '0/4';
+      document.getElementById('f-doc-opt').textContent = '0/5';
+      document.getElementById('f-doc-per').textContent = '0/2';
+      document.getElementById('f-month').selectedIndex = 0;
+      document.getElementById('f-owner-tabs').querySelectorAll('button').forEach(function(b){ b.style.background='#fff'; b.style.color='#6B7684'; b.style.borderColor='#E5E8EB'; });
+    }
+
+    var pendingDeleteIdx = null;
+    function deleteEvent(idx) {
+      pendingDeleteIdx = idx;
+      document.getElementById('deleteModal').style.display = 'flex';
+    }
+    function confirmDelete() {
+      if (pendingDeleteIdx !== null) {
+        const events = getEvents();
+        events.splice(pendingDeleteIdx, 1);
+        setEvents(events);
+        renderEvents();
+      }
+      closeDeleteModal();
+    }
+    function closeDeleteModal() {
+      pendingDeleteIdx = null;
+      document.getElementById('deleteModal').style.display = 'none';
+    }
+
+    renderEvents();
+
+    // D-day 뱃지 자동 계산
+    (function() {
+      var badge = document.getElementById('dday-badge');
+      if (!badge) return;
+      var eventDate = new Date('2026-04-23');
+      var now = new Date(); now.setHours(0,0,0,0);
+      var diff = Math.ceil((eventDate - now) / 86400000);
+      if (diff > 0) { badge.textContent = 'D-' + diff; }
+      else if (diff === 0) { badge.textContent = 'D-Day'; badge.style.background = '#F04452'; badge.style.color = '#fff'; }
+      else { badge.textContent = '종료'; badge.style.background = '#F2F4F6'; badge.style.color = '#B0B8C1'; }
+    })();
+
+    // 카드 클릭 → 저장된 링크로 이동
+    function editCardLink(type) {
+      var saved = localStorage.getItem('cardLink_' + type);
+      if (saved) {
+        window.open(saved, '_blank');
+      }
+    }
+
+    // (인스타/오카방 카드 제거됨 — 상세 대시보드에서 확인)
+
+    // === CSV 파싱 유틸 (경량) ===
+    function parseCSVLight(text) {
+      const rows = [];
+      let current = '', inQuote = false, row = [], i = 0;
+      while (i < text.length) {
+        const ch = text[i];
+        if (inQuote) {
+          if (ch === '"' && text[i + 1] === '"') { current += '"'; i += 2; }
+          else if (ch === '"') { inQuote = false; i++; }
+          else { current += ch; i++; }
+        } else {
+          if (ch === '"') { inQuote = true; i++; }
+          else if (ch === ',') { row.push(current.trim()); current = ''; i++; }
+          else if (ch === '\n' || ch === '\r') {
+            row.push(current.trim()); current = '';
+            if (row.length > 1 || row[0] !== '') rows.push(row);
+            row = [];
+            if (ch === '\r' && text[i + 1] === '\n') i++;
+            i++;
+          } else { current += ch; i++; }
+        }
+      }
+      row.push(current.trim());
+      if (row.length > 1 || row[0] !== '') rows.push(row);
+      return rows;
+    }
+
+    // === 대시보드 수치 업데이트 ===
+    function updateDevconStats(devconTotal, devconResume, isLive, timestamp) {
+      // DEVCON 행 업데이트
+      const devconRow = document.querySelector('.row[data-event="DEVCON"]');
+      if (devconRow) {
+        const nums = devconRow.querySelectorAll('.stat .num');
+        const kpiPct = (devconTotal / 1500 * 100).toFixed(1);
+        nums[0].textContent = kpiPct + '%';
+        // KPI 색상 업데이트
+        if (kpiPct >= 80) { nums[0].className = 'num'; nums[0].style.color = '#00C896'; }
+        else if (kpiPct >= 50) { nums[0].className = 'num orange'; }
+        else { nums[0].className = 'num red'; }
+        nums[1].textContent = devconTotal.toLocaleString();
+        nums[2].textContent = devconResume.toLocaleString();
+        // desc 업데이트 (타임스탬프)
+        const desc = devconRow.querySelector('.desc');
+        if (desc && timestamp) {
+          desc.textContent = 'AI 시대, 개발자 고민 완전 정복 · 4.23 · 한나 · ' + timestamp + ' 업데이트';
+        }
+      }
+
+      // 요약 카드 업데이트
+      const totalAll = 1566 + devconTotal;
+      const resumeAll = 110 + devconResume;
+      document.getElementById('totalApplicants').textContent = totalAll.toLocaleString();
+      document.getElementById('totalResume').textContent = resumeAll.toLocaleString();
+
+      // 소계 텍스트 업데이트
+      var appSub = document.getElementById('totalApplicantsSub');
+      if (appSub) appSub.textContent = '커리어 컨퍼런스 1,566 + 데브콘 ' + devconTotal.toLocaleString();
+      var resSub = document.getElementById('totalResumeSub');
+      if (resSub) resSub.textContent = '커리어 컨퍼런스 110 + 데브콘 ' + devconResume.toLocaleString();
+
+      // 푸터 업데이트
+      var badge = isLive ? ' (실시간)' : '';
+      document.getElementById('footerText').textContent = '인사이트전략팀 · ' + (timestamp || '4/14') + ' 기준' + badge;
+    }
+
+    // === 페이지 로드 시 API fetch + 폴백 ===
+    (async function() {
+      const FALLBACK_TOTAL = 1511, FALLBACK_RESUME = 308;
+      // 정적 데이터 먼저 즉시 렌더 (로딩 중 표시 방지)
+      updateDevconStats(FALLBACK_TOTAL, FALLBACK_RESUME, false, '4/22 10:30');
+      try {
+        const API_URL = window.location.hostname === 'localhost' || window.location.protocol === 'file:'
+          ? 'https://b2c-dashboard-sigma.vercel.app/api/devcon-data'
+          : '/api/devcon-data';
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 5000);
+        const res = await fetch(API_URL, { signal: controller.signal });
+        clearTimeout(timeout);
+        if (!res.ok) throw new Error('API ' + res.status);
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        updateDevconStats(data.total, data.resume, true, data.updateTime);
+        console.log('[B2C 대시보드] 실시간 데이터 로드:', data.total + '명');
+      } catch (err) {
+        console.warn('[B2C 대시보드] API 실패 → 정적 데이터 유지:', err.name === 'AbortError' ? '타임아웃(5초)' : err.message);
+      }
+    })();
+
+    // === 이벤트 비교 기능 ===
+    var compareData = {
+      'career-day': { name:'퇴근 후 밋업 (25)', budget:20383000, actual:16413647, adCost:4998687, applicants:1688, attendees:257, resumeUpdate:null, kpi:'563%', satisfaction:'84%', okaBang:141 },
+      'hreka': { name:'흐레카 (25)', budget:28440000, actual:19434768, adCost:1130362, applicants:470, attendees:178, resumeUpdate:null, kpi:'156.7%', satisfaction:'3.94/5', okaBang:null },
+      'resume': { name:'퇴근 후 이력서 (25)', budget:13750000, actual:null, adCost:null, applicants:702, attendees:72, resumeUpdate:586, kpi:'58.6%', satisfaction:null, okaBang:null },
+      'conf26': { name:'커리어 컨퍼런스 (26)', budget:9695588, actual:9695588, adCost:4905722, applicants:1566, attendees:562, resumeUpdate:110, kpi:'31.5%', satisfaction:'4.33/5', okaBang:null },
+      'devcon26': { name:'데브콘 (26)', budget:6000000, actual:null, adCost:4498434, applicants:1511, attendees:825, resumeUpdate:308, kpi:'100.7%', satisfaction:'4.3/5', okaBang:null }
+    };
+    var metricLabels = {
+      budget:'총 예산(품의)', actual:'실 집행액', adCost:'광고비', applicants:'신청자 수', attendees:'참석자 수',
+      resumeUpdate:'이력서 업데이트', cpa:'신청 단가', cpAttend:'참석 단가', kpi:'KPI 달성률', satisfaction:'만족도', okaBang:'오카방 유입'
+    };
+
+    function toggleCompare() {
+      var panel = document.getElementById('compare-panel');
+      var btn = document.getElementById('compare-btn');
+      if (panel.style.display === 'none') {
+        panel.style.display = ''; btn.style.background = '#3182F6'; btn.style.color = '#fff'; btn.textContent = '📊 비교 닫기';
+      } else {
+        panel.style.display = 'none'; btn.style.background = '#fff'; btn.style.color = '#3182F6'; btn.textContent = '📊 이벤트 비교하기';
+      }
+    }
+
+    // === AI 분석 (키워드 기반, API 불필요) ===
+    function toggleAiChat() {
+      var panel = document.getElementById('ai-chat-panel');
+      var fab = document.getElementById('ai-fab');
+      if (panel.style.display === 'none') {
+        panel.style.display = 'flex';
+        fab.textContent = '✕';
+        fab.style.background = '#6B7684';
+      } else {
+        panel.style.display = 'none';
+        fab.textContent = '🤖';
+        fab.style.background = '#3182F6';
+      }
+    }
+
+    // 대시보드 내장 데이터
+    var DB = {
+      '커리어데이': { name:'퇴근 후 밋업(커리어데이)', year:2025, type:'오프라인', budget:20383000, actual:16413647, adCost:4998687, applicants:1688, attendees:257, resume:117, satisfaction:'84%', okaBang:141, kpiTarget:300, kpi:'563%', cpaTotal:9724, cpaAd:2961, period:'10.28~30', channels:'META 300만 + 카카오 100만 + 링크드인 100만' },
+      '흐레카': { name:'흐레카(2025)', year:2025, type:'오프라인(B2B)', budget:28440000, actual:19434768, adCost:1130362, applicants:470, attendees:178, resume:null, satisfaction:'3.94/5', okaBang:null, kpiTarget:300, kpi:'156.7%', cpaTotal:41351, cpaAd:2405, period:'11.12', channels:'IAM 배너' },
+      '퇴근후이력서': { name:'퇴근 후 이력서', year:2025, type:'오프라인', budget:13750000, actual:null, adCost:null, applicants:702, attendees:72, resume:586, satisfaction:null, okaBang:null, kpiTarget:1000, kpi:'58.6%', cpaTotal:null, cpaAd:null, period:'12.16~18', channels:'미정산' },
+      '커리어컨퍼런스': { name:'커리어 컨퍼런스(2026)', year:2026, type:'웨비나', budget:9695588, actual:9695588, adCost:4905722, applicants:1566, attendees:562, resume:110, satisfaction:'4.33/5', okaBang:null, kpiTarget:5000, kpi:'31.5%', cpaTotal:6192, cpaAd:3133, period:'03.26', channels:'META' },
+      '데브콘': { name:'데브콘(2026)', year:2026, type:'웨비나', budget:6000000, actual:null, adCost:4498434, applicants:1511, attendees:825, resume:308, satisfaction:'4.3/5', okaBang:null, kpiTarget:1500, kpi:'100.7%', cpaTotal:null, cpaAd:2977, period:'04.23', channels:'META + CRM + 게임잡' }
+    };
+    var allEvents = Object.values(DB);
+
+    function fmt(n) { return n !== null && n !== undefined ? Number(n).toLocaleString() : '—'; }
+
+    // 단계별 챗봇
+    function addMsg(text, isUser) {
+      var msgs = document.getElementById('ai-messages');
+      var div = document.createElement('div');
+      div.style.cssText = isUser
+        ? 'background:#3182F6;color:#fff;border-radius:12px;padding:10px 14px;font-size:13px;align-self:flex-end;max-width:80%'
+        : 'background:#f2f4f6;border-radius:12px;padding:10px 14px;font-size:13px;color:#333D4B;align-self:flex-start;max-width:85%;user-select:text;line-height:1.6';
+      div.innerHTML = text;
+      msgs.appendChild(div);
+      msgs.scrollTop = msgs.scrollHeight;
+      return div;
+    }
+    function addChips(options, callback) {
+      var msgs = document.getElementById('ai-messages');
+      var wrap = document.createElement('div');
+      wrap.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;align-self:flex-start';
+      options.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'ai-chip';
+        btn.textContent = opt;
+        btn.onclick = function() { wrap.remove(); callback(opt); };
+        wrap.appendChild(btn);
+      });
+      msgs.appendChild(wrap);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    var eventNames = ['밋업(25)', '흐레카(25)', '이력서(25)', '컨퍼런스(26)', '데브콘(26)', '전체 비교'];
+    var eventKeys = { '밋업(25)':'커리어데이', '흐레카(25)':'흐레카', '이력서(25)':'퇴근후이력서', '컨퍼런스(26)':'커리어컨퍼런스', '데브콘(26)':'데브콘' };
+
+    function aiStep1(topic) {
+      var step0 = document.getElementById('ai-step0');
+      if (step0) step0.remove();
+      addMsg(topic === 'workfest' ? 'Work Fest 추천' : topic, true);
+
+      if (topic === 'workfest') {
+        addMsg('목표 이력서 <b>1,000건</b><br>→ 필요 신청 약 <b>1,200명</b><br>→ 광고비 <b>350~500만</b><br>→ 총 예산 <b>1,200~1,500만</b>');
+        addMsg('더 알아볼까요?');
+        addChips(['광고비 상세', '경품 책정', '처음으로'], function(c) {
+          if (c === '처음으로') resetChat();
+          else aiStep1(c === '광고비 상세' ? '광고비' : '경품');
+        });
+        return;
+      }
+      addMsg('어떤 이벤트요?');
+      addChips(eventNames, function(ev) { aiStep2(topic, ev); });
+    }
+
+    function aiStep2(topic, eventName) {
+      addMsg(eventName, true);
+      if (eventName === '전체 비교') {
+        var answer = analyzeQuestion(topic === '신청단가' ? '단가' : topic === '신청 단가' ? '단가' : topic);
+        addMsg(answer);
+      } else {
+        var key = eventKeys[eventName];
+        var e = DB[key];
+        if (!e) { addMsg('데이터 없음'); return; }
+        var t = topic.toLowerCase();
+        if (t.match(/광고/)) addMsg(e.adCost ? '<b>' + fmt(e.adCost) + '원</b><br>채널: ' + e.channels : '미정산');
+        else if (t.match(/경품/)) addMsg('상세 대시보드에서 확인해주세요');
+        else if (t.match(/단가/)) addMsg('총 단가: <b>' + (e.cpaTotal ? fmt(e.cpaTotal) + '원' : '미정산') + '</b>' + (e.cpaAd ? '<br>광고 단가: ' + fmt(e.cpaAd) + '원' : ''));
+        else if (t.match(/예산/)) addMsg('품의 <b>' + fmt(e.budget) + '원</b><br>실제 ' + (e.actual ? '<b>' + fmt(e.actual) + '원</b> (' + Math.round(e.actual/e.budget*100) + '%)' : '미정산'));
+        else if (t.match(/이력서/)) addMsg(e.resume ? '<b>' + fmt(e.resume) + '명</b> (전환율 ' + (e.resume/e.applicants*100).toFixed(1) + '%)' : '해당없음');
+        else if (t.match(/kpi/i)) addMsg('<b>' + e.kpi + '</b> (목표 ' + fmt(e.kpiTarget) + ')');
+        else if (t.match(/만족/)) addMsg(e.satisfaction || '미수집');
+        else addMsg('해당 데이터 없음');
+      }
+      addMsg('더 궁금한 거 있으세요?');
+      addChips(['다른 항목', '다른 이벤트', '처음으로'], function(c) {
+        if (c === '처음으로') resetChat();
+        else if (c === '다른 항목') { addMsg('무엇이 궁금하세요?'); addChips(['광고비','경품','신청단가','예산','이력서','KPI','만족도'], function(t){ aiStep1(t); }); }
+        else { addMsg('어떤 이벤트요?'); addChips(eventNames, function(ev){ aiStep2(topic, ev); }); }
+      });
+    }
+
+    function resetChat() {
+      var msgs = document.getElementById('ai-messages');
+      msgs.innerHTML = '';
+      addMsg('무엇이 궁금하세요?');
+      addChips(['광고비','경품','신청 단가','예산','이력서','KPI','만족도','Work Fest 추천'], function(t) {
+        aiStep1(t === 'Work Fest 추천' ? 'workfest' : t);
+      });
+    }
+
+    function analyzeQuestion(q) {
+      q = q.toLowerCase();
+      var L = function(t){return t;};
+
+      if (q.match(/광고비|광고 비|ad/)) {
+        var r = '밋업 <b>500만</b> · 흐레카 <b>113만</b> · 컨퍼런스 <b>491만</b> · 데브콘 <b>450만</b>';
+        if (q.match(/work|워크|5월/)) r += '<br><br>→ Work Fest 추천: <b>350~500만</b>';
+        return r;
+      }
+      if (q.match(/경품|상품|선물|굿즈/)) {
+        return '밋업 <b>284만</b> · 흐레카 <b>475만</b> · 이력서 <b>400만</b> · 컨퍼런스 <b>53만</b><br><br>인당 평균 <b>2,731원</b>';
+      }
+      if (q.match(/신청.?단가|cpa|단가/)) {
+        return '밋업 <b>9,724원</b> · 흐레카 <b>41,351원</b> · 컨퍼런스 <b>6,192원</b><br>광고 기준: 밋업 2,961원 · 흐레카 2,405원 · 컨퍼런스 3,133원 · <b>데브콘 2,977원</b>';
+      }
+      if (q.match(/예산|budget|품의|집행|비용/)) {
+        return '밋업 2,038만 → <b>1,641만</b>(80%)<br>흐레카 2,844만 → <b>1,943만</b>(68%)<br>이력서 1,375만 → 미정산<br>컨퍼런스 970만 → <b>970만</b>(100%)';
+      }
+      if (q.match(/이력서|resume|업데이트|전환/)) {
+        return '이력서(25) <b>586명</b> 전환율 83.5%<br>밋업 <b>117명</b> 6.9%<br>컨퍼런스 <b>110명</b> 7.0%<br>데브콘 <b>308명</b> 20.4%';
+      }
+      if (q.match(/kpi|달성|목표/)) {
+        return '밋업 <b>563%</b> · 흐레카 <b>157%</b> · 이력서 <b>59%</b><br>컨퍼런스 <b>32%</b> · 데브콘 <b>101%</b>';
+      }
+      if (q.match(/만족/)) {
+        return '밋업 <b>84%</b> · 흐레카 <b>3.94/5</b> · 컨퍼런스 <b>4.33/5</b> · 데브콘 <b>4.3/5</b>';
+      }
+      if (q.match(/비교|전체|요약/)) {
+        return '<table style="width:100%;font-size:11px;border-collapse:collapse"><tr style="background:#f2f4f6"><th style="padding:5px;text-align:left">이벤트</th><th style="text-align:right;padding:5px">신청</th><th style="text-align:right;padding:5px">이력서</th><th style="text-align:right;padding:5px">단가</th></tr>' +
+        allEvents.map(function(e){return '<tr style="border-bottom:1px solid #f2f4f6"><td style="padding:5px">'+e.name.replace(/\(.*\)/,'')+'</td><td style="text-align:right;padding:5px">'+fmt(e.applicants)+'</td><td style="text-align:right;padding:5px">'+fmt(e.resume)+'</td><td style="text-align:right;padding:5px">'+(e.cpaTotal?fmt(e.cpaTotal)+'원':'—')+'</td></tr>';}).join('') + '</table>';
+      }
+      if (q.match(/work\s?fest|워크|5월/)) {
+        return '목표 이력서 1,000건<br>→ 필요 신청 <b>~1,200명</b><br>→ 광고비 <b>350~500만</b><br>→ 총 예산 <b>1,200~1,500만</b>';
+      }
+      return '키워드로 물어보세요: <b>광고비 · 경품 · 단가 · 예산 · 이력서 · KPI · 비교 · Work Fest · 만족도</b>';
+    }
+
+    function sendAiQuestion() {
+      var input = document.getElementById('ai-input');
+      var q = input.value.trim();
+      if (!q) return;
+      input.value = '';
+      addMsg(q, true);
+      var answer = analyzeQuestion(q);
+      addMsg(answer);
+      addMsg('더 궁금한 거 있으세요?');
+      addChips(['처음으로'], function() { resetChat(); });
+    }
+
+    function selectAllMetrics(checked) {
+      document.querySelectorAll('#metric-checks input').forEach(function(cb) { cb.checked = checked; });
+      updateCompare();
+    }
+
+    function fmt(v) {
+      if (v === null || v === undefined) return '<span style="color:#B0B8C1">—</span>';
+      if (typeof v === 'string') return v;
+      return v.toLocaleString() + '원';
+    }
+
+    function updateCompare() {
+      var selected = []; var metrics = [];
+      document.querySelectorAll('#compare-checks input:checked').forEach(function(cb) { selected.push(cb.value); });
+      document.querySelectorAll('#metric-checks input:checked').forEach(function(cb) { metrics.push(cb.value); });
+
+      var result = document.getElementById('compare-result');
+      if (selected.length < 2) { result.style.display = 'none'; return; }
+      result.style.display = '';
+
+      var html = '<thead><tr><th style="min-width:120px">지표</th>';
+      selected.forEach(function(key) { html += '<th style="text-align:right;min-width:130px">' + compareData[key].name + '</th>'; });
+      html += '</tr></thead><tbody>';
+
+      metrics.forEach(function(m) {
+        html += '<tr><td>' + metricLabels[m] + '</td>';
+        selected.forEach(function(key) {
+          var d = compareData[key];
+          var val;
+          if (m === 'cpa') { val = (d.adCost && d.applicants) ? Math.round(d.adCost / d.applicants).toLocaleString() + '원' : null; }
+          else if (m === 'cpAttend') { val = (d.adCost && d.attendees) ? Math.round(d.adCost / d.attendees).toLocaleString() + '원' : null; }
+          else if (m === 'budget' || m === 'actual' || m === 'adCost') { val = d[m]; }
+          else if (m === 'applicants' || m === 'attendees' || m === 'resumeUpdate' || m === 'okaBang') { val = d[m] !== null ? d[m].toLocaleString() + '명' : null; }
+          else { val = d[m]; }
+          html += '<td>' + fmt(val) + '</td>';
+        });
+        html += '</tr>';
+      });
+      html += '</tbody>';
+      document.getElementById('compare-table').innerHTML = html;
+    }
+  </script>
+</body>
+</html>
