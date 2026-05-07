@@ -1013,6 +1013,8 @@
       <div>© 웍스피어 · 인사이트전략팀 · 2026</div>
       <div>
         <a href="javascript:void(0)" onclick="openTrash()">🗑 휴지통</a> ·
+        <a href="javascript:void(0)" onclick="exportAllData()">📤 내 데이터 export</a> ·
+        <a href="javascript:void(0)" onclick="importAllData()">📥 데이터 import</a> ·
         <a href="./index-v1-backup.html" target="_blank">📊 기존 대시보드 (v1)</a> ·
         <a href="javascript:void(0)" onclick="shareDashboard()" title="대시보드 공유" class="ico">🔗</a>
         <a href="#top" title="맨 위로" class="ico">⬆</a>
@@ -1677,6 +1679,47 @@
     document.getElementById('emojiSearch')?.addEventListener('input', (e) => {
       buildEmojiPopupContent(e.target.value);
     });
+
+    // === 데이터 export/import (다른 origin 간 데이터 이전) ===
+    window.exportAllData = function() {
+      const data = {};
+      Object.keys(localStorage).forEach(k => {
+        if (k.startsWith('b2c_') || k.startsWith('cc_')) data[k] = localStorage.getItem(k);
+      });
+      const json = JSON.stringify(data, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const today = new Date().toISOString().slice(0, 10);
+      a.href = url; a.download = `b2c-dashboard-data-${today}.json`;
+      document.body.appendChild(a); a.click();
+      setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 200);
+      alert(`✅ ${Object.keys(data).length}개 키 export!\n\n다운로드된 JSON 파일을 다른 환경(Vercel)에서 "📥 데이터 import"로 올리면 카드/데이터가 그대로 박혀요.`);
+    };
+    window.importAllData = function() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'application/json,.json';
+      input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+          const text = await file.text();
+          const data = JSON.parse(text);
+          if (typeof data !== 'object' || !data) throw new Error('잘못된 형식');
+          if (!confirm(`📥 ${Object.keys(data).length}개 키를 import할까요?\n기존 데이터에 덮어씁니다 (같은 키만).\n\n파일: ${file.name}`)) return;
+          let count = 0;
+          Object.entries(data).forEach(([k, v]) => {
+            if (typeof v === 'string') { localStorage.setItem(k, v); count++; }
+          });
+          alert(`✅ ${count}개 키 import 완료!\n페이지 새로고침합니다.`);
+          location.reload();
+        } catch (err) {
+          alert(`⚠️ import 실패: ${err.message}`);
+        }
+      };
+      input.click();
+    };
 
     // === Resources (URL list, dynamic) ===
     window.LINK_CATEGORIES_FORM = [
