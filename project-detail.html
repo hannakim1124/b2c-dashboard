@@ -5453,6 +5453,28 @@ CPA: 2,977원
       setTimeout(renderStickers, 200);
     })();
   </script>
+  <!-- 워크페스트 메타베이스 매칭 결과 자동 박기 (1회) — 2026-05-08 기준 -->
+  <script>
+    (function () {
+      const FLAG = 'b2c_workfest_resume_stats_v20260508a';
+      if (localStorage.getItem(FLAG)) return;
+      const PROJECT_ID = 'user-1778119091616';
+      const stats = {
+        idMatched: 948,
+        resumeUpdated: 653,
+        signup: { new: 6, old: 942, none: 0 },
+        behaviorByGroup: {
+          new: { total: 6, resumeNew: null, resumeUpdate: 6 },
+          old: { total: 942, resumeNew: null, resumeUpdate: 647 }
+        },
+        matchedAt: '2026-05-08T07:25:00+09:00',
+        period: '2026.05.01 — 2026.05.28',
+        note: '메타베이스 매칭 (1144명 유니크 중 948명 매칭, 82.9%)'
+      };
+      localStorage.setItem('b2c_resume_stats_' + PROJECT_ID, JSON.stringify(stats));
+      localStorage.setItem(FLAG, '1');
+    })();
+  </script>
   <!-- 데브콘 신청자 분석 보고서 자동 박기 (1회) -->
   <script>
     (function () {
