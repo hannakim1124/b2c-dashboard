@@ -1453,6 +1453,15 @@
               </div>`;
           }
         }
+        // 신규/기존 가입자 분류 (이력서 KPI일 때만, signup 데이터 있을 때만)
+        const signupInfo = isResumeKpi ? (window.RESUME_CACHES && window.RESUME_CACHES[p.id]?.signup) : null;
+        const signupHtml = signupInfo ? `
+          <div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--c-border);font-size:11px;line-height:1.8;color:var(--c-text-2)">
+            <div>✨ 이벤트 신규 유입: <strong style="color:var(--c-text)">${(signupInfo.newSignup || 0).toLocaleString()}명</strong> <span style="color:var(--c-text-3)">(${signupInfo.newPct}%)</span></div>
+            <div>👤 기존 회원 활성화: <strong style="color:var(--c-text)">${(signupInfo.existing || 0).toLocaleString()}명</strong> <span style="color:var(--c-text-3)">(${signupInfo.existingPct}%)</span></div>
+            <div style="font-size:10px;color:var(--c-text-3);margin-top:4px">매칭 ${signupInfo.matched}명 / 분석 ${signupInfo.analyzedAt}</div>
+          </div>` : '';
+
         return `
           <div class="kpi-card">
             <div class="lbl">
@@ -1462,6 +1471,7 @@
             </div>
             <div class="val ${escapeHtml(k.flavor || '')}">${escapeHtml(k.value)}</div>
             ${progressHtml}
+            ${signupHtml}
           </div>`;
       }).join('');
 
@@ -4961,6 +4971,46 @@ CPA: 2,977원
 
       // 초기 렌더 — 페이지 콘텐츠 그려진 후
       setTimeout(renderStickers, 200);
+    })();
+  </script>
+  <!-- TEMP PATCH BUTTON (커컨 카드 자동 정리, 1회 클릭 후 제거 예정) -->
+  <script>
+    (function () {
+      const ID = 'user-1778136263589';
+      const params = new URLSearchParams(location.search);
+      if (params.get('id') !== ID) return;
+      const btn = document.createElement('button');
+      btn.textContent = '🛠 PATCH 커컨';
+      btn.style.cssText = 'position:fixed;top:12px;right:120px;z-index:100000;padding:10px 14px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.3);';
+      btn.onclick = function () {
+        const projects = JSON.parse(localStorage.getItem('b2c_user_projects') || '[]');
+        const idx = projects.findIndex(p => p.id === ID);
+        if (idx < 0) { alert('카드 못 찾음'); return; }
+        const p = projects[idx];
+        p.desc = '웨비나 · 한나님이 진행한 프로젝트. 신청 1,566명 / 이력서 업데이트 110명.';
+        p.story = '3월 26일 진행된 자체 웨비나. 줌 실참석 562명, 만족도 4.33/5. 광고비 490만원 집행으로 신청 단가 3,133원 / 이력서 단가 44,597원 기록.';
+        p.timeline = [
+          { date: '2026.03.04', label: '모집 시작', icon: '🎬' },
+          { date: '2026.03.26', label: '모집 마감', icon: '🏁' },
+          { date: '2026.03.26', label: '본 행사일', icon: '🎉' }
+        ];
+        localStorage.setItem('b2c_user_projects', JSON.stringify(projects));
+        const ad = JSON.parse(localStorage.getItem('b2c_ad_report_' + ID) || '{}');
+        ad.pending = false;
+        ad.lastUpdated = '2026-05-08';
+        ad.totalCost = 4905722;
+        ad.applicationCount = 1566;
+        ad.uniqueApplications = 1483;
+        ad.resumeUpdates = 110;
+        ad.applicationCPA = 3133;
+        ad.resumeCPA = 44597;
+        ad.totalExecuted = 9695588;
+        ad.note = '광고 4,905,722원 + 총 집행 9,695,588원(VAT별도). 줌 실참석 562명/만족도 4.33.';
+        localStorage.setItem('b2c_ad_report_' + ID, JSON.stringify(ad));
+        alert('✅ 커리어 컨퍼런스 카드 정리 완료! 새로고침합니다.');
+        location.reload();
+      };
+      document.body.appendChild(btn);
     })();
   </script>
   <!-- TEMP DUMP BUTTON (이후 제거 예정) -->
