@@ -884,6 +884,23 @@
       .nav-search-wrap { display: none; }
       .modal { padding: 24px 20px; }
       .field-row, .field-row.three, .kpi-row { grid-template-columns: 1fr; }
+      /* 띠배너 — 모바일에서 폰트 줄이고 줄바꿈 */
+      #updateBanner { font-size: 12px !important; padding: 10px 32px 10px 16px !important; line-height: 1.4 !important; }
+      #updateBanner span { display: block; }
+    }
+    @media (max-width: 480px) {
+      .hero h1 { font-size: 26px; }
+      .hero p { font-size: 13px; }
+      .members-grid { grid-template-columns: 1fr; }
+      .modal { max-width: calc(100vw - 16px); padding: 18px 16px; max-height: 92vh; overflow-y: auto; }
+      .nav-inner { padding: 0 16px; gap: 12px; }
+      .nav-brand span:not(.logo):not(.year) { display: none; }
+      footer { padding: 24px 16px; font-size: 12px; }
+      footer a.ico { font-size: 18px; margin-left: 6px; }
+    }
+    @media (max-width: 380px) {
+      .container { padding: 0 14px; }
+      .hero h1 { font-size: 22px; }
     }
   </style>
 </head>

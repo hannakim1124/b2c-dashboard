@@ -1122,6 +1122,39 @@
       .quote-text { font-size: 16px; }
       .actions { padding: 28px 24px; }
       .actions h3 { font-size: 20px; }
+      /* 인라인 min-width 박힌 KPI 버튼들 stack */
+      .kpi-fetch-btn { min-width: 0 !important; flex: 1 1 100% !important; }
+      /* 광고 KPI grid 2열 */
+      .ad-kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
+      /* 분석 헤더 줄바꿈 + 버튼 폰트 살짝 줄임 */
+      .analysis-head { flex-wrap: wrap; gap: 8px; }
+      .analysis-head-link { padding: 6px 10px; font-size: 11px; }
+      /* 예산 행 wrap */
+      .budget-row-head { flex-wrap: wrap; gap: 6px; }
+    }
+    @media (max-width: 540px) {
+      /* 모달 전체 풀폭 */
+      .reason-modal { max-width: calc(100vw - 16px) !important; max-height: 92vh; border-radius: 12px; }
+      .reason-modal-bg.is-open { padding: 8px; }
+      .reason-modal-head { padding: 16px 18px 12px; }
+      .reason-modal-body { padding: 12px 14px; }
+      .reason-modal-foot { padding: 12px 16px 16px; flex-wrap: wrap; gap: 8px; justify-content: stretch; }
+      .reason-modal-foot button { flex: 1 1 calc(50% - 4px); min-width: 0; }
+      .reason-modal-foot .btn-clear { flex: 1 1 100%; margin-right: 0; order: 99; }
+      .reason-modal-title { font-size: 16px; }
+      .reason-modal-sub { font-size: 12px; }
+      /* 비교 모달 테이블 폰트 */
+      .reason-modal table { font-size: 11px; }
+      .reason-modal th, .reason-modal td { padding: 6px !important; }
+      /* sec-title 더 작게 */
+      .sec-title { font-size: 20px; }
+      .sec-eyebrow { font-size: 10px; }
+    }
+    @media (max-width: 380px) {
+      .ad-kpi-grid { grid-template-columns: 1fr !important; }
+      .reason-modal-foot button { flex: 1 1 100%; }
+      .cover-title { font-size: 28px; }
+      .cover-emoji { font-size: 130px; }
     }
   </style>
 </head>
