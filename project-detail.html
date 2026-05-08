@@ -3887,7 +3887,7 @@ CPA: 2,977원
       setTimeout(() => location.reload(), 600);
     };
 
-    // 시트 데이터 기반 신청자 자동 분석 보고서 생성
+    // 시트 데이터 기반 신청자 자동 분석 보고서 생성 (데브콘 양식 통일)
     window.generateApplicantReportFromSheet = function(projectId) {
       const project = window.getProject ? window.getProject(projectId) : null;
       if (!project) return null;
@@ -3901,7 +3901,7 @@ CPA: 2,977원
       if (!cache) {
         try { cache = JSON.parse(localStorage.getItem('b2c_sheet_data_' + sm[1]) || 'null'); } catch(e) {}
       }
-      if (!cache?.rows || cache.rows.length < 2) return null;
+      if (!cache || !cache.rows || cache.rows.length < 2) return null;
       const rows = cache.rows;
       const headers = (rows[0] || []).map(h => String(h || ''));
       const findCol = (patterns) => {
@@ -3912,113 +3912,165 @@ CPA: 2,977원
         return -1;
       };
       const idCol = findCol([/잡코리아ID|잡코리아아이디/i, /회원ID|회원아이디|memberid/i, /^id$/i]);
-      const nameCol = findCol([/성함|이름|name/i]);
-      const yearCol = findCol([/연차|경력/i]);
-      const jobCol = findCol([/^직군$|^직무$|^job$/i]);
-      const subJobCol = findCol([/세부직무|상세직무|기타직무/i]);
-      const sourceCol = findCol([/어디서|유입경로|알게되|경로|source/i]);
-      const studyCol = findCol([/스터디|참여하실/i]);
-      // 헤더 행 + 빈 행 제거
+      const jobCol = findCol([/^직군$|^직무$|^선택한직무$|^job$/i]);
+      // 데이터 행
       const dataRows = rows.slice(1).filter(r => r && r.some(c => String(c || '').trim()));
       const total = dataRows.length;
       // 회원ID 기준 중복 제거
-      const ids = [];
       const idSet = new Set();
-      dataRows.forEach(r => {
-        const id = String((idCol >= 0 ? r[idCol] : '') || '').trim().toLowerCase();
-        if (id) {
-          if (!idSet.has(id)) { idSet.add(id); ids.push(id); }
-        }
-      });
-      const uniqueCount = idSet.size;
-      const dupCount = total - uniqueCount;
-      // 분포 카운트 헬퍼 (유니크 기준)
       const seenForUnique = new Set();
       const uniqueRows = [];
       dataRows.forEach(r => {
         const id = String((idCol >= 0 ? r[idCol] : '') || '').trim().toLowerCase();
+        if (id) idSet.add(id);
         if (!id) { uniqueRows.push(r); return; }
         if (seenForUnique.has(id)) return;
         seenForUnique.add(id);
         uniqueRows.push(r);
       });
-      const dist = (col) => {
-        const m = {};
-        if (col < 0) return m;
+      const uniqueCount = uniqueRows.length;
+      const dupCount = total - uniqueCount;
+      // 직군/직무 분포 (유니크 기준)
+      const jobDist = {};
+      if (jobCol >= 0) {
         uniqueRows.forEach(r => {
-          const v = String(r[col] || '').trim();
-          if (!v) return;
-          m[v] = (m[v] || 0) + 1;
+          const v = String(r[jobCol] || '').trim();
+          if (v) jobDist[v] = (jobDist[v] || 0) + 1;
         });
-        return m;
-      };
-      const yearDist = dist(yearCol);
-      const jobDist = dist(jobCol);
-      const sourceDist = dist(sourceCol);
-      const studyDist = dist(studyCol);
-      const sortDesc = (m) => Object.entries(m).sort((a, b) => b[1] - a[1]);
-      const renderDist = (m, indent = '  ') => {
-        const arr = sortDesc(m);
-        if (!arr.length) return indent + '· (데이터 없음)';
-        const denom = uniqueRows.length || 1;
-        return arr.map(([k, v]) => {
-          const pct = (v / denom * 100).toFixed(1);
-          const label = (k.length > 28 ? k.slice(0, 28) + '…' : k).padEnd(30, ' ');
-          return indent + '· ' + label + ' ' + String(v).padStart(4, ' ') + '명 (' + pct + '%)';
-        }).join('\n');
-      };
-      // 인사이트 (간단 자동)
-      const topJob = sortDesc(jobDist)[0];
-      const topSource = sortDesc(sourceDist)[0];
-      const topYear = sortDesc(yearDist)[0];
-      const insights = [];
-      insights.push('1. 신청 ' + total + '건 중 중복 제거 ' + uniqueCount + '명 (중복 ' + dupCount + '건)');
-      if (topJob) insights.push('2. 직군 1위: ' + topJob[0] + ' ' + topJob[1] + '명 (' + (topJob[1] / uniqueRows.length * 100).toFixed(1) + '%)');
-      if (topSource) insights.push('3. 유입경로 1위: ' + topSource[0] + ' ' + topSource[1] + '명 (' + (topSource[1] / uniqueRows.length * 100).toFixed(1) + '%)');
-      if (topYear) insights.push('4. 연차 1위: ' + topYear[0] + ' ' + topYear[1] + '명 (' + (topYear[1] / uniqueRows.length * 100).toFixed(1) + '%)');
-      const studyYes = Object.entries(studyDist).filter(([k]) => /네|예|참여|yes/i.test(k)).reduce((s, [, v]) => s + v, 0);
-      if (studyDist && Object.keys(studyDist).length) {
-        insights.push('5. 스터디 참여 의향: ' + studyYes + '명 (' + (studyYes / uniqueRows.length * 100).toFixed(1) + '%)');
       }
-      const fetchedAt = cache.fetchedAt ? new Date(cache.fetchedAt).toLocaleString('ko-KR') : '';
+      const sortDesc = (m) => Object.entries(m).sort((a, b) => b[1] - a[1]);
+      // 메타베이스 매칭 결과 (있으면 채우고, 없으면 "매칭 대기 ⏳")
+      let resume = null;
+      try {
+        const cached = window.RESUME_CACHES && window.RESUME_CACHES[projectId];
+        const stored = JSON.parse(localStorage.getItem('b2c_resume_stats_' + projectId) || 'null');
+        resume = stored || cached || null;
+      } catch(e) {}
+      const hasMb = resume && (resume.idMatched != null || resume.resumeUpdated != null);
       const lines = [];
       lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      lines.push('  ' + title + ' 신청자 분석 (자동 생성)');
+      lines.push('  ' + title + ' 신청자 분석');
       if (period) lines.push('  기준기간: ' + period);
-      if (fetchedAt) lines.push('  데이터 기준: ' + fetchedAt);
       lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       lines.push('');
+      // 1. 전체 규모
       lines.push('▣ 전체 규모');
       lines.push('  · 신청 건수(raw):       ' + total + '건');
       lines.push('  · 중복 제외(unique):    ' + uniqueCount + '명');
       lines.push('  · 중복 신청:            ' + dupCount + '건');
       lines.push('');
-      if (yearCol >= 0) {
-        lines.push('▣ 연차 분포 (유니크 기준)');
-        lines.push(renderDist(yearDist));
+      // 2. 회원 ID 매칭
+      lines.push('▣ 회원 ID 매칭 (유니크 기준)');
+      if (hasMb && resume.idMatched != null) {
+        const matched = resume.idMatched;
+        const unmatched = Math.max(0, uniqueCount - matched);
+        const mp = uniqueCount ? (matched / uniqueCount * 100).toFixed(1) : '0.0';
+        const up = uniqueCount ? (unmatched / uniqueCount * 100).toFixed(1) : '0.0';
+        lines.push('  · ID 존재(Y):           ' + matched + '명 (' + mp + '%)');
+        lines.push('  · ID 미존재(N):         ' + unmatched + '명 (' + up + '%)');
+        lines.push('    └ 비회원/오타/타사이트 가입 추정');
+      } else {
+        lines.push('  ⏳ 메타베이스 매칭 대기');
+        lines.push('    └ 클로드 채팅에 "큐 비워줘" 한 마디로 매칭 가능');
+      }
+      lines.push('');
+      // 3. 신규/기존 가입 분포
+      lines.push('▣ 신규/기존 가입 분포');
+      if (hasMb && resume.signup) {
+        const s = resume.signup;
+        const denom = (s.new || 0) + (s.old || 0) + (s.none || 0) || 1;
+        lines.push('  · 신규(new, 기간내 가입): ' + (s.new || 0) + '명 (' + ((s.new || 0) / denom * 100).toFixed(1) + '%)');
+        lines.push('  · 기존(old):              ' + (s.old || 0) + '명 (' + ((s.old || 0) / denom * 100).toFixed(1) + '%)');
+        if (s.none) lines.push('  · 기타(none):             ' + s.none + '명');
+      } else {
+        lines.push('  ⏳ 메타베이스 매칭 후 표시');
+      }
+      lines.push('');
+      // 4. 이력서 액션
+      lines.push('▣ 이력서 액션');
+      if (hasMb && resume.resumeUpdated != null) {
+        const denom = resume.idMatched || uniqueCount || 1;
+        lines.push('  · 이력서 업데이트(Y):   ' + resume.resumeUpdated + '명 (' + (resume.resumeUpdated / denom * 100).toFixed(1) + '%)');
+        if (resume.resumeNew != null) lines.push('  · 이력서 신규 생성(Y):  ' + resume.resumeNew + '명 (' + (resume.resumeNew / denom * 100).toFixed(1) + '%)');
+        if (resume.resumeNewOrUpdate != null) lines.push('  · 신규+업데이트 통합:   ' + resume.resumeNewOrUpdate + '명 (' + (resume.resumeNewOrUpdate / denom * 100).toFixed(1) + '%)');
+      } else {
+        lines.push('  ⏳ 메타베이스 매칭 후 표시');
+      }
+      lines.push('');
+      // 5. 신규 vs 기존 행동 비교
+      lines.push('▣ 신규 vs 기존 회원 행동 비교');
+      if (hasMb && resume.signup && resume.behaviorByGroup) {
+        const b = resume.behaviorByGroup;
+        if (b['new']) {
+          const n = b['new'];
+          lines.push('  [신규 ' + (n.total || 0) + '명]');
+          if (n.resumeNew != null) lines.push('    · 이력서 신규 생성:   ' + n.resumeNew + '명 (' + (n.total ? (n.resumeNew / n.total * 100).toFixed(1) : '0.0') + '%)');
+          if (n.resumeUpdate != null) lines.push('    · 이력서 업데이트:    ' + n.resumeUpdate + '명 (' + (n.total ? (n.resumeUpdate / n.total * 100).toFixed(1) : '0.0') + '%)');
+        }
+        if (b['old']) {
+          const o = b['old'];
+          lines.push('  [기존 ' + (o.total || 0) + '명]');
+          if (o.resumeNew != null) lines.push('    · 이력서 신규 생성:   ' + o.resumeNew + '명 (' + (o.total ? (o.resumeNew / o.total * 100).toFixed(1) : '0.0') + '%)');
+          if (o.resumeUpdate != null) lines.push('    · 이력서 업데이트:    ' + o.resumeUpdate + '명 (' + (o.total ? (o.resumeUpdate / o.total * 100).toFixed(1) : '0.0') + '%)');
+        }
+      } else {
+        lines.push('  ⏳ 메타베이스 매칭 후 표시');
+      }
+      lines.push('');
+      // 6. 희망직무 분포 (메타베이스)
+      lines.push('▣ 희망직무 분포');
+      if (hasMb && resume.hopeJob) {
+        const denom = resume.idMatched || uniqueCount || 1;
+        Object.entries(resume.hopeJob).sort((a, b) => b[1] - a[1]).forEach(([k, v]) => {
+          lines.push('  · ' + k.padEnd(20, ' ') + ' ' + String(v).padStart(4, ' ') + '명 (' + (v / denom * 100).toFixed(1) + '%)');
+        });
+      } else {
+        lines.push('  ⏳ 메타베이스 매칭 후 표시');
+      }
+      lines.push('');
+      // 7. 최종근무 직무 분포 (메타베이스)
+      lines.push('▣ 최종근무 직무 분포');
+      if (hasMb && resume.lastJob) {
+        const denom = resume.idMatched || uniqueCount || 1;
+        Object.entries(resume.lastJob).sort((a, b) => b[1] - a[1]).forEach(([k, v]) => {
+          lines.push('  · ' + k.padEnd(20, ' ') + ' ' + String(v).padStart(4, ' ') + '명 (' + (v / denom * 100).toFixed(1) + '%)');
+        });
+      } else {
+        lines.push('  ⏳ 메타베이스 매칭 후 표시');
+      }
+      lines.push('');
+      // 8. 신청 시 선택 직무 TOP (시트 데이터)
+      if (jobCol >= 0 && Object.keys(jobDist).length > 0) {
+        lines.push('▣ 신청 시 선택 직무 TOP (유니크 기준)');
+        sortDesc(jobDist).slice(0, 15).forEach(([k, v]) => {
+          const label = (k.length > 28 ? k.slice(0, 28) + '…' : k).padEnd(28, ' ');
+          lines.push('  · ' + label + ' ' + String(v).padStart(4, ' ') + '명');
+        });
         lines.push('');
       }
-      if (jobCol >= 0) {
-        lines.push('▣ 직군 분포 (유니크 기준)');
-        lines.push(renderDist(jobDist));
-        lines.push('');
-      }
-      if (sourceCol >= 0) {
-        lines.push('▣ 유입경로 분포 (유니크 기준)');
-        lines.push(renderDist(sourceDist));
-        lines.push('');
-      }
-      if (studyCol >= 0) {
-        lines.push('▣ 스터디 참여 의향');
-        lines.push(renderDist(studyDist));
-        lines.push('');
-      }
+      // 인사이트 요약
       lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      lines.push('▣ 인사이트 요약 (자동)');
+      lines.push('▣ 인사이트 요약');
       lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      const insights = [];
+      let n = 1;
+      insights.push(n++ + '. 신청자 ' + total + '명 중 중복 제외 ' + uniqueCount + '명 (' + (total ? (uniqueCount / total * 100).toFixed(1) : '0.0') + '%)');
+      if (hasMb && resume.idMatched != null) {
+        insights.push(n++ + '. 잡코리아 회원 매칭 ' + resume.idMatched + '명 (' + (uniqueCount ? (resume.idMatched / uniqueCount * 100).toFixed(1) : '0.0') + '%)');
+      }
+      if (hasMb && resume.resumeUpdated != null && resume.idMatched) {
+        insights.push(n++ + '. 이력서 업데이트 ' + resume.resumeUpdated + '명 (회원 매칭자 중 ' + (resume.resumeUpdated / resume.idMatched * 100).toFixed(1) + '%)');
+      }
+      if (jobCol >= 0 && Object.keys(jobDist).length > 0) {
+        const top = sortDesc(jobDist)[0];
+        insights.push(n++ + '. 직무 1위: ' + top[0] + ' ' + top[1] + '명 (' + (uniqueCount ? (top[1] / uniqueCount * 100).toFixed(1) : '0.0') + '%)');
+      }
+      if (!hasMb) {
+        insights.push(n++ + '. ⏳ 메타베이스 매칭 후 풀퍼널 인사이트 추가 가능');
+      }
       insights.forEach(s => lines.push(s));
       lines.push('');
-      lines.push('💡 더 깊은 분석(메타베이스 매칭/이력서 활동/풀퍼널)은 클로드 채팅에 "' + title + ' 신청자 정밀 분석해줘" 한 마디로 요청 가능');
+      lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       return lines.join('\n');
     };
 
