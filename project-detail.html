@@ -2294,9 +2294,9 @@
                         ${distSection('🎨 소재 / 캠페인별', r.byCampaign)}
                         ${distSection('📺 매체별', r.bySource)}
                         ${r.note ? `<div style="margin-top:12px;padding:10px 12px;background:var(--c-surface-alt);border-radius:8px;font-size:12px;color:var(--c-text-2);line-height:1.5">${escapeHtml(r.note)}</div>` : ''}
-                        <div style="display:flex;gap:8px;margin-top:14px">
-                          <button onclick="openAdReportSubmitModal('${escapeHtml(p.id || '')}')" style="padding:8px 14px;background:var(--c-primary-bg);color:var(--c-primary);border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🔄 리포트 다시 제출</button>
-                          <button onclick="if(confirm('광고 리포트 지울까요?')){localStorage.removeItem('${adKey}');location.reload();}" style="padding:8px 14px;background:transparent;color:var(--c-text-3);border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🗑 지우기</button>
+                        <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+                          <button onclick="openAdReportSubmitModal('${escapeHtml(p.id || '')}')" style="flex:1;min-width:200px;padding:12px 18px;background:var(--c-primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">📥 광고 리포트 입력 (링크 / 텍스트)</button>
+                          <button onclick="if(confirm('광고 리포트 지울까요?')){localStorage.removeItem('${adKey}');location.reload();}" style="padding:12px 14px;background:transparent;color:var(--c-text-3);border:1px solid var(--c-border);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🗑 지우기</button>
                         </div>
                         <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--c-border)">
                           <div style="font-size:13px;font-weight:800;color:var(--c-text);margin-bottom:8px">🌐 GA 유입 출처 (UTM)</div>
@@ -5463,6 +5463,29 @@ CPA: 2,977원
       setTimeout(renderStickers, 200);
     })();
   </script>
+  <!-- 데브콘 메타베이스 매칭 결과 자동 박기 (1회) — 2026-05-08, 클로드 직접 SQL 실행 -->
+  <script>
+    (function () {
+      const FLAG = 'b2c_devcon_resume_stats_v20260508a';
+      if (localStorage.getItem(FLAG)) return;
+      const PROJECT_ID = 'user-1778135191344';
+      const stats = {
+        idMatched: 268,
+        resumeUpdated: 141,
+        signup: { new: 15, old: 252, none: 1 },
+        behaviorByGroup: {
+          new: { total: 15, resumeNew: null, resumeUpdate: 12 },
+          old: { total: 252, resumeNew: null, resumeUpdate: 129 }
+        },
+        matchedAt: '2026-05-08T07:30:00+09:00',
+        period: '2026.03.26 — 2026.04.21',
+        note: '클로드 직접 메타베이스 SQL 실행 결과 (299명 유니크 중 268명 매칭). 데이터팀 DATANALYST-3035 결과와 100% 일치 검증.'
+      };
+      localStorage.setItem('b2c_resume_stats_' + PROJECT_ID, JSON.stringify(stats));
+      localStorage.setItem(FLAG, '1');
+    })();
+  </script>
+
   <!-- 워크페스트 메타베이스 매칭 결과 자동 박기 (1회) — 2026-05-08 기준 -->
   <script>
     (function () {
