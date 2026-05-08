@@ -2310,7 +2310,10 @@
       const container = document.getElementById(containerId);
       if (!container) return;
       let rows = null, source = 'cache', cacheFetchedAt = null, usedFallback = false;
-      const resumeCache = window.RESUME_CACHES?.[projectId] || null;
+      let resumeCache = window.RESUME_CACHES?.[projectId] || null;
+      if (!resumeCache) {
+        try { resumeCache = JSON.parse(localStorage.getItem('b2c_resume_stats_' + projectId) || 'null'); } catch(e) {}
+      }
 
       // 1차: 인메모리 캐시
       if (window.SHEET_CACHES && window.SHEET_CACHES[sheetId]) {
