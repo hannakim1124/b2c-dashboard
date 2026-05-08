@@ -1372,6 +1372,16 @@
           }
         }
       }
+      // RESUME_CACHES 비어있으면 localStorage b2c_resume_stats_*에서 자동 복원
+      if (!(window.RESUME_CACHES && window.RESUME_CACHES[p.id])) {
+        try {
+          const _rs = JSON.parse(localStorage.getItem('b2c_resume_stats_' + p.id) || 'null');
+          if (_rs) {
+            window.RESUME_CACHES = window.RESUME_CACHES || {};
+            window.RESUME_CACHES[p.id] = _rs;
+          }
+        } catch(e) {}
+      }
       const liveResume = (window.RESUME_CACHES && window.RESUME_CACHES[p.id])?.resumeUpdated ?? null;
 
       function parseTargetNumber(value) {
