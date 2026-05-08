@@ -1467,8 +1467,8 @@
         const signupInfo = isResumeKpi ? (window.RESUME_CACHES && window.RESUME_CACHES[p.id]?.signup) : null;
         const signupHtml = signupInfo ? `
           <div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--c-border);font-size:11px;line-height:1.8;color:var(--c-text-2)">
-            <div>✨ 이벤트 신규 유입: <strong style="color:var(--c-text)">${(signupInfo.newSignup || 0).toLocaleString()}명</strong> <span style="color:var(--c-text-3)">(${signupInfo.newPct}%)</span></div>
-            <div>👤 기존 회원 활성화: <strong style="color:var(--c-text)">${(signupInfo.existing || 0).toLocaleString()}명</strong> <span style="color:var(--c-text-3)">(${signupInfo.existingPct}%)</span></div>
+            <div>✨ 신규 가입: <strong style="color:var(--c-text)">${(signupInfo.newSignup || 0).toLocaleString()}명</strong> <span style="color:var(--c-text-3)">(${signupInfo.newPct}%)</span></div>
+            <div>👤 기존 회원: <strong style="color:var(--c-text)">${(signupInfo.existing || 0).toLocaleString()}명</strong> <span style="color:var(--c-text-3)">(${signupInfo.existingPct}%)</span></div>
             <div style="font-size:10px;color:var(--c-text-3);margin-top:4px">매칭 ${signupInfo.matched}명 / 분석 ${signupInfo.analyzedAt}</div>
           </div>` : '';
 
