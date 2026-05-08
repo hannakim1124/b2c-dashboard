@@ -1448,11 +1448,20 @@
           } else {
             progressHtml = `
               <div class="kpi-progress">
-                <div style="padding:10px 12px;background:var(--c-warning-bg);color:#8B5A00;border-radius:8px;font-size:11px;font-weight:600;line-height:1.5">
+                <div style="padding:10px 12px;background:var(--c-warning-bg);color:#8B5A00;border-radius:8px;font-size:11px;font-weight:600;line-height:1.5;margin-bottom:8px">
                   ⓘ 시트 데이터 연결 후 회원ID로 자동 매칭됩니다
                 </div>
+                <button class="kpi-fetch-btn" onclick="openSheetUrlModal('','','${escapeHtml(p.id || '')}')">🔗 신청자 시트 URL 연결</button>
+                <div class="kpi-fetch-hint">URL 넣으면 자동 fetch + 매칭 시작</div>
               </div>`;
           }
+        } else if (target != null) {
+          // 신청자/기타 KPI — 시트 연결 안 됐으면 시트 연결 버튼만
+          progressHtml = `
+            <div class="kpi-progress">
+              <button class="kpi-fetch-btn" onclick="openSheetUrlModal('','','${escapeHtml(p.id || '')}')">🔗 신청자 시트 URL 연결</button>
+              <div class="kpi-fetch-hint">URL 넣으면 자동 fetch + 진행률 자동 매칭</div>
+            </div>`;
         }
         // 신규/기존 가입자 분류 (이력서 KPI일 때만, signup 데이터 있을 때만)
         const signupInfo = isResumeKpi ? (window.RESUME_CACHES && window.RESUME_CACHES[p.id]?.signup) : null;
@@ -5018,19 +5027,18 @@ CPA: 2,977원
       setTimeout(renderStickers, 200);
     })();
   </script>
-  <!-- TEMP PATCH BUTTON (커컨 카드 자동 정리, 1회 클릭 후 제거 예정) -->
+  <!-- TEMP PATCH (커컨 카드 자동 정리, 1회 적용 후 다시 안 뜸) -->
   <script>
     (function () {
       const ID = 'user-1778136263589';
+      const FLAG = 'b2c_career_conf_patched_v1';
       const params = new URLSearchParams(location.search);
       if (params.get('id') !== ID) return;
-      const btn = document.createElement('button');
-      btn.textContent = '🛠 PATCH 커컨';
-      btn.style.cssText = 'position:fixed;top:12px;right:120px;z-index:100000;padding:10px 14px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.3);';
-      btn.onclick = function () {
+      if (localStorage.getItem(FLAG)) return;
+      function applyPatch() {
         const projects = JSON.parse(localStorage.getItem('b2c_user_projects') || '[]');
         const idx = projects.findIndex(p => p.id === ID);
-        if (idx < 0) { alert('카드 못 찾음'); return; }
+        if (idx < 0) return false;
         const p = projects[idx];
         p.desc = '웨비나 · 한나님이 진행한 프로젝트. 신청 1,566명 / 이력서 업데이트 110명.';
         p.story = '3월 26일 진행된 자체 웨비나. 줌 실참석 562명, 만족도 4.33/5. 광고비 490만원 집행으로 신청 단가 3,133원 / 이력서 단가 44,597원 기록.';
@@ -5052,41 +5060,21 @@ CPA: 2,977원
         ad.totalExecuted = 9695588;
         ad.note = '광고 4,905,722원 + 총 집행 9,695,588원(VAT별도). 줌 실참석 562명/만족도 4.33.';
         localStorage.setItem('b2c_ad_report_' + ID, JSON.stringify(ad));
-        alert('✅ 커리어 컨퍼런스 카드 정리 완료! 새로고침합니다.');
-        location.reload();
-      };
-      document.body.appendChild(btn);
-    })();
-  </script>
-  <!-- TEMP DUMP BUTTON (이후 제거 예정) -->
-  <script>
-    (function () {
-      const btn = document.createElement('button');
-      btn.textContent = '📋 DUMP';
-      btn.style.cssText = 'position:fixed;top:12px;right:12px;z-index:100000;padding:10px 14px;background:#1f2937;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.3);';
-      btn.onclick = function () {
-        const data = {};
-        Object.keys(localStorage).forEach(k => {
-          try { data[k] = JSON.parse(localStorage.getItem(k)); }
-          catch (e) { data[k] = localStorage.getItem(k); }
-        });
-        const json = JSON.stringify(data, null, 2);
-        const ov = document.createElement('div');
-        ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:99999;display:flex;flex-direction:column;padding:20px;';
-        ov.innerHTML =
-          '<div style="color:#fff;margin-bottom:10px;font-family:sans-serif;font-size:14px;font-weight:600;">' +
-          '✅ 키 ' + Object.keys(data).length + '개 / ' + json.length + ' chars · 텍스트박스에서 Ctrl+A → Ctrl+C → 클로드 채팅창에 붙여넣기 · 닫기 ESC' +
-          '</div>' +
-          '<textarea id="__b2c_dump_ta" style="flex:1;font-family:Consolas,monospace;font-size:12px;padding:10px;border-radius:6px;"></textarea>';
-        document.body.appendChild(ov);
-        const ta = document.getElementById('__b2c_dump_ta');
-        ta.value = json;
-        ta.focus();
-        ta.select();
-        function close(e) { if (e.key === 'Escape') { ov.remove(); document.removeEventListener('keydown', close); } }
-        document.addEventListener('keydown', close);
-      };
-      document.body.appendChild(btn);
+        localStorage.setItem(FLAG, '1');
+        return true;
+      }
+      window.addEventListener('load', function () {
+        setTimeout(function () {
+          if (confirm('🛠 커리어 컨퍼런스 카드 자동 정리 적용?\n\n• desc 사실 기반 수정\n• story 채우기 (줌 562명/만족도 4.33/광고 단가)\n• 광고 리포트 pending 해제 + 실수치\n\n[취소] 누르면 다음 방문 때 다시 물어요.')) {
+            if (applyPatch()) {
+              alert('✅ 정리 완료! 새로고침합니다.');
+              location.reload();
+            } else {
+              alert('⚠️ 카드 데이터를 못 찾았어요.');
+            }
+          }
+        }, 800);
+      });
     })();
   </script>
 </body>
