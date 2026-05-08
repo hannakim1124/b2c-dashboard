@@ -855,53 +855,49 @@
     .kpi-card:hover { transform: translateY(-2px); box-shadow: var(--sh-2); border-color: transparent; }
     .kpi-card { position: relative; }
     .kpi-card .lbl { font-size: 12px; color: var(--c-text-3); font-weight: 600; margin-bottom: 8px; letter-spacing: 0.02em; display: flex; align-items: center; gap: 8px; }
-    /* KPI 신호등 — 가로 점 3개 게이지 (빨/노/초/파 4단계) */
+    /* KPI 신호등 — 점 3개 (빨/초/파 위치 고정), 현재 단계 1개만 색 켜짐 */
     .kpi-light {
       display: inline-flex;
       align-items: center;
-      gap: 3px;
+      gap: 4px;
+      padding: 3px 5px;
+      background: rgba(0,0,0,0.04);
+      border-radius: 999px;
       flex-shrink: 0;
     }
     .kpi-light .dot {
-      width: 7px; height: 7px;
+      width: 8px; height: 8px;
       border-radius: 50%;
-      background: var(--c-border);
+      background: rgba(0,0,0,0.12);
       transition: all .25s ease;
     }
-    /* 빨 (<50%): 1번째 점만 */
+    /* 1번째 점: 빨강 (<50%일 때만 켜짐) */
     .kpi-light.red .dot:nth-child(1) {
       background: #F04452;
-      box-shadow: 0 0 6px rgba(240,68,82,0.55);
+      box-shadow: 0 0 8px rgba(240,68,82,0.65);
       animation: kpi-pulse 0.9s infinite;
     }
-    /* 노 (50-80%): 1·2번째 점 */
-    .kpi-light.yellow .dot:nth-child(-n+2) {
-      background: #FFB700;
-      box-shadow: 0 0 6px rgba(255,183,0,0.5);
-      animation: kpi-pulse 1.4s infinite;
-    }
-    /* 초 (80-100%): 3개 모두 */
-    .kpi-light.green .dot {
+    /* 2번째 점: 초록 (50-100%일 때만 켜짐) */
+    .kpi-light.green .dot:nth-child(2) {
       background: #00C896;
-      box-shadow: 0 0 6px rgba(0,200,150,0.5);
+      box-shadow: 0 0 8px rgba(0,200,150,0.65);
     }
-    /* 파 (>100%): 3개 모두 + 강한 글로우 + 펄스 */
-    .kpi-light.blue .dot {
+    /* 3번째 점: 파랑 (>100%일 때만 켜짐) */
+    .kpi-light.blue .dot:nth-child(3) {
       background: #3182F6;
       box-shadow: 0 0 8px rgba(49,130,246,0.65), 0 0 14px rgba(49,130,246,0.35);
       animation: kpi-pulse 1.6s infinite;
     }
     @keyframes kpi-pulse {
       0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.65; transform: scale(0.88); }
+      50% { opacity: 0.7; transform: scale(0.85); }
     }
     .kpi-light-tip {
       font-size: 11px; font-weight: 700;
       margin-left: auto;
     }
-    .kpi-light-tip.green { color: var(--c-success); }
-    .kpi-light-tip.yellow { color: var(--c-warning); }
     .kpi-light-tip.red { color: var(--c-danger); }
+    .kpi-light-tip.green { color: var(--c-success); }
     .kpi-light-tip.blue { color: #3182F6; }
     .kpi-card .val { font-size: 32px; font-weight: 900; letter-spacing: -0.025em; color: var(--c-text); font-feature-settings: var(--tx-mono); line-height: 1.1; }
     .kpi-card .val.success { color: var(--c-success); }
@@ -1355,10 +1351,8 @@
         const pctLabel = (actual * 100).toFixed(0) + '%';
         // >100%: 파랑 (초과 달성)
         if (actual > 1) return { color: 'blue', label: `초과 ${pctLabel}` };
-        // 80-100%: 초록 (달성)
-        if (actual >= 0.8) return { color: 'green', label: `달성 ${pctLabel}` };
-        // 50-80%: 노랑 (주의)
-        if (actual >= 0.5) return { color: 'yellow', label: `주의 ${pctLabel}` };
+        // 50-100%: 초록 (달성권)
+        if (actual >= 0.5) return { color: 'green', label: `달성 ${pctLabel}` };
         // <50%: 빨강 (미달)
         return { color: 'red', label: `미달 ${pctLabel}` };
       }
