@@ -1470,6 +1470,7 @@
     function applyFilter() {
       const cards = grid.querySelectorAll('.card');
       let visible = 0;
+      const memberCounts = {};
       cards.forEach(c => {
         const m = c.getAttribute('data-member');
         const cat = c.getAttribute('data-category');
@@ -1478,10 +1479,23 @@
                    (activeCategory === 'all' || cat === activeCategory) &&
                    (activeYear === 'all' || yr === activeYear);
         c.style.display = ok ? '' : 'none';
-        if (ok) visible++;
+        if (ok) {
+          visible++;
+          memberCounts[m] = (memberCounts[m] || 0) + 1;
+        }
       });
       cardCount.textContent = visible + '건';
       emptyEl.style.display = visible === 0 ? '' : 'none';
+      // hero 타이틀 + 진행 프로젝트 visible 카드 수로 갱신
+      if (totalCount) totalCount.textContent = visible + '가지';
+      if (heroProjects) heroProjects.textContent = visible + '건';
+      // 멤버 카드 프로젝트 수 갱신
+      document.querySelectorAll('.mem-card[data-member-go]').forEach(card => {
+        const mid = card.dataset.memberGo;
+        const cnt = memberCounts[mid] || 0;
+        const numEl = card.querySelector('.mem-card-stat .num');
+        if (numEl) numEl.textContent = cnt;
+      });
     }
 
     // 최상단 yearToggle에서 호출 가능하도록 외부 노출
