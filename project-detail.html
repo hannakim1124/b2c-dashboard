@@ -1222,7 +1222,17 @@
 
   <script src="sync-client.js"></script>
   <script src="projects-data.js"></script>
-  <script src="data/cache.js"></script>
+  <script>
+    // data/cache.js는 PII 포함이라 .gitignore (vercel에 미배포). 404 무시 + 빈 캐시 초기화.
+    window.SHEET_CACHES = window.SHEET_CACHES || {};
+    window.RESUME_CACHES = window.RESUME_CACHES || {};
+    (function() {
+      const s = document.createElement('script');
+      s.src = 'data/cache.js';
+      s.onerror = function() { /* file:// 환경 외엔 정상 (404 무시) */ };
+      document.head.appendChild(s);
+    })();
+  </script>
   <script>
     // 마이그레이션: 커리어 컨퍼런스 날짜 강제 수정 (매번 실행 — 5/7 흔적 모두 제거)
     (function migrateCareerConfDate() {
