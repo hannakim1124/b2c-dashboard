@@ -1458,9 +1458,14 @@
                 const isApplicantKpi = /신청|응모|register|참여|참가/i.test(k.label || '');
                 const showResumeBtn = isResumeKpi && liveSheetUnique != null;
                 const showDataUrlBtn = !isApplicantKpi;
-                if (!showResumeBtn && !showDataUrlBtn) return '';
+                // 신청자 KPI에는 분석 보고서 버튼
+                const showApplicantReportBtn = isApplicantKpi;
+                let _hasApplicantReport = false;
+                try { _hasApplicantReport = !!localStorage.getItem('b2c_applicant_report_' + p.id); } catch(e) {}
+                if (!showResumeBtn && !showDataUrlBtn && !showApplicantReportBtn) return '';
                 return `
                   <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+                    ${showApplicantReportBtn ? `<button class="kpi-fetch-btn" style="flex:1;min-width:180px;background:#E8F4FD;color:#1976D2;border-color:#1976D2" onclick="openApplicantReport('${escapeHtml(p.id || '')}')">📊 상세 분석 보고서${_hasApplicantReport ? ' ✓' : ''}</button>` : ''}
                     ${showResumeBtn ? `<button class="kpi-fetch-btn" style="flex:1;min-width:180px" onclick="requestResumeUpdate('${escapeHtml(p.id || '')}')">🔍 메타베이스 다시 매칭</button>` : ''}
                     ${showDataUrlBtn ? `<button class="kpi-fetch-btn" style="flex:1;min-width:140px;background:var(--c-warning-bg);color:#B57F00;border-color:#B57F00" onclick="attachKpiDataUrl('${escapeHtml(p.id || '')}', ${kpiIdx}, '${escapeHtml((k.label || '').replace(/'/g,"\\'"))}')">📊 데이터팀 자료${dataUrl ? ' ✓' : ' URL'}</button>` : ''}
                   </div>
@@ -3882,6 +3887,62 @@ CPA: 2,977원
       setTimeout(() => location.reload(), 600);
     };
 
+    // 신청자 상세 분석 보고서 모달
+    window.openApplicantReport = function(projectId) {
+      const key = 'b2c_applicant_report_' + projectId;
+      let report = '';
+      try { report = localStorage.getItem(key) || ''; } catch(e) {}
+      let bg = document.getElementById('applicantReportBg');
+      if (bg) bg.remove();
+      bg = document.createElement('div');
+      bg.id = 'applicantReportBg';
+      bg.className = 'reason-modal-bg is-open';
+      const projectMap = {};
+      try {
+        (JSON.parse(localStorage.getItem('b2c_user_projects') || '[]') || []).forEach(p => { if (p && p.id) projectMap[p.id] = p.title || p.id; });
+      } catch(e) {}
+      const title = projectMap[projectId] || projectId;
+      const bodyHtml = report
+        ? '<pre id="applicantReportText" style="margin:0;padding:18px;background:#0f172a;color:#e2e8f0;border-radius:10px;font-family:Consolas,Menlo,monospace;font-size:12px;line-height:1.7;white-space:pre-wrap;word-break:break-word;max-height:60vh;overflow-y:auto">' + escapeHtml(report) + '</pre>'
+        : '<div style="padding:24px;text-align:center;background:#fef3c7;border:1px dashed #d97706;border-radius:10px;color:#92400e;font-size:13px;line-height:1.8;font-weight:600">📋 아직 분석 보고서가 없어요.<br><br>클로드에게 <code style="background:#fff;padding:2px 6px;border-radius:4px">' + escapeHtml(title) + ' 신청자 분석해줘</code> 한 마디 보내거나,<br>아래 [📝 직접 입력] 버튼으로 텍스트 붙여넣을 수 있어요.</div>';
+      bg.innerHTML = '<div class="reason-modal" onclick="event.stopPropagation()" style="max-width:820px;max-height:92vh;overflow-y:auto">'
+        + '<div class="reason-modal-head"><div class="reason-modal-title">📊 ' + escapeHtml(title) + ' — 신청자 상세 분석</div><div class="reason-modal-sub">시트 + 메타베이스 매칭 기반 분석 보고서</div></div>'
+        + '<div class="reason-modal-body">' + bodyHtml + '</div>'
+        + '<div class="reason-modal-foot" style="display:flex;gap:8px;flex-wrap:wrap">'
+          + '<button class="btn-cancel" onclick="document.getElementById(\'applicantReportBg\').remove()">닫기</button>'
+          + (report ? '<button class="btn-cancel" onclick="(function(){const t=document.getElementById(\'applicantReportText\').textContent;navigator.clipboard.writeText(t).then(function(){showToast(\'<span class=ok>✓</span>복사됨\')}).catch(function(){const ta=document.createElement(\'textarea\');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand(\'copy\');ta.remove();showToast(\'<span class=ok>✓</span>복사됨\')})})()">📋 텍스트 복사</button>' : '')
+          + (report ? '<button class="btn-cancel" onclick="(function(){const t=document.getElementById(\'applicantReportText\').textContent;const blob=new Blob([t],{type:\'text/plain;charset=utf-8\'});const url=URL.createObjectURL(blob);const a=document.createElement(\'a\');a.href=url;a.download=\'' + escapeHtml(title) + '_신청자분석.txt\';a.click();setTimeout(function(){URL.revokeObjectURL(url)},200)})()">💾 .txt 다운로드</button>' : '')
+          + '<button class="dl-btn-confirm" onclick="editApplicantReport(\'' + escapeHtml(projectId) + '\')">📝 ' + (report ? '수정' : '직접 입력') + '</button>'
+        + '</div>'
+      + '</div>';
+      document.body.appendChild(bg);
+      bg.addEventListener('click', () => bg.remove());
+    };
+
+    // 신청자 보고서 직접 입력/수정
+    window.editApplicantReport = function(projectId) {
+      const key = 'b2c_applicant_report_' + projectId;
+      let current = '';
+      try { current = localStorage.getItem(key) || ''; } catch(e) {}
+      let bg = document.getElementById('applicantReportEditBg');
+      if (bg) bg.remove();
+      bg = document.createElement('div');
+      bg.id = 'applicantReportEditBg';
+      bg.className = 'reason-modal-bg is-open';
+      bg.style.zIndex = '99999';
+      bg.innerHTML = '<div class="reason-modal" onclick="event.stopPropagation()" style="max-width:820px;max-height:92vh;overflow-y:auto">'
+        + '<div class="reason-modal-head"><div class="reason-modal-title">📝 신청자 분석 보고서 입력</div><div class="reason-modal-sub">텍스트 그대로 붙여넣어 주세요</div></div>'
+        + '<div class="reason-modal-body"><textarea id="applicantReportEditTa" rows="20" style="width:100%;padding:12px;border:1px solid var(--c-border);border-radius:8px;font-family:Consolas,monospace;font-size:12px;line-height:1.6;resize:vertical">' + escapeHtml(current) + '</textarea></div>'
+        + '<div class="reason-modal-foot">'
+          + '<button class="btn-cancel" onclick="document.getElementById(\'applicantReportEditBg\').remove()">취소</button>'
+          + (current ? '<button class="btn-cancel" style="color:#dc2626" onclick="if(confirm(\'보고서 삭제?\')){localStorage.removeItem(\'b2c_applicant_report_' + escapeHtml(projectId) + '\');document.getElementById(\'applicantReportEditBg\').remove();showToast(\'<span class=ok>✓</span>삭제됨\');setTimeout(function(){openApplicantReport(\'' + escapeHtml(projectId) + '\')},200)}">🗑 삭제</button>' : '')
+          + '<button class="dl-btn-confirm" onclick="(function(){const t=document.getElementById(\'applicantReportEditTa\').value;localStorage.setItem(\'b2c_applicant_report_' + escapeHtml(projectId) + '\',t);showToast(\'<span class=ok>✓</span>저장됨\');document.getElementById(\'applicantReportEditBg\').remove();setTimeout(function(){openApplicantReport(\'' + escapeHtml(projectId) + '\')},200)})()">💾 저장</button>'
+        + '</div>'
+      + '</div>';
+      document.body.appendChild(bg);
+      bg.addEventListener('click', () => bg.remove());
+    };
+
     // 만족도 폼 링크 입력 (별도 폼 응답 URL)
     window.editSatisfactionUrl = function(projectId) {
       const key = 'b2c_webinar_metrics_' + projectId;
@@ -5183,6 +5244,97 @@ CPA: 2,977원
       setTimeout(renderStickers, 200);
     })();
   </script>
+  <!-- 데브콘 신청자 분석 보고서 자동 박기 (1회) -->
+  <script>
+    (function () {
+      const FLAG = 'b2c_devcon_applicant_report_v1';
+      if (localStorage.getItem(FLAG)) return;
+      const DEVCON_ID = 'user-1778135191344';
+      const REPORT = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  데브콘 2026 신청자 분석 (DATANALYST-3035)
+  기준기간: 26/3/26(목) ~ 4/21(화)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+▣ 전체 규모
+  · 신청 건수(raw):       303건
+  · 중복 제외(unique):    297명
+  · 중복 신청:            6건
+
+▣ 회원 ID 매칭 (유니크 기준)
+  · ID 존재(Y):           268명 (90.2%)
+  · ID 미존재(N):         29명 (9.8%)
+    └ 비회원/오타/타사이트 가입 추정
+
+▣ 신규/기존 가입 분포 (ID 존재자 268명 기준)
+  · 신규(new, 기간내 가입): 15명 (5.6%)
+  · 기존(old):              252명 (94.0%)
+  · 기타(none):             1명
+
+▣ 이력서 액션 (ID 존재자 268명 기준)
+  · 이력서 신규 생성(Y):  62명 (23.1%)
+  · 이력서 업데이트(Y):   141명 (52.6%)
+  · 신규+업데이트 통합:   146명 (54.5%)
+    └ 둘 다 한 사람:      57명
+
+▣ 신규 vs 기존 회원 행동 비교
+  [신규 15명]
+    · 이력서 신규 생성:   14명 (93.3%)
+    · 이력서 업데이트:    12명 (80.0%)
+  [기존 252명]
+    · 이력서 신규 생성:   48명 (19.0%)
+    · 이력서 업데이트:    129명 (51.2%)
+
+▣ 희망직무 분포 (ID 존재자 기준)
+  · AI·개발·데이터 포함:  235명 (87.7%)
+  · 그 외 직군:           19명 (7.1%)
+  · 미설정/NULL:          14명 (5.2%)
+
+▣ 최종근무 직무 분포 (ID 존재자 기준)
+  · AI·개발·데이터:       141명 (52.6%)
+  · 비개발 경력:          27명 (10.1%)
+  · 경력 없음/NULL:       100명 (37.3%)
+
+▣ 신청 시 선택 직무 TOP (유니크 기준)
+  · 백엔드 개발                         92명
+  · 프론트엔드 개발                       53명
+  · 웹 개발                           50명
+  · 앱 개발                           25명
+  · AI 서비스 개발                      12명
+  · AI / ML 엔지니어                   11명
+  · 소프트웨어 개발                       9명
+  · 게임 개발                          6명
+  · 웹 퍼블리셔                         5명
+  · IT 컨설팅                         4명
+  · AI / ML 연구원                    3명
+  · QA                             3명
+  · 시스템 엔지니어                       2명
+  · 데이터 분석가                        2명
+  · 서비스기획                          1명
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+▣ 인사이트 요약
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. 신청자 303명 중 잡코리아 회원 매칭은 268명 (90.2%)
+   → 29명은 비회원/타사이트 가입자로 추정 (이메일 형태 입력 다수)
+
+2. 신규 가입 15명은 데브콘 노출 → 가입 전환된 케이스
+   → 신규 가입자 15명 중 14명(93.3%)이 이력서까지 작성
+   → "행사 신청 → 가입 → 이력서 작성" 풀퍼널 전환 강력 시그널
+
+3. 기존회원 252명 중 이력서 업데이트한 사람 129명 (51.2%)
+   → 데브콘이 잠자던 이력서를 깨우는 트리거 역할
+
+4. 희망직무 AI·개발·데이터 235명 (87.7%) → 타깃 핏 매우 정확
+   → 비개발 직군 신청자도 19명 존재 (커리어 전환 의도 가능성)
+
+5. 최종근무가 비개발(27명) → 개발자 희망인 신청자 = 직군 전환 인텐트
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+      localStorage.setItem('b2c_applicant_report_' + DEVCON_ID, REPORT);
+      localStorage.setItem(FLAG, '1');
+    })();
+  </script>
+
   <!-- TEMP PATCH (커컨 카드 자동 정리, 1회 적용 후 다시 안 뜸) -->
   <script>
     (function () {
