@@ -940,16 +940,6 @@
           <div class="hero-stat-num">—</div>
           <div class="hero-stat-sub">프로젝트 등록 후 자동 집계</div>
         </div>
-        <div class="hero-stat">
-          <div class="hero-stat-label">📸 인스타 팔로우</div>
-          <div class="hero-stat-num" id="heroInsta">—</div>
-          <div class="hero-stat-sub" id="heroInstaSub">@worxtory</div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-label">💬 오카방 참여자</div>
-          <div class="hero-stat-num" id="heroOka">—</div>
-          <div class="hero-stat-sub" id="heroOkaSub">잡코리아 오카방</div>
-        </div>
       </div>
     </div>
   </section>
@@ -1318,37 +1308,7 @@
     const totalCount = document.getElementById('totalCount');
     const heroProjects = document.getElementById('heroProjects');
 
-    // 인스타 / 오카방 hero 통계 자동 로드
-    (async function loadHeroStats() {
-      // 인스타
-      try {
-        let insta = window.INSTA_DATA;
-        if (!insta) {
-          const r = await fetch('data/insta.json?t=' + Date.now());
-          if (r.ok) insta = await r.json();
-        }
-        if (insta?.followers != null) {
-          const el = document.getElementById('heroInsta');
-          const sub = document.getElementById('heroInstaSub');
-          if (el) el.textContent = insta.followers.toLocaleString() + '명';
-          if (sub) sub.textContent = `@worxtory · 게시 ${insta.posts || 0}개${insta.date ? ' · ' + insta.date : ''}`;
-        }
-      } catch(e) {}
-      // 오카방
-      try {
-        let oka = window.OKA_DATA;
-        if (!oka) {
-          const r = await fetch('data/oka.json?t=' + Date.now());
-          if (r.ok) oka = await r.json();
-        }
-        if (oka?.total != null) {
-          const el = document.getElementById('heroOka');
-          const sub = document.getElementById('heroOkaSub');
-          if (el) el.textContent = oka.total.toLocaleString() + '명';
-          if (sub) sub.textContent = `개발 ${oka.dev||0} / PM·PO ${oka.pmpo||0} / 디자인 ${oka.design||0} / 마케팅 ${oka.marketing||0}`;
-        }
-      } catch(e) {}
-    })();
+    // 인스타/오카방 hero 통계 제거됨 (옛날 데이터)
 
     // Order of demo projects (initialized — empty)
     const DEMO_ORDER = [];
