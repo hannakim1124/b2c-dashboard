@@ -2280,19 +2280,18 @@
     window.reportDashboardError = reportDashboardError;
 
     // 시트 CSV → 자동 분석 대시보드 렌더
-    window.loadSheetData = function(sheetId, originalUrl, containerId, projectId) {
-      // 동기 버전 — 인메모리 캐시만 사용해서 즉시 렌더 (느린 fetch 제거)
+    window.loadSheetData = async function(sheetId, originalUrl, containerId, projectId) {
       const container = document.getElementById(containerId);
       if (!container) return;
       let rows = null, source = 'cache', cacheFetchedAt = null, usedFallback = false;
       const resumeCache = window.RESUME_CACHES?.[projectId] || null;
 
-      // 카드별 정확한 sheetId 매칭만 사용 (다른 이벤트 데이터 절대 borrow 금지)
+      // 1차: 인메모리 캐시
       if (window.SHEET_CACHES && window.SHEET_CACHES[sheetId]) {
         const c = window.SHEET_CACHES[sheetId];
         if (c.rows && c.rows.length) { rows = c.rows; cacheFetchedAt = c.fetchedAt; }
       }
-      // 사용자 복붙으로 박은 데이터 (localStorage)
+      // 2차: localStorage 복붙 캐시
       if (!rows) {
         try {
           const pasted = JSON.parse(localStorage.getItem('b2c_sheet_data_' + sheetId) || 'null');
@@ -2300,6 +2299,31 @@
             rows = pasted.rows;
             cacheFetchedAt = pasted.fetchedAt;
             source = 'pasted';
+          }
+        } catch(e) {}
+      }
+      // 3차: https 환경이면 자동 fetch (시트 공개 권한일 때만 성공)
+      if (!rows && location.protocol !== 'file:') {
+        container.innerHTML = '<div class="sheet-loading">📊 시트 자동 fetch 중...</div>';
+        try {
+          const gidMatch = originalUrl.match(/[#&?]gid=(\d+)/);
+          const gid = gidMatch ? gidMatch[1] : '0';
+          const ctrl = new AbortController();
+          const timer = setTimeout(() => ctrl.abort(), 8000);
+          const res = await fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`, { signal: ctrl.signal });
+          clearTimeout(timer);
+          if (res.ok) {
+            const text = await res.text();
+            const fetched = parseCSV(text);
+            if (fetched.length > 1) {
+              rows = fetched;
+              source = 'live';
+              cacheFetchedAt = new Date().toISOString();
+              // 인메모리 + localStorage 캐시 갱신 (다음번엔 즉시)
+              window.SHEET_CACHES = window.SHEET_CACHES || {};
+              window.SHEET_CACHES[sheetId] = { sheetId, sheetUrl: originalUrl, fetchedAt: cacheFetchedAt, rows };
+              try { localStorage.setItem('b2c_sheet_data_' + sheetId, JSON.stringify(window.SHEET_CACHES[sheetId])); } catch(e) {}
+            }
           }
         } catch(e) {}
       }
