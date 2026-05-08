@@ -1220,6 +1220,22 @@
     <div class="sticker-palette-hint">드래그로 이동 · 더블클릭으로 삭제</div>
   </div>
 
+  <script>
+    // 옛 share-modal.js / service worker 캐시 강제 정리 (2026-05-08, 한나님 share-modal 에러 사고)
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(regs) {
+        regs.forEach(function(r) { r.unregister(); });
+      }).catch(function(){});
+    }
+    // share-modal 같은 외부 잘못된 스크립트 에러 무시 (페이지 렌더 멈춤 방지)
+    window.addEventListener('error', function(e) {
+      if (e && e.filename && /share-modal/i.test(e.filename)) {
+        e.preventDefault();
+        e.stopPropagation();
+        return true;
+      }
+    }, true);
+  </script>
   <script src="sync-client.js"></script>
   <script src="projects-data.js"></script>
   <script>
