@@ -888,6 +888,16 @@
   </style>
 </head>
 <body>
+  <!-- 업데이트 띠 배너 -->
+  <div id="updateBanner" style="position:relative;background:#191F28;color:#fff;padding:12px 20px;text-align:center;font-size:13px;font-weight:600;letter-spacing:-0.01em;display:none;z-index:99">
+    <span>✨ <strong>ver2로 업데이트되었어요</strong> · 2026.05.08 — 카드 시스템 전면 개편 / KPI 신호등 / 예산·광고 효율 / 웨비나 메트릭 추가</span>
+    <button onclick="document.getElementById('updateBanner').style.display='none';localStorage.setItem('b2c_banner_v2_dismissed','1')" style="position:absolute;top:50%;right:16px;transform:translateY(-50%);background:transparent;color:#fff;border:none;font-size:18px;font-weight:700;cursor:pointer;padding:4px 10px;opacity:0.7" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'" aria-label="닫기">×</button>
+  </div>
+  <script>
+    if (!localStorage.getItem('b2c_banner_v2_dismissed')) {
+      document.getElementById('updateBanner').style.display = 'block';
+    }
+  </script>
   <!-- Top Nav -->
   <nav class="nav">
     <div class="nav-inner">
