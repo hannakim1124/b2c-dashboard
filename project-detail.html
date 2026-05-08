@@ -2347,24 +2347,32 @@
         try { resumeCache = JSON.parse(localStorage.getItem('b2c_resume_stats_' + projectId) || 'null'); } catch(e) {}
       }
 
-      // 1차: 인메모리 캐시
-      if (window.SHEET_CACHES && window.SHEET_CACHES[sheetId]) {
-        const c = window.SHEET_CACHES[sheetId];
-        if (c.rows && c.rows.length) { rows = c.rows; cacheFetchedAt = c.fetchedAt; }
+      // 인메모리(cache.js) + localStorage 둘 다 가져온 뒤 fetchedAt 최신 우선
+      const memCache = window.SHEET_CACHES?.[sheetId] || null;
+      let lsCache = null;
+      try { lsCache = JSON.parse(localStorage.getItem('b2c_sheet_data_' + sheetId) || 'null'); } catch(e) {}
+      const memValid = memCache?.rows?.length;
+      const lsValid = lsCache?.rows?.length;
+      let chosen = null;
+      if (memValid && lsValid) {
+        // 더 최신 (fetchedAt 비교, 없으면 mem 우선)
+        chosen = (lsCache.fetchedAt || '') > (memCache.fetchedAt || '') ? lsCache : memCache;
+      } else if (memValid) {
+        chosen = memCache;
+      } else if (lsValid) {
+        chosen = lsCache;
       }
-      // 2차: localStorage 복붙 캐시
-      if (!rows) {
-        try {
-          const pasted = JSON.parse(localStorage.getItem('b2c_sheet_data_' + sheetId) || 'null');
-          if (pasted?.rows && pasted.rows.length) {
-            rows = pasted.rows;
-            cacheFetchedAt = pasted.fetchedAt;
-            source = 'pasted';
-          }
-        } catch(e) {}
+      if (chosen) {
+        rows = chosen.rows;
+        cacheFetchedAt = chosen.fetchedAt;
+        source = (chosen === lsCache && chosen?.source === 'pasted') ? 'pasted' : 'cache';
+        // localStorage가 더 최신이면 인메모리도 덮어써서 다른 곳에서 쓸 때 일관성
+        if (chosen === lsCache) {
+          window.SHEET_CACHES = window.SHEET_CACHES || {};
+          window.SHEET_CACHES[sheetId] = lsCache;
+        }
       }
-      // 3차: 자동 fetch 비활성화 — 한나님 요청(2026-05-08)으로 신뢰도 위해 명시적 [🔄 업데이트] 버튼 클릭 시에만 시트 fetch
-      // 캐시 없으면 아래 빈 상태 안내(line 2364~)로 폴백
+      // 자동 fetch 비활성화 — 명시적 [🔄 업데이트] 버튼 클릭 시에만 시트 fetch
 
       if (!rows || rows.length < 2) {
         // 자동으로 매니저에게 보낼 메시지 + 클립보드 복사
@@ -4953,6 +4961,37 @@ CPA: 2,977원
 
       // 초기 렌더 — 페이지 콘텐츠 그려진 후
       setTimeout(renderStickers, 200);
+    })();
+  </script>
+  <!-- TEMP DUMP BUTTON (이후 제거 예정) -->
+  <script>
+    (function () {
+      const btn = document.createElement('button');
+      btn.textContent = '📋 DUMP';
+      btn.style.cssText = 'position:fixed;top:12px;right:12px;z-index:100000;padding:10px 14px;background:#1f2937;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.3);';
+      btn.onclick = function () {
+        const data = {};
+        Object.keys(localStorage).forEach(k => {
+          try { data[k] = JSON.parse(localStorage.getItem(k)); }
+          catch (e) { data[k] = localStorage.getItem(k); }
+        });
+        const json = JSON.stringify(data, null, 2);
+        const ov = document.createElement('div');
+        ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:99999;display:flex;flex-direction:column;padding:20px;';
+        ov.innerHTML =
+          '<div style="color:#fff;margin-bottom:10px;font-family:sans-serif;font-size:14px;font-weight:600;">' +
+          '✅ 키 ' + Object.keys(data).length + '개 / ' + json.length + ' chars · 텍스트박스에서 Ctrl+A → Ctrl+C → 클로드 채팅창에 붙여넣기 · 닫기 ESC' +
+          '</div>' +
+          '<textarea id="__b2c_dump_ta" style="flex:1;font-family:Consolas,monospace;font-size:12px;padding:10px;border-radius:6px;"></textarea>';
+        document.body.appendChild(ov);
+        const ta = document.getElementById('__b2c_dump_ta');
+        ta.value = json;
+        ta.focus();
+        ta.select();
+        function close(e) { if (e.key === 'Escape') { ov.remove(); document.removeEventListener('keydown', close); } }
+        document.addEventListener('keydown', close);
+      };
+      document.body.appendChild(btn);
     })();
   </script>
 </body>
