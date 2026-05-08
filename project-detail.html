@@ -3887,11 +3887,154 @@ CPA: 2,977원
       setTimeout(() => location.reload(), 600);
     };
 
+    // 시트 데이터 기반 신청자 자동 분석 보고서 생성
+    window.generateApplicantReportFromSheet = function(projectId) {
+      const project = window.getProject ? window.getProject(projectId) : null;
+      if (!project) return null;
+      const title = project.title || projectId;
+      const period = project.period || project.date || '';
+      const sheetUrl = (project.resources || []).find(u => /spreadsheets\/d\//.test(u || '')) || '';
+      if (!sheetUrl) return null;
+      const sm = sheetUrl.match(/spreadsheets\/d\/([\w-]+)/);
+      if (!sm) return null;
+      let cache = window.SHEET_CACHES && window.SHEET_CACHES[sm[1]];
+      if (!cache) {
+        try { cache = JSON.parse(localStorage.getItem('b2c_sheet_data_' + sm[1]) || 'null'); } catch(e) {}
+      }
+      if (!cache?.rows || cache.rows.length < 2) return null;
+      const rows = cache.rows;
+      const headers = (rows[0] || []).map(h => String(h || ''));
+      const findCol = (patterns) => {
+        for (const pat of patterns) {
+          const i = headers.findIndex(h => pat.test(h.replace(/\s/g, '')));
+          if (i >= 0) return i;
+        }
+        return -1;
+      };
+      const idCol = findCol([/잡코리아ID|잡코리아아이디/i, /회원ID|회원아이디|memberid/i, /^id$/i]);
+      const nameCol = findCol([/성함|이름|name/i]);
+      const yearCol = findCol([/연차|경력/i]);
+      const jobCol = findCol([/^직군$|^직무$|^job$/i]);
+      const subJobCol = findCol([/세부직무|상세직무|기타직무/i]);
+      const sourceCol = findCol([/어디서|유입경로|알게되|경로|source/i]);
+      const studyCol = findCol([/스터디|참여하실/i]);
+      // 헤더 행 + 빈 행 제거
+      const dataRows = rows.slice(1).filter(r => r && r.some(c => String(c || '').trim()));
+      const total = dataRows.length;
+      // 회원ID 기준 중복 제거
+      const ids = [];
+      const idSet = new Set();
+      dataRows.forEach(r => {
+        const id = String((idCol >= 0 ? r[idCol] : '') || '').trim().toLowerCase();
+        if (id) {
+          if (!idSet.has(id)) { idSet.add(id); ids.push(id); }
+        }
+      });
+      const uniqueCount = idSet.size;
+      const dupCount = total - uniqueCount;
+      // 분포 카운트 헬퍼 (유니크 기준)
+      const seenForUnique = new Set();
+      const uniqueRows = [];
+      dataRows.forEach(r => {
+        const id = String((idCol >= 0 ? r[idCol] : '') || '').trim().toLowerCase();
+        if (!id) { uniqueRows.push(r); return; }
+        if (seenForUnique.has(id)) return;
+        seenForUnique.add(id);
+        uniqueRows.push(r);
+      });
+      const dist = (col) => {
+        const m = {};
+        if (col < 0) return m;
+        uniqueRows.forEach(r => {
+          const v = String(r[col] || '').trim();
+          if (!v) return;
+          m[v] = (m[v] || 0) + 1;
+        });
+        return m;
+      };
+      const yearDist = dist(yearCol);
+      const jobDist = dist(jobCol);
+      const sourceDist = dist(sourceCol);
+      const studyDist = dist(studyCol);
+      const sortDesc = (m) => Object.entries(m).sort((a, b) => b[1] - a[1]);
+      const renderDist = (m, indent = '  ') => {
+        const arr = sortDesc(m);
+        if (!arr.length) return indent + '· (데이터 없음)';
+        const denom = uniqueRows.length || 1;
+        return arr.map(([k, v]) => {
+          const pct = (v / denom * 100).toFixed(1);
+          const label = (k.length > 28 ? k.slice(0, 28) + '…' : k).padEnd(30, ' ');
+          return indent + '· ' + label + ' ' + String(v).padStart(4, ' ') + '명 (' + pct + '%)';
+        }).join('\n');
+      };
+      // 인사이트 (간단 자동)
+      const topJob = sortDesc(jobDist)[0];
+      const topSource = sortDesc(sourceDist)[0];
+      const topYear = sortDesc(yearDist)[0];
+      const insights = [];
+      insights.push('1. 신청 ' + total + '건 중 중복 제거 ' + uniqueCount + '명 (중복 ' + dupCount + '건)');
+      if (topJob) insights.push('2. 직군 1위: ' + topJob[0] + ' ' + topJob[1] + '명 (' + (topJob[1] / uniqueRows.length * 100).toFixed(1) + '%)');
+      if (topSource) insights.push('3. 유입경로 1위: ' + topSource[0] + ' ' + topSource[1] + '명 (' + (topSource[1] / uniqueRows.length * 100).toFixed(1) + '%)');
+      if (topYear) insights.push('4. 연차 1위: ' + topYear[0] + ' ' + topYear[1] + '명 (' + (topYear[1] / uniqueRows.length * 100).toFixed(1) + '%)');
+      const studyYes = Object.entries(studyDist).filter(([k]) => /네|예|참여|yes/i.test(k)).reduce((s, [, v]) => s + v, 0);
+      if (studyDist && Object.keys(studyDist).length) {
+        insights.push('5. 스터디 참여 의향: ' + studyYes + '명 (' + (studyYes / uniqueRows.length * 100).toFixed(1) + '%)');
+      }
+      const fetchedAt = cache.fetchedAt ? new Date(cache.fetchedAt).toLocaleString('ko-KR') : '';
+      const lines = [];
+      lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      lines.push('  ' + title + ' 신청자 분석 (자동 생성)');
+      if (period) lines.push('  기준기간: ' + period);
+      if (fetchedAt) lines.push('  데이터 기준: ' + fetchedAt);
+      lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      lines.push('');
+      lines.push('▣ 전체 규모');
+      lines.push('  · 신청 건수(raw):       ' + total + '건');
+      lines.push('  · 중복 제외(unique):    ' + uniqueCount + '명');
+      lines.push('  · 중복 신청:            ' + dupCount + '건');
+      lines.push('');
+      if (yearCol >= 0) {
+        lines.push('▣ 연차 분포 (유니크 기준)');
+        lines.push(renderDist(yearDist));
+        lines.push('');
+      }
+      if (jobCol >= 0) {
+        lines.push('▣ 직군 분포 (유니크 기준)');
+        lines.push(renderDist(jobDist));
+        lines.push('');
+      }
+      if (sourceCol >= 0) {
+        lines.push('▣ 유입경로 분포 (유니크 기준)');
+        lines.push(renderDist(sourceDist));
+        lines.push('');
+      }
+      if (studyCol >= 0) {
+        lines.push('▣ 스터디 참여 의향');
+        lines.push(renderDist(studyDist));
+        lines.push('');
+      }
+      lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      lines.push('▣ 인사이트 요약 (자동)');
+      lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      insights.forEach(s => lines.push(s));
+      lines.push('');
+      lines.push('💡 더 깊은 분석(메타베이스 매칭/이력서 활동/풀퍼널)은 클로드 채팅에 "' + title + ' 신청자 정밀 분석해줘" 한 마디로 요청 가능');
+      return lines.join('\n');
+    };
+
     // 신청자 상세 분석 보고서 모달
     window.openApplicantReport = function(projectId) {
       const key = 'b2c_applicant_report_' + projectId;
       let report = '';
+      let isAutoGenerated = false;
       try { report = localStorage.getItem(key) || ''; } catch(e) {}
+      // 저장된 보고서 없으면 시트 데이터로 자동 생성
+      if (!report) {
+        try {
+          const auto = window.generateApplicantReportFromSheet(projectId);
+          if (auto) { report = auto; isAutoGenerated = true; }
+        } catch(e) { console.warn('자동 분석 실패:', e); }
+      }
       let bg = document.getElementById('applicantReportBg');
       if (bg) bg.remove();
       bg = document.createElement('div');
@@ -3902,9 +4045,10 @@ CPA: 2,977원
         (JSON.parse(localStorage.getItem('b2c_user_projects') || '[]') || []).forEach(p => { if (p && p.id) projectMap[p.id] = p.title || p.id; });
       } catch(e) {}
       const title = projectMap[projectId] || projectId;
+      const autoBadge = isAutoGenerated ? '<div style="margin-bottom:10px;padding:8px 12px;background:#eff6ff;border:1px solid #3b82f6;border-radius:8px;color:#1e40af;font-size:12px;font-weight:700">⚡ 시트 데이터 기반 자동 생성된 보고서 — [💾 저장]으로 박아두면 다음에 빠르게 열려요</div>' : '';
       const bodyHtml = report
-        ? '<pre id="applicantReportText" style="margin:0;padding:18px;background:#0f172a;color:#e2e8f0;border-radius:10px;font-family:Consolas,Menlo,monospace;font-size:12px;line-height:1.7;white-space:pre-wrap;word-break:break-word;max-height:60vh;overflow-y:auto">' + escapeHtml(report) + '</pre>'
-        : '<div style="padding:24px;text-align:center;background:#fef3c7;border:1px dashed #d97706;border-radius:10px;color:#92400e;font-size:13px;line-height:1.8;font-weight:600">📋 아직 분석 보고서가 없어요.<br><br>클로드에게 <code style="background:#fff;padding:2px 6px;border-radius:4px">' + escapeHtml(title) + ' 신청자 분석해줘</code> 한 마디 보내거나,<br>아래 [📝 직접 입력] 버튼으로 텍스트 붙여넣을 수 있어요.</div>';
+        ? autoBadge + '<pre id="applicantReportText" style="margin:0;padding:18px;background:#0f172a;color:#e2e8f0;border-radius:10px;font-family:Consolas,Menlo,monospace;font-size:12px;line-height:1.7;white-space:pre-wrap;word-break:break-word;max-height:60vh;overflow-y:auto">' + escapeHtml(report) + '</pre>'
+        : '<div style="padding:24px;text-align:center;background:#fef3c7;border:1px dashed #d97706;border-radius:10px;color:#92400e;font-size:13px;line-height:1.8;font-weight:600">📋 분석할 시트 데이터가 없어요.<br><br>먼저 신청자 시트 URL을 연결해주세요.<br>또는 [📝 직접 입력]으로 텍스트 붙여넣을 수 있어요.</div>';
       bg.innerHTML = '<div class="reason-modal" onclick="event.stopPropagation()" style="max-width:820px;max-height:92vh;overflow-y:auto">'
         + '<div class="reason-modal-head"><div class="reason-modal-title">📊 ' + escapeHtml(title) + ' — 신청자 상세 분석</div><div class="reason-modal-sub">시트 + 메타베이스 매칭 기반 분석 보고서</div></div>'
         + '<div class="reason-modal-body">' + bodyHtml + '</div>'
