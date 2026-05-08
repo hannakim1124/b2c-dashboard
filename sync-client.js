@@ -1,8 +1,10 @@
 // ✨ 안전한 PULL 전용 sync 클라이언트 (2026-05-08 재구성)
 //
 // [정책]
-// - 매칭 결과 키(b2c_resume_stats_*, b2c_signup_stats_*)만 서버 → 로컬 PULL
-// - 그 외 데이터(일정/광고/메트릭/카드 등)는 절대 안 건드림
+// - PULL_PREFIXES (resume_stats/signup_stats): 항상 서버 우선 — read-only 매칭 결과
+// - PULL_IF_EMPTY (user_projects/overrides/categories/kpi_labels):
+//     로컬 비어있을 때만 1회 복원. 한나님이 1개라도 만들어두면 절대 덮어쓰지 않음.
+// - 그 외 키(일정/광고/메트릭 등)는 절대 안 건드림
 // - PUSH 완전 비활성화 → 한나 선배님 로컬 작업 절대 덮어쓰기 X
 //
 // [흐름]
@@ -16,9 +18,18 @@
 
 (function() {
   const SYNC_URL = '/api/sync';
-  // 서버에서 자동 PULL할 키 prefix만 (클로드 매칭 결과 전용)
+  // 항상 서버 우선 (read-only 매칭 결과)
   const PULL_PREFIXES = ['b2c_resume_stats_', 'b2c_signup_stats_'];
+  // 로컬 비어있거나 빈 배열일 때만 1회 복원 (한나님 카드 데이터 — 절대 덮어쓰기 X)
+  const PULL_IF_EMPTY = ['b2c_user_projects', 'b2c_overrides', 'b2c_categories', 'b2c_kpi_labels'];
   const RELOADED_FLAG = '_b2c_pulled_reloaded_v2';
+
+  function isLocallyEmpty(key) {
+    const v = localStorage.getItem(key);
+    if (v == null) return true;
+    if (v === '' || v === '[]' || v === '{}' || v === 'null') return true;
+    return false;
+  }
 
   async function safePull() {
     try {
@@ -30,12 +41,17 @@
       let applied = 0;
       Object.entries(data).forEach(([k, v]) => {
         if (typeof v !== 'string') return;
-        // 서버 우선 키 (매칭 결과)만 PULL
-        if (!PULL_PREFIXES.some(p => k.startsWith(p))) return;
-        const local = localStorage.getItem(k);
-        if (local !== v) {
+        // 1) 항상 서버 우선 (매칭 결과)
+        if (PULL_PREFIXES.some(p => k.startsWith(p))) {
+          const local = localStorage.getItem(k);
+          if (local !== v) { localStorage.setItem(k, v); applied++; }
+          return;
+        }
+        // 2) 로컬 비어있을 때만 1회 복원 (카드 데이터 등)
+        if (PULL_IF_EMPTY.includes(k) && isLocallyEmpty(k)) {
           localStorage.setItem(k, v);
           applied++;
+          return;
         }
       });
 

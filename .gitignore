@@ -10,3 +10,10 @@ data/cache.js
 
 # 임시 파일
 *.tmp.*
+
+# 분석용 raw 파일 (PII 포함 — git 절대 X)
+_dt.tsv
+_dt_raw.tsv
+_e.csv
+_e_list.json
+_e_sql.txt
