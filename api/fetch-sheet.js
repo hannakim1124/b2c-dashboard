@@ -15,7 +15,13 @@ export default async function handler(req, res) {
     if (!sheetId) return res.status(400).json({ error: 'sheetId required' });
     const g = gid || (sheetUrl || '').match(/[#&?]gid=(\d+)/)?.[1] || '0';
     const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${g}`;
-    const r = await fetch(csvUrl, { redirect: 'follow' });
+    const r = await fetch(csvUrl, {
+      redirect: 'follow',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/csv,text/plain,*/*'
+      }
+    });
     if (!r.ok) {
       // 401: 비공개 / 404: 잘못된 ID
       return res.status(200).json({
