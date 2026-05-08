@@ -3669,11 +3669,33 @@ CPA: 2,977원
         const sheetId = sheetMatch[1];
         const gidMatch = cleanUrl.match(/[#&?]gid=(\d+)/);
         const gid = gidMatch ? gidMatch[1] : '0';
+        let rows = null;
+        let fetchError = null;
+        // 1차: 서버사이드 /api/fetch-sheet (CORS 우회 - vercel 환경)
         try {
-          const res = await fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`);
-          if (res.ok) {
-            const text = await res.text();
-            const rows = parseCSV(text);
+          const apiRes = await fetch('/api/fetch-sheet', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sheetUrl: cleanUrl, sheetId, gid })
+          });
+          if (apiRes.ok) {
+            const data = await apiRes.json();
+            if (data.ok && data.rows) rows = data.rows;
+            else if (data.error) fetchError = data.error;
+          }
+        } catch(e) { console.warn('서버 fetch 실패:', e); }
+        // 2차: 직접 fetch 폴백 (file:// 또는 서버사이드 unavailable 시)
+        if (!rows) {
+          try {
+            const res = await fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`);
+            if (res.ok) {
+              const text = await res.text();
+              rows = parseCSV(text);
+            }
+          } catch(e) { console.warn('직접 fetch 실패:', e); }
+        }
+        try {
+          if (rows && rows.length) {
             // 헤더 행 자동 탐색 (Unique Viewers / Max Concurrent 키워드)
             let headerIdx = -1;
             for (let i = 0; i < Math.min(10, rows.length); i++) {
