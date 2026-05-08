@@ -888,14 +888,22 @@
   </style>
 </head>
 <body>
-  <!-- 업데이트 띠 배너 -->
-  <div id="updateBanner" style="position:relative;background:#191F28;color:#fff;padding:12px 20px;text-align:center;font-size:13px;font-weight:600;letter-spacing:-0.01em;display:none;z-index:99">
+  <!-- 업데이트 띠 배너 (fixed, nav 위) -->
+  <div id="updateBanner" style="position:fixed;top:0;left:0;right:0;background:#191F28;color:#fff;padding:12px 20px;text-align:center;font-size:13px;font-weight:600;letter-spacing:-0.01em;display:none;z-index:200;line-height:1.4">
     <span>✨ <strong>ver2로 업데이트되었어요</strong> · 2026.05.08 — 카드 시스템 전면 개편 / KPI 신호등 / 예산·광고 효율 / 웨비나 메트릭 추가</span>
-    <button onclick="document.getElementById('updateBanner').style.display='none';localStorage.setItem('b2c_banner_v2_dismissed','1')" style="position:absolute;top:50%;right:16px;transform:translateY(-50%);background:transparent;color:#fff;border:none;font-size:18px;font-weight:700;cursor:pointer;padding:4px 10px;opacity:0.7" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'" aria-label="닫기">×</button>
+    <button onclick="document.getElementById('updateBanner').style.display='none';document.body.style.paddingTop='';document.querySelector('.nav').style.top='0';localStorage.setItem('b2c_banner_v2_dismissed','1')" style="position:absolute;top:50%;right:16px;transform:translateY(-50%);background:transparent;color:#fff;border:none;font-size:18px;font-weight:700;cursor:pointer;padding:4px 10px;opacity:0.7" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'" aria-label="닫기">×</button>
   </div>
   <script>
     if (!localStorage.getItem('b2c_banner_v2_dismissed')) {
-      document.getElementById('updateBanner').style.display = 'block';
+      const b = document.getElementById('updateBanner');
+      b.style.display = 'block';
+      // 배너 높이만큼 nav와 body 내림
+      requestAnimationFrame(() => {
+        const h = b.offsetHeight + 'px';
+        document.body.style.paddingTop = h;
+        const nav = document.querySelector('.nav');
+        if (nav) nav.style.top = h;
+      });
     }
   </script>
   <!-- Top Nav -->
