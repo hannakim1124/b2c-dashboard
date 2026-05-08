@@ -1502,9 +1502,11 @@
       });
       cardCount.textContent = visible + '건';
       emptyEl.style.display = visible === 0 ? '' : 'none';
-      // hero 타이틀 + 진행 프로젝트 visible 카드 수로 갱신
-      if (totalCount) totalCount.textContent = visible + '가지';
-      if (heroProjects) heroProjects.textContent = visible + '건';
+      // hero 타이틀 + 진행 프로젝트 visible 카드 수로 갱신 (매번 재조회 — innerHTML 재할당으로 stale 방지)
+      const tcEl = document.getElementById('totalCount');
+      if (tcEl) tcEl.textContent = visible + '가지';
+      const hpEl = document.getElementById('heroProjects');
+      if (hpEl) hpEl.textContent = visible + '건';
       // 멤버 카드 프로젝트 수 갱신
       document.querySelectorAll('.mem-card[data-member-go]').forEach(card => {
         const mid = card.dataset.memberGo;
