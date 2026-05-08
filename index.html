@@ -940,6 +940,16 @@
           <div class="hero-stat-num">—</div>
           <div class="hero-stat-sub">프로젝트 등록 후 자동 집계</div>
         </div>
+        <div class="hero-stat">
+          <div class="hero-stat-label">📸 인스타 팔로우</div>
+          <div class="hero-stat-num">—</div>
+          <div class="hero-stat-sub">KPI에 "인스타/팔로우" 키워드</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-label">💬 오카방 참여자</div>
+          <div class="hero-stat-num">—</div>
+          <div class="hero-stat-sub">KPI에 "오카방/오픈채팅" 키워드</div>
+        </div>
       </div>
     </div>
   </section>
@@ -1437,27 +1447,33 @@
       cardCount.textContent = total + '건';
       totalCount.textContent = total + '가지';
       heroProjects.textContent = total + '건';
-      // 누적 참여자 / 이력서 업데이트 자동 집계 (모든 카드의 KPI 합산)
+      // 누적 참여자 / 이력서 / 인스타 / 오카방 자동 집계 (모든 카드의 KPI 합산)
       try {
         const allProjects = [...window.getUserProjects(), ...Object.values(window.getOverrides())];
-        let totalApp = 0, totalResume = 0;
+        let totalApp = 0, totalResume = 0, totalInsta = 0, totalOka = 0;
+        let cntApp = 0, cntResume = 0, cntInsta = 0, cntOka = 0;
         const parseNum = v => parseInt(String(v || '').replace(/[^0-9]/g, '')) || 0;
         allProjects.forEach(p => {
           (p.kpis || []).forEach(k => {
             const lbl = (k.label || '').toLowerCase();
             const val = parseNum(k.value);
-            if (/신청|응모|참여|참가|register/i.test(lbl)) totalApp += val;
-            else if (/이력서|업데이트|resume/i.test(lbl)) totalResume += val;
+            if (!val) return;
+            if (/인스타|instagram|팔로우|follower/i.test(lbl)) { totalInsta += val; cntInsta++; }
+            else if (/오카방|오픈채팅|kakao\s*open|opentalk/i.test(lbl)) { totalOka += val; cntOka++; }
+            else if (/이력서|업데이트|resume/i.test(lbl)) { totalResume += val; cntResume++; }
+            else if (/신청|응모|참여|참가|register/i.test(lbl)) { totalApp += val; cntApp++; }
           });
         });
-        const appEl = document.querySelector('.hero-stat:nth-child(2) .hero-stat-num');
-        const appSub = document.querySelector('.hero-stat:nth-child(2) .hero-stat-sub');
-        const resEl = document.querySelector('.hero-stat:nth-child(3) .hero-stat-num');
-        const resSub = document.querySelector('.hero-stat:nth-child(3) .hero-stat-sub');
-        if (appEl) appEl.textContent = totalApp ? totalApp.toLocaleString() + '명' : '—';
-        if (appSub) appSub.textContent = totalApp ? `${total}개 프로젝트 합산` : '프로젝트 등록 후 자동 집계';
-        if (resEl) resEl.textContent = totalResume ? totalResume.toLocaleString() + '명' : '—';
-        if (resSub) resSub.textContent = totalResume ? `${total}개 프로젝트 합산` : '프로젝트 등록 후 자동 집계';
+        function updateStat(idx, val, cnt, suffix, defaultSub) {
+          const el = document.querySelector(`.hero-stat:nth-child(${idx}) .hero-stat-num`);
+          const sub = document.querySelector(`.hero-stat:nth-child(${idx}) .hero-stat-sub`);
+          if (el) el.textContent = val ? val.toLocaleString() + suffix : '—';
+          if (sub) sub.textContent = val ? `${cnt}개 카드 합산` : defaultSub;
+        }
+        updateStat(2, totalApp, cntApp, '명', '프로젝트 등록 후 자동 집계');
+        updateStat(3, totalResume, cntResume, '명', '프로젝트 등록 후 자동 집계');
+        updateStat(4, totalInsta, cntInsta, '명', 'KPI에 "인스타/팔로우" 키워드');
+        updateStat(5, totalOka, cntOka, '명', 'KPI에 "오카방/오픈채팅" 키워드');
       } catch(e) {}
     }
 
