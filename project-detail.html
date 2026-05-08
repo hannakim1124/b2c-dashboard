@@ -1504,19 +1504,18 @@
           } else {
             progressHtml = `
               <div class="kpi-progress">
-                <div style="padding:10px 12px;background:var(--c-warning-bg);color:#8B5A00;border-radius:8px;font-size:11px;font-weight:600;line-height:1.5;margin-bottom:8px">
-                  ⓘ 시트 데이터 연결 후 회원ID로 자동 매칭됩니다
+                <div style="padding:10px 12px;background:var(--c-warning-bg);color:#8B5A00;border-radius:8px;font-size:11px;font-weight:600;line-height:1.5">
+                  ⓘ 아래 <strong>📊 신청자 자동 분석</strong>에서 시트 연결 후 회원ID로 자동 매칭돼용
                 </div>
-                <button class="kpi-fetch-btn" onclick="openSheetUrlModal('${escapeHtml(_sheetIdForModal)}','${escapeHtml(_sheetUrlForModal)}','${escapeHtml(p.id || '')}')">🔗 신청자 시트 URL 연결</button>
-                <div class="kpi-fetch-hint">URL 넣으면 자동 fetch + 매칭 시작</div>
               </div>`;
           }
         } else if (target != null) {
-          // 신청자/기타 KPI — 시트 연결 안 됐으면 시트 연결 버튼만
+          // 신청자/기타 KPI — 시트 연결은 신청자 자동 분석에서 (모든 카드 동일 규칙)
           progressHtml = `
             <div class="kpi-progress">
-              <button class="kpi-fetch-btn" onclick="openSheetUrlModal('${escapeHtml(_sheetIdForModal)}','${escapeHtml(_sheetUrlForModal)}','${escapeHtml(p.id || '')}')">🔗 신청자 시트 URL 연결</button>
-              <div class="kpi-fetch-hint">URL 넣으면 자동 fetch + 진행률 자동 매칭</div>
+              <div style="padding:10px 12px;background:var(--c-warning-bg);color:#8B5A00;border-radius:8px;font-size:11px;font-weight:600;line-height:1.5">
+                ⓘ 아래 <strong>📊 신청자 자동 분석</strong>에서 시트 연결하면 자동으로 매칭돼용
+              </div>
             </div>`;
         }
         // 신규/기존 가입자 분류 (이력서 KPI일 때만, signup 데이터 있을 때만)
