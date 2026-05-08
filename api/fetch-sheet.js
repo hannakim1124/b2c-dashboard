@@ -4,6 +4,11 @@
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
+  // CORS: file:// (origin null) 및 모든 origin 허용 — 시트 fetch는 PII 노출 위험 없음 (시트 자체가 공개 권한일 때만 작동)
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
   try {
     const { sheetUrl, sheetId, gid } = req.body || {};

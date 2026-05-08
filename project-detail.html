@@ -3901,45 +3901,84 @@ CPA: 2,977원
         <div class="reason-modal" onclick="event.stopPropagation()" style="max-width:560px">
           <div class="reason-modal-head">
             <div class="reason-modal-title">🔗 시트 URL 입력</div>
-            <div class="reason-modal-sub">URL 입력 → 클립보드 복사 + 매니저 슬랙 알림 → 클로드 채팅에 붙여넣기 → 자동 분석</div>
+            <div class="reason-modal-sub">URL 넣으면 자동으로 fetch해서 즉시 갱신해드려요 ✨</div>
           </div>
           <div class="reason-modal-body" style="display:flex;flex-direction:column;gap:12px">
-            <label style="font-size:12px;font-weight:700;color:var(--c-text-2)">현재 카드 sheet URL
+            <label style="font-size:12px;font-weight:700;color:var(--c-text-2)">시트 URL
               <input id="suUrl" type="url" value="${escapeHtml(currentUrl || '')}" placeholder="https://docs.google.com/spreadsheets/d/..." style="width:100%;margin-top:4px;padding:12px;border:1px solid var(--c-border);border-radius:8px;font-family:inherit;font-size:13px">
             </label>
             <div style="font-size:11px;color:var(--c-text-3);line-height:1.6">
-              💡 클로드 채팅에 자동 복사된 메시지를 Ctrl+V → 엔터 하면 분석 결과 박힘
+              💡 시트 권한이 <strong>"링크 있는 모두 — 뷰어"</strong>여야 자동 fetch 돼용. 비공개라 실패하면 <a href="#" id="suFallback" style="color:var(--c-primary);text-decoration:underline">📋 복붙으로 갱신</a>
             </div>
           </div>
           <div class="reason-modal-foot">
             <button class="btn-cancel" id="suCancel">취소</button>
-            <button class="dl-btn-confirm" id="suSubmit">📤 매니저에게 요청 보내기</button>
+            <button class="dl-btn-confirm" id="suSubmit">🚀 자동 갱신</button>
           </div>
         </div>`;
       document.body.appendChild(bg);
       bg.addEventListener('click', () => bg.remove());
       bg.querySelector('#suCancel').addEventListener('click', () => bg.remove());
-      bg.querySelector('#suSubmit').addEventListener('click', () => {
+      bg.querySelector('#suFallback').addEventListener('click', (e) => {
+        e.preventDefault();
+        bg.remove();
+        openSheetPasteModal(currentSheetId, currentUrl, projectId);
+      });
+      const submitBtn = bg.querySelector('#suSubmit');
+      submitBtn.addEventListener('click', async () => {
         const url = bg.querySelector('#suUrl').value.trim();
         if (!url) { showToast('<span class="ok">⚠️</span>URL 입력해주세요'); return; }
         const sm = url.match(/spreadsheets\/d\/([\w-]+)/);
         const newSheetId = sm ? sm[1] : currentSheetId;
-        const project = window.getProject ? window.getProject(projectId) : null;
-        const title = project?.title || projectId;
-        const requestMsg = `${title} 시트 연결해줘\n- URL: ${url}\n- Sheet ID: ${newSheetId}\n- 프로젝트 ID: ${projectId}\n\n→ 시트 fetch해서 data/cache.js의 SHEET_CACHES에 박아주세요`;
+        const gidMatch = url.match(/[#&?]gid=(\d+)/);
+        const gid = gidMatch ? gidMatch[1] : '0';
+        // file:// 환경이면 vercel API 절대 URL, https면 상대 경로
+        const apiBase = location.protocol === 'file:' ? 'https://b2c-dashboard-sigma.vercel.app' : '';
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ fetch 중...';
+        showToast('<span class="ok">⏳</span>시트 가져오는 중...');
         try {
-          fetch(SLACK_WEBHOOK_DDANNA, {
-            method:'POST', mode:'no-cors',
-            body: JSON.stringify({ text: `<@U09UQNGH6DC> 🔗 *시트 연결 요청*\n• 카드: ${title}\n• URL: ${url}\n• Sheet ID: \`${newSheetId}\`\n\n${requestMsg}` })
-          }).catch(()=>{});
-        } catch(e) {}
-        if (navigator.clipboard) navigator.clipboard.writeText(requestMsg).then(() => {
+          const r = await fetch(apiBase + '/api/fetch-sheet', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sheetUrl: url, sheetId: newSheetId, gid })
+          });
+          const data = await r.json();
+          if (!data.ok) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '🚀 자동 갱신';
+            showToast(`<span class="ok">⚠️</span>${data.error || 'fetch 실패'}`);
+            return;
+          }
+          // 인메모리 + localStorage 둘 다 갱신
+          const cacheObj = { sheetId: newSheetId, sheetUrl: url, fetchedAt: data.fetchedAt, rows: data.rows };
+          window.SHEET_CACHES = window.SHEET_CACHES || {};
+          window.SHEET_CACHES[newSheetId] = cacheObj;
+          try { localStorage.setItem('b2c_sheet_data_' + newSheetId, JSON.stringify(cacheObj)); } catch(e) {
+            console.warn('[sheet] localStorage 용량 초과, 인메모리만 유지:', e.message);
+          }
+          // 카드 리소스 URL 갱신 (sheetId 바뀐 경우)
+          if (newSheetId !== currentSheetId && projectId && window.getProject) {
+            const project = window.getProject(projectId);
+            if (project) {
+              project.resources = (project.resources || []).map(rr =>
+                /spreadsheets\/d\//.test(rr) ? url : rr
+              );
+              if (!project.resources.some(rr => /spreadsheets\/d\//.test(rr))) {
+                project.resources.push(url);
+              }
+              if (window.upsertProject) window.upsertProject(project);
+              else if (window.saveOverride) window.saveOverride(projectId, project);
+            }
+          }
           bg.remove();
-          showToast(`<span class="ok">✓</span>메시지 복사 완료! 클로드 채팅에 Ctrl+V → 엔터`);
-        }).catch(() => {
-          bg.remove();
-          showToast(`<span class="ok">✓</span>매니저 알림 보냈어용`);
-        });
+          showToast(`<span class="ok">✓</span>${data.rows.length-1}행 갱신 완료!`);
+          setTimeout(() => location.reload(), 600);
+        } catch(e) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = '🚀 자동 갱신';
+          showToast(`<span class="ok">⚠️</span>갱신 실패: ${e.message || '네트워크 오류'}`);
+        }
       });
     };
 
@@ -4003,7 +4042,7 @@ CPA: 2,977원
       });
     };
 
-    // 캐시 업데이트 — 사용자가 버튼 누를 때만 라이브 fetch
+    // 캐시 업데이트 — 환경 무관 항상 URL 모달 → /api/fetch-sheet 자동 fetch
     window.updateSheetCache = async function(sheetId, originalUrl, containerId, projectId) {
       // 잠금 상태면 업데이트 차단
       const lockKey = 'b2c_dashboard_locked_' + (projectId || 'default');
@@ -4011,33 +4050,8 @@ CPA: 2,977원
         showToast('<span class="ok">🔒</span>최종본 잠금 상태예용. 잠금 해제 후 업데이트 가능!');
         return;
       }
-      const isFileProtocol = location.protocol === 'file:';
-      if (isFileProtocol) {
-        // 자동 갱신 불가 → 선택 모달 띄우기 (URL 재입력 / 복붙)
-        openUpdateChoiceModal(sheetId, originalUrl, containerId, projectId);
-        return;
-      }
-      showToast('<span class="ok">⏳</span>최신 시트 가져오는 중...');
-      const gidMatch = originalUrl.match(/[#&?]gid=(\d+)/);
-      const gid = gidMatch ? gidMatch[1] : '0';
-      const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
-      try {
-        const res = await fetch(csvUrl);
-        if (!res.ok) throw new Error('fetch ' + res.status);
-        const rows = parseCSV(await res.text());
-        if (rows.length < 2) throw new Error('empty');
-        // 인메모리 캐시 갱신
-        window.SHEET_CACHES = window.SHEET_CACHES || {};
-        window.SHEET_CACHES[sheetId] = { sheetId, sheetUrl: originalUrl, fetchedAt: new Date().toISOString(), rows };
-        const container = document.getElementById(containerId);
-        if (container) {
-          container.innerHTML = '<div class="sheet-loading">📊 새 데이터로 분석 중...</div>';
-          setTimeout(() => loadSheetData(sheetId, originalUrl, containerId, projectId), 50);
-        }
-        showToast(`<span class="ok">✓</span>${rows.length-1}행 갱신 완료!`);
-      } catch(e) {
-        showToast(`<span class="ok">⚠️</span>갱신 실패: ${e.message}`);
-      }
+      // URL 입력 모달 → 자동 갱신
+      openSheetUrlModal(sheetId, originalUrl, projectId);
     };
 
     // 스파이크 사유 모달
