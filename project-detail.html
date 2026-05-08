@@ -3797,7 +3797,26 @@ CPA: 2,977원
     window.attachWebinarDataUrl = async function(projectId) {
       const key = 'b2c_webinar_data_url_' + projectId;
       const existing = localStorage.getItem(key) || '';
-      const url = prompt('📊 줌 리포트 / 데이터 자료 URL\n(구글 시트면 자동으로 메트릭 추출돼요!)\n(비우면 삭제)', existing);
+      // prompt가 Chrome에서 차단될 수 있어 modal로 입력받음
+      const url = await new Promise((resolve) => {
+        const bg = document.createElement('div');
+        bg.className = 'reason-modal-bg is-open';
+        bg.style.zIndex = '99999';
+        bg.innerHTML = '<div class="reason-modal" onclick="event.stopPropagation()" style="max-width:560px">'
+          + '<div class="reason-modal-head"><div class="reason-modal-title">📊 줌 리포트 / 데이터 자료 URL</div><div class="reason-modal-sub">구글 시트면 자동으로 메트릭 추출돼요!</div></div>'
+          + '<div class="reason-modal-body"><input type="url" id="_zoomUrlIn" placeholder="https://docs.google.com/spreadsheets/d/..." style="width:100%;padding:12px;border:1px solid var(--c-border);border-radius:8px;font-family:inherit;font-size:13px" value="' + escapeHtml(existing) + '"><div style="font-size:11px;color:var(--c-text-3);margin-top:8px">비우고 저장하면 삭제됩니다</div></div>'
+          + '<div class="reason-modal-foot"><button class="btn-cancel" id="_zuCancel">취소</button><button class="dl-btn-confirm" id="_zuOk">💾 저장</button></div>'
+        + '</div>';
+        document.body.appendChild(bg);
+        const ta = bg.querySelector('#_zoomUrlIn');
+        ta.focus();
+        ta.select();
+        const cleanup = (val) => { bg.remove(); resolve(val); };
+        bg.addEventListener('click', () => cleanup(null));
+        bg.querySelector('#_zuCancel').addEventListener('click', () => cleanup(null));
+        bg.querySelector('#_zuOk').addEventListener('click', () => cleanup(ta.value));
+        ta.addEventListener('keydown', (e) => { if (e.key === 'Enter') cleanup(ta.value); if (e.key === 'Escape') cleanup(null); });
+      });
       if (url == null) return;
       if (url.trim() === '') {
         localStorage.removeItem(key);
@@ -4159,13 +4178,30 @@ CPA: 2,977원
     };
 
     // 만족도 폼 링크 입력 (별도 폼 응답 URL)
-    window.editSatisfactionUrl = function(projectId) {
+    window.editSatisfactionUrl = async function(projectId) {
       const key = 'b2c_webinar_metrics_' + projectId;
       let wm = null;
       try { wm = JSON.parse(localStorage.getItem(key) || 'null'); } catch(e) {}
       wm = wm || {};
       const current = wm.satisfactionUrl || '';
-      const val = prompt('🔗 만족도 폼 링크 입력\n(구글폼/타입폼/시트 등 응답 URL. 비우면 삭제)', current);
+      const val = await new Promise((resolve) => {
+        const bg = document.createElement('div');
+        bg.className = 'reason-modal-bg is-open';
+        bg.style.zIndex = '99999';
+        bg.innerHTML = '<div class="reason-modal" onclick="event.stopPropagation()" style="max-width:560px">'
+          + '<div class="reason-modal-head"><div class="reason-modal-title">🔗 만족도 폼 링크 입력</div><div class="reason-modal-sub">구글폼/타입폼/시트 등 응답 URL</div></div>'
+          + '<div class="reason-modal-body"><input type="url" id="_satUrlIn" placeholder="https://..." style="width:100%;padding:12px;border:1px solid var(--c-border);border-radius:8px;font-family:inherit;font-size:13px" value="' + escapeHtml(current) + '"><div style="font-size:11px;color:var(--c-text-3);margin-top:8px">비우고 저장하면 삭제됩니다</div></div>'
+          + '<div class="reason-modal-foot"><button class="btn-cancel" id="_suCancel2">취소</button><button class="dl-btn-confirm" id="_suOk2">💾 저장</button></div>'
+        + '</div>';
+        document.body.appendChild(bg);
+        const ta = bg.querySelector('#_satUrlIn');
+        ta.focus(); ta.select();
+        const cleanup = (v) => { bg.remove(); resolve(v); };
+        bg.addEventListener('click', () => cleanup(null));
+        bg.querySelector('#_suCancel2').addEventListener('click', () => cleanup(null));
+        bg.querySelector('#_suOk2').addEventListener('click', () => cleanup(ta.value));
+        ta.addEventListener('keydown', (e) => { if (e.key === 'Enter') cleanup(ta.value); if (e.key === 'Escape') cleanup(null); });
+      });
       if (val == null) return;
       if (val.trim() === '') {
         delete wm.satisfactionUrl;
