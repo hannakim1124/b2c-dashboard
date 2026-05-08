@@ -4773,7 +4773,11 @@ CPA: 2,977원
           }
           bg.remove();
           showToast(`<span class="ok">✓</span>${data.rows.length-1}행 갱신 완료!`);
-          setTimeout(() => location.reload(), 600);
+          // 🔗 시트 갱신과 동시에 메타베이스 매칭 큐 자동 등록 (이력서 업데이트 KPI도 갱신)
+          if (window.requestResumeUpdate && projectId) {
+            setTimeout(() => window.requestResumeUpdate(projectId), 300);
+          }
+          setTimeout(() => location.reload(), 1800);
         } catch(e) {
           submitBtn.disabled = false;
           submitBtn.textContent = '🚀 자동 갱신';
