@@ -32,10 +32,15 @@ async function kvSet(key, value) {
 async function loadQueue() {
   const raw = await kvGet(KEY);
   if (!raw) return [];
+  let parsed = raw;
   if (typeof raw === 'string') {
-    try { return JSON.parse(raw); } catch (e) { return []; }
+    try { parsed = JSON.parse(raw); } catch (e) { return []; }
   }
-  return Array.isArray(raw) ? raw : [];
+  // 어떤 형태로 박혀도 array 보장
+  if (Array.isArray(parsed)) return parsed;
+  // object일 경우 jobs 키 또는 빈 배열
+  if (parsed && typeof parsed === 'object' && Array.isArray(parsed.jobs)) return parsed.jobs;
+  return [];
 }
 
 async function saveQueue(queue) {
