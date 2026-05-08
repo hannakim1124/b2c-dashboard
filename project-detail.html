@@ -3947,6 +3947,65 @@ CPA: 2,977원
       setInterval(fetchMatchQueueStatus, 30000);
     }
 
+    // 큐 전체 현황 모달 (우상단 ⏳ 큐 N건 배지 클릭)
+    window.openQueueModal = function() {
+      const data = window.MATCH_QUEUE || { pending: [], done: [] };
+      const pending = data.pending || [];
+      const done = (data.done || []).slice().reverse().slice(0, 10);
+      const projectMap = {};
+      try {
+        (JSON.parse(localStorage.getItem('b2c_user_projects') || '[]') || []).forEach(p => {
+          if (p && p.id) projectMap[p.id] = p.title || p.id;
+        });
+        const ov = JSON.parse(localStorage.getItem('b2c_overrides') || '{}');
+        Object.entries(ov || {}).forEach(([id, p]) => {
+          projectMap[id] = (p && p.title) || projectMap[id] || id;
+        });
+      } catch(e) {}
+      const fmtTime = t => { try { return new Date(t).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }); } catch(e) { return ''; } };
+      const ago = t => { try { const d = Math.floor((Date.now() - new Date(t).getTime()) / 60000); return d < 1 ? '방금' : d < 60 ? d + '분 전' : (d < 1440 ? Math.floor(d/60) + '시간 전' : Math.floor(d/1440) + '일 전'); } catch(e) { return ''; } };
+      const pendingRows = pending.length ? pending.map(j => '<tr>'
+        + '<td style="padding:10px 8px;border-bottom:1px solid #f0f0f0">'
+          + '<div style="font-weight:800;color:var(--c-text-1)">' + escapeHtml(projectMap[j.projectId] || j.projectId) + '</div>'
+          + '<div style="font-size:10px;color:var(--c-text-3);margin-top:2px">' + escapeHtml(j.projectId) + '</div>'
+        + '</td>'
+        + '<td style="padding:10px 8px;border-bottom:1px solid #f0f0f0;font-size:11px;color:var(--c-text-2)">' + escapeHtml(j.kpiLabel || '이력서 업데이트') + '</td>'
+        + '<td style="padding:10px 8px;text-align:right;border-bottom:1px solid #f0f0f0;font-size:11px;color:var(--c-text-3);white-space:nowrap">' + fmtTime(j.requestedAt) + '</td>'
+        + '<td style="padding:10px 8px;text-align:right;border-bottom:1px solid #f0f0f0;white-space:nowrap"><span style="display:inline-block;padding:3px 8px;background:#FFF4E5;color:#B57F00;border-radius:6px;font-size:10px;font-weight:800">⏳ 대기</span></td>'
+      + '</tr>').join('') : '';
+      const doneRows = done.length ? done.map(j => '<tr>'
+        + '<td style="padding:8px;border-bottom:1px solid #f0f0f0;color:var(--c-text-2)">'
+          + '<div>' + escapeHtml(projectMap[j.projectId] || j.projectId) + '</div>'
+          + '<div style="font-size:10px;color:var(--c-text-3);margin-top:2px">' + escapeHtml(j.projectId) + '</div>'
+        + '</td>'
+        + '<td style="padding:8px;border-bottom:1px solid #f0f0f0;font-size:11px;color:var(--c-text-3)">' + escapeHtml(j.kpiLabel || '이력서 업데이트') + '</td>'
+        + '<td style="padding:8px;text-align:right;border-bottom:1px solid #f0f0f0;font-size:11px;color:var(--c-text-3);white-space:nowrap">' + ago(j.completedAt || j.requestedAt) + '</td>'
+        + '<td style="padding:8px;text-align:right;border-bottom:1px solid #f0f0f0;white-space:nowrap"><span style="display:inline-block;padding:3px 8px;background:#E5F4ED;color:#008B6A;border-radius:6px;font-size:10px;font-weight:800">✓ 완료</span></td>'
+      + '</tr>').join('') : '';
+      let bg = document.getElementById('queueModalBg');
+      if (bg) bg.remove();
+      bg = document.createElement('div');
+      bg.id = 'queueModalBg';
+      bg.className = 'reason-modal-bg is-open';
+      const pendingTable = pending.length === 0
+        ? '<div style="padding:16px;text-align:center;background:#f5f5f5;color:var(--c-text-3);border-radius:8px;font-size:12px;font-weight:600">대기 중인 작업 없음 — 큐 비어있어요!</div>'
+        : '<div style="overflow-x:auto;border:1px solid #eee;border-radius:8px"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead style="background:#fafafa;font-weight:800"><tr><th style="text-align:left;padding:8px">카드</th><th style="text-align:left;padding:8px">KPI</th><th style="text-align:right;padding:8px">요청 시각</th><th style="text-align:right;padding:8px">상태</th></tr></thead><tbody>' + pendingRows + '</tbody></table></div>';
+      const doneTable = done.length === 0
+        ? '<div style="padding:14px;text-align:center;background:#f5f5f5;color:var(--c-text-3);border-radius:8px;font-size:11px;font-weight:600">완료 기록 없음</div>'
+        : '<div style="overflow-x:auto;border:1px solid #eee;border-radius:8px"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead style="background:#fafafa;font-weight:800"><tr><th style="text-align:left;padding:8px">카드</th><th style="text-align:left;padding:8px">KPI</th><th style="text-align:right;padding:8px">완료</th><th style="text-align:right;padding:8px">상태</th></tr></thead><tbody>' + doneRows + '</tbody></table></div>';
+      bg.innerHTML = '<div class="reason-modal" onclick="event.stopPropagation()" style="max-width:680px;max-height:90vh;overflow-y:auto">'
+        + '<div class="reason-modal-head"><div class="reason-modal-title">⏳ 매칭 큐 현황</div><div class="reason-modal-sub">전체 카드 메타베이스 매칭 작업 — "큐 비워줘" 한 마디면 처리</div></div>'
+        + '<div class="reason-modal-body" style="display:flex;flex-direction:column;gap:18px">'
+          + '<div><div style="font-size:13px;font-weight:800;color:var(--c-text-1);margin-bottom:8px">⏳ 대기 (' + pending.length + '건)</div>' + pendingTable + '</div>'
+          + '<div><div style="font-size:13px;font-weight:800;color:var(--c-text-2);margin-bottom:8px">✓ 최근 완료 (' + done.length + '건)</div>' + doneTable + '</div>'
+          + '<div style="padding:10px 12px;background:var(--c-primary-bg);border-radius:8px;font-size:11px;color:var(--c-text-2);line-height:1.6">💡 <strong>큐 비우기:</strong> 클로드 채팅창에 <code style="background:#fff;padding:2px 6px;border-radius:4px">큐 비워줘</code> 입력하면 클로드가 메타베이스로 일괄 매칭 처리해드려요.</div>'
+        + '</div>'
+        + '<div class="reason-modal-foot"><button class="btn-cancel" onclick="document.getElementById(\'queueModalBg\').remove()">닫기</button><button class="dl-btn-confirm" onclick="fetchMatchQueueStatus().then(function(){document.getElementById(\'queueModalBg\').remove();setTimeout(openQueueModal,200)})">🔄 새로고침</button></div>'
+      + '</div>';
+      document.body.appendChild(bg);
+      bg.addEventListener('click', () => bg.remove());
+    };
+
     // 외부 자료에 새 링크 추가 — 카드 데이터에 박기
     window.addProjectLink = function(projectId) {
       const url = prompt('🔗 링크 URL 입력\n(예: https://docs.google.com/...)');
