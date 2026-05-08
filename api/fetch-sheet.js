@@ -13,21 +13,54 @@ export default async function handler(req, res) {
   try {
     const { sheetUrl, sheetId, gid } = req.body || {};
     if (!sheetId) return res.status(400).json({ error: 'sheetId required' });
-    const g = gid || (sheetUrl || '').match(/[#&?]gid=(\d+)/)?.[1] || '0';
-    const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${g}`;
-    const r = await fetch(csvUrl, {
-      redirect: 'follow',
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/csv,text/plain,*/*'
-      }
-    });
+    const explicitGid = gid || (sheetUrl || '').match(/[#&?]gid=(\d+)/)?.[1];
+
+    const HEADERS = {
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'Accept': 'text/csv,text/plain,*/*'
+    };
+    async function tryFetch(g) {
+      const u = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${g}`;
+      const resp = await fetch(u, { redirect: 'follow', headers: HEADERS });
+      return { resp, csvUrl: u };
+    }
+
+    // 1차: 명시된 gid (또는 0)
+    let g = explicitGid || '0';
+    let { resp: r, csvUrl } = await tryFetch(g);
+
+    // 2차: gid 명시 안 된 경우 + 0 탭이 빈/에러면 → HTML에서 첫 데이터 시트 자동 탐색
+    if (!r.ok && !explicitGid) {
+      try {
+        const editUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/edit`;
+        const editResp = await fetch(editUrl, { redirect: 'follow', headers: HEADERS });
+        if (editResp.ok) {
+          const html = await editResp.text();
+          // sheetId 패턴으로 등장하는 첫 번째 숫자 gid 추출
+          const m = html.match(/"sheetId":(\d+)/g);
+          if (m && m.length) {
+            const gids = m.map(x => x.replace(/"sheetId":/, '')).filter(x => x !== '0');
+            for (const candidate of gids.slice(0, 5)) {
+              const tried = await tryFetch(candidate);
+              if (tried.resp.ok) {
+                r = tried.resp;
+                csvUrl = tried.csvUrl;
+                g = candidate;
+                break;
+              }
+            }
+          }
+        }
+      } catch (e) { /* 탐색 실패 시 원래 에러로 진행 */ }
+    }
+
     if (!r.ok) {
-      // 401: 비공개 / 404: 잘못된 ID
+      // 401: 비공개 / 404: 잘못된 ID / 400: gid 없음
       return res.status(200).json({
         ok: false,
         error: r.status === 401 ? '시트가 비공개. "링크 있는 모두 — 뷰어"로 권한 풀어주세요'
              : r.status === 404 ? '시트를 찾을 수 없음 (URL 확인)'
+             : r.status === 400 ? '시트의 정확한 탭 URL이 필요해요. 데이터 탭 클릭 후 URL 복사 (gid 포함)'
              : `fetch 실패 (${r.status})`,
         status: r.status
       });
