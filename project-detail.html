@@ -2319,10 +2319,17 @@
               rows = fetched;
               source = 'live';
               cacheFetchedAt = new Date().toISOString();
-              // 인메모리 + localStorage 캐시 갱신 (다음번엔 즉시)
               window.SHEET_CACHES = window.SHEET_CACHES || {};
               window.SHEET_CACHES[sheetId] = { sheetId, sheetUrl: originalUrl, fetchedAt: cacheFetchedAt, rows };
               try { localStorage.setItem('b2c_sheet_data_' + sheetId, JSON.stringify(window.SHEET_CACHES[sheetId])); } catch(e) {}
+              // 처음 fetch 후 KPI/광고효율 등 외부 영역 갱신 위해 1회 reload
+              const reloadKey = 'autofetched_' + sheetId;
+              if (!sessionStorage.getItem(reloadKey)) {
+                sessionStorage.setItem(reloadKey, '1');
+                container.innerHTML = '<div class="sheet-loading">📊 분석 중... 새로고침</div>';
+                setTimeout(() => location.reload(), 300);
+                return;
+              }
             }
           }
         } catch(e) {}
