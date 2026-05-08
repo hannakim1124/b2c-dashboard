@@ -1389,6 +1389,10 @@
           else timeProgress = (td - sd) / (ed - sd);
         }
       }
+      // KPI 시트 연결 버튼 prefill용 (raw 값 - onclick에서 escapeHtml 호출)
+      const _sheetIdForModal = sheetUrl ? (sheetUrl.match(/spreadsheets\/d\/([\w-]+)/)?.[1] || '') : '';
+      const _sheetUrlForModal = sheetUrl || '';
+
       function calcTrafficLight(current, target) {
         if (current == null || target == null || target === 0) return null;
         const actual = current / target;
