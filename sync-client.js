@@ -39,6 +39,7 @@
       if (!data) return;
 
       let applied = 0;
+      let emptyRestored = 0;
       Object.entries(data).forEach(([k, v]) => {
         if (typeof v !== 'string') return;
         // 1) 항상 서버 우선 (매칭 결과)
@@ -51,14 +52,16 @@
         if (PULL_IF_EMPTY.includes(k) && isLocallyEmpty(k)) {
           localStorage.setItem(k, v);
           applied++;
+          emptyRestored++;
           return;
         }
       });
 
       if (applied > 0) {
-        console.log('[sync] ' + applied + '개 매칭 결과 서버에서 갱신');
-        // 1회만 reload (KPI 카드에 즉시 반영)
-        if (!sessionStorage.getItem(RELOADED_FLAG)) {
+        console.log('[sync] ' + applied + '개 갱신 (empty 복원 ' + emptyRestored + ')');
+        // emptyRestored가 발생하면 무조건 reload (비어있을 때만 PULL이라 무한루프 위험 없음)
+        // PULL_PREFIXES만 적용된 경우 sessionStorage flag로 1회 제한
+        if (emptyRestored > 0 || !sessionStorage.getItem(RELOADED_FLAG)) {
           sessionStorage.setItem(RELOADED_FLAG, '1');
           setTimeout(function() { location.reload(); }, 300);
         }
