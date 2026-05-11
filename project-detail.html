@@ -1528,23 +1528,10 @@
                   ⚠️ 시트에 <strong>회원ID 컬럼</strong>이 없어요. 회원ID 컬럼 추가하면 자동 매칭 가능
                 </div>
               </div>`;
-          } else {
-            progressHtml = `
-              <div class="kpi-progress">
-                <div style="padding:10px 12px;background:var(--c-warning-bg);color:#8B5A00;border-radius:8px;font-size:11px;font-weight:600;line-height:1.5">
-                  ⓘ 아래 <strong>📊 신청자 자동 분석</strong>에서 시트 연결 후 회원ID로 자동 매칭돼용
-                </div>
-              </div>`;
           }
-        } else if (target != null) {
-          // 신청자/기타 KPI — 시트 연결은 신청자 자동 분석에서 (모든 카드 동일 규칙)
-          progressHtml = `
-            <div class="kpi-progress">
-              <div style="padding:10px 12px;background:var(--c-warning-bg);color:#8B5A00;border-radius:8px;font-size:11px;font-weight:600;line-height:1.5">
-                ⓘ 아래 <strong>📊 신청자 자동 분석</strong>에서 시트 연결하면 자동으로 매칭돼용
-              </div>
-            </div>`;
+          // KPI별 시트 연결 안내 제거 — 카드 상단/자동분석 섹션에서 1회만
         }
+        // 신청자/기타 KPI는 시트 연결 안내 없음 (반복 안내 제거)
         // 신규/기존 가입자 분류 (이력서 KPI일 때만, signup 데이터 있을 때만)
         const signupInfo = isResumeKpi ? (window.RESUME_CACHES && window.RESUME_CACHES[p.id]?.signup) : null;
         const signupHtml = signupInfo ? `
