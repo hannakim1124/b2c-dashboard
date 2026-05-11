@@ -4941,9 +4941,10 @@ CPA: 2,977원
           });
           const data = await r.json();
           if (!data.ok) {
-            submitBtn.disabled = false;
-            submitBtn.textContent = '🚀 자동 갱신';
-            showToast(`<span class="ok">⚠️</span>${data.error || 'fetch 실패'}`);
+            // 실패 시 즉시 복붙 모달로 자동 전환 (한나님 시간 안 뺏기게)
+            bg.remove();
+            showToast(`<span class="ok">⚠️</span>${data.error || 'fetch 실패'} — 복붙 모드로 전환`);
+            setTimeout(() => openSheetPasteModal(newSheetId, url, projectId), 400);
             return;
           }
           // 인메모리 + localStorage 둘 다 갱신
@@ -4975,9 +4976,10 @@ CPA: 2,977원
           }
           setTimeout(() => location.reload(), 1800);
         } catch(e) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = '🚀 자동 갱신';
-          showToast(`<span class="ok">⚠️</span>갱신 실패: ${e.message || '네트워크 오류'}`);
+          // 네트워크/타임아웃 에러도 즉시 복붙 모달로 전환
+          bg.remove();
+          showToast(`<span class="ok">⚠️</span>네트워크 에러 — 복붙 모드로 전환`);
+          setTimeout(() => openSheetPasteModal(newSheetId, url, projectId), 400);
         }
       });
     };

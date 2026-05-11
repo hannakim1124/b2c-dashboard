@@ -54,11 +54,23 @@ export default async function handler(req, res) {
       } catch (e) { /* 탐색 실패 시 원래 에러로 진행 */ }
     }
 
+    // 3차 fallback: gviz API — gid 없이도 첫 탭 csv export 가능 (Google 공식 endpoint)
+    if (!r.ok) {
+      try {
+        const gvizUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
+        const gv = await fetch(gvizUrl, { redirect: 'follow', headers: HEADERS });
+        if (gv.ok) {
+          r = gv;
+          csvUrl = gvizUrl;
+        }
+      } catch (e) {}
+    }
+
     if (!r.ok) {
       // 401: 비공개 / 404: 잘못된 ID / 400: gid 없음
       return res.status(200).json({
         ok: false,
-        error: r.status === 401 ? '시트가 비공개. "링크 있는 모두 — 뷰어"로 권한 풀어주세요'
+        error: r.status === 401 ? '시트가 비공개예요. 우상단 "공유 → 일반 액세스 → 링크 있는 모두 (뷰어)"로 풀어주세요'
              : r.status === 404 ? '시트를 찾을 수 없음 (URL 확인)'
              : r.status === 400 ? '시트의 정확한 탭 URL이 필요해요. 데이터 탭 클릭 후 URL 복사 (gid 포함)'
              : `fetch 실패 (${r.status})`,
