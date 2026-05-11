@@ -4,5 +4,9 @@
       "path": "/api/daily-report",
       "schedule": "3 1 * * *"
     }
-  ]
+  ],
+  "functions": {
+    "api/fetch-sheet.js": { "maxDuration": 30 },
+    "api/sync.js": { "maxDuration": 10 }
+  }
 }
