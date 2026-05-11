@@ -2299,6 +2299,16 @@
                       </div>
                     </section>`;
                 })()}
+                ${(function renderDocsBlock() {
+                  return `
+                    <section class="section" id="docs">
+                      <span class="sec-eyebrow">Docs & References</span>
+                      <h2 class="sec-title">📄 문서 연결</h2>
+                      <div id="docsContainer-${escapeHtml(p.id || 'default')}" data-pid="${escapeHtml(p.id || 'default')}">
+                        <div style="padding:16px;background:var(--c-surface-alt);border-radius:8px;font-size:13px;color:var(--c-text-3);text-align:center">⏳ 문서 로드 중...</div>
+                      </div>
+                    </section>`;
+                })()}
                 ${donutHtml}
                 ${linksHtml}
                 ${retroHtml}
@@ -2314,8 +2324,9 @@
                   ${showStorySection ? '<li><a href="#story" data-toc><span class="num">02</span>이야기</a></li>' : ''}
                   <li><a href="#budget" data-toc><span class="num">${showStorySection ? '03' : '02'}</span>예산</a></li>
                   <li><a href="#ad-efficiency" data-toc><span class="num">${showStorySection ? '04' : '03'}</span>광고 효율</a></li>
-                  ${(p.nextActions && p.nextActions.length) ? `<li><a href="#next" data-toc><span class="num">${showStorySection ? '05' : '04'}</span>다음 액션</a></li>` : ''}
-                  ${relList.length ? `<li><a href="#related" data-toc><span class="num">${showStorySection ? '06' : '05'}</span>관련 프로젝트</a></li>` : ''}
+                  <li><a href="#docs" data-toc><span class="num">${showStorySection ? '05' : '04'}</span>문서 연결</a></li>
+                  ${(p.nextActions && p.nextActions.length) ? `<li><a href="#next" data-toc><span class="num">${showStorySection ? '06' : '05'}</span>다음 액션</a></li>` : ''}
+                  ${relList.length ? `<li><a href="#related" data-toc><span class="num">${showStorySection ? '07' : '06'}</span>관련 프로젝트</a></li>` : ''}
                 </ul>
                 <div class="toc-timeline">
                   <div class="toc-title">📅 진행 타임라인</div>
@@ -4478,10 +4489,17 @@ CPA: 2,977원
     };
     // 페이지 로드 시 + 30초마다 자동 갱신
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => { fetchMatchQueueStatus(); setInterval(fetchMatchQueueStatus, 30000); });
+      document.addEventListener('DOMContentLoaded', () => {
+        fetchMatchQueueStatus(); setInterval(fetchMatchQueueStatus, 30000);
+        // 📄 docs 섹션 자동 렌더 (페이지 박힌 후)
+        const pid = new URLSearchParams(location.search).get('id');
+        if (pid && window.renderDocsSection) setTimeout(() => window.renderDocsSection(pid), 200);
+      });
     } else {
       fetchMatchQueueStatus();
       setInterval(fetchMatchQueueStatus, 30000);
+      const pid = new URLSearchParams(location.search).get('id');
+      if (pid && window.renderDocsSection) setTimeout(() => window.renderDocsSection(pid), 200);
     }
 
     // 큐 전체 현황 모달 (우상단 ⏳ 큐 N건 배지 클릭)
@@ -5028,6 +5046,135 @@ CPA: 2,977원
         bg.remove();
         showToast(`<span class="ok">✓</span>${parsedRows.length-1}행 박힘! 분석 결과 표시`);
         setTimeout(() => location.reload(), 600);
+      });
+    };
+
+    // 📄 docs/drive 자료 연결 (별도 섹션)
+    window.getConnectedDocs = function(projectId) {
+      try { return JSON.parse(localStorage.getItem('b2c_docs_' + projectId) || '[]'); } catch(e) { return []; }
+    };
+    window.saveConnectedDocs = function(projectId, list) {
+      localStorage.setItem('b2c_docs_' + projectId, JSON.stringify(list));
+    };
+    window.renderDocsSection = function(projectId) {
+      const container = document.getElementById('docsContainer-' + projectId);
+      if (!container) return;
+      const docs = window.getConnectedDocs(projectId);
+      const addBtn = `<button onclick="openDocConnectModal('${escapeHtml(projectId)}')" style="padding:10px 16px;background:var(--c-primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">＋ docs/drive URL 박기</button>`;
+      if (!docs.length) {
+        container.innerHTML = `
+          <div style="padding:24px;background:var(--c-surface-alt);border-radius:10px;text-align:center">
+            <div style="font-size:13px;color:var(--c-text-3);margin-bottom:14px;line-height:1.6">관련 docs · drive 파일 박아두면 본문 미리보기까지 자동 표시돼요</div>
+            ${addBtn}
+          </div>`;
+        return;
+      }
+      container.innerHTML = `
+        <div style="display:flex;flex-direction:column;gap:10px">
+          ${docs.map((d, i) => {
+            const preview = (d.text || '').slice(0, 220);
+            const typeLabel = d.type === 'doc' ? '📝 docs' : d.type === 'drive-text' ? '📄 drive 텍스트' : d.type === 'drive-binary' ? '📎 drive 파일' : '🔗 link';
+            return `
+              <div style="padding:14px;background:#fff;border:1px solid var(--c-border);border-radius:8px">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px">
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:11px;font-weight:700;color:var(--c-text-3);margin-bottom:4px">${typeLabel} · ${d.fetchedAt ? d.fetchedAt.slice(0,10) : ''} · ${(d.length||0).toLocaleString()}자</div>
+                    <div style="font-size:14px;font-weight:800;color:var(--c-text);word-break:break-all">${escapeHtml(d.title || d.url || '제목 없음')}</div>
+                  </div>
+                  <div style="display:flex;gap:4px;flex-shrink:0">
+                    <a href="${escapeHtml(d.url)}" target="_blank" rel="noopener" style="padding:6px 10px;background:transparent;color:var(--c-primary);border:1px solid var(--c-primary);border-radius:6px;font-size:11px;font-weight:700;text-decoration:none">↗ 원본</a>
+                    <button onclick="refreshDoc('${escapeHtml(projectId)}', ${i})" style="padding:6px 10px;background:transparent;color:var(--c-text-2);border:1px solid var(--c-border);border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">🔄</button>
+                    <button onclick="removeDoc('${escapeHtml(projectId)}', ${i})" style="padding:6px 10px;background:transparent;color:#dc2626;border:1px solid #fecaca;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">🗑</button>
+                  </div>
+                </div>
+                ${preview ? `<pre style="margin:0;padding:10px;background:var(--c-surface-alt);border-radius:6px;font-family:'Pretendard',sans-serif;font-size:12px;line-height:1.6;color:var(--c-text-2);white-space:pre-wrap;word-break:break-word;max-height:160px;overflow-y:auto">${escapeHtml(preview)}${d.text && d.text.length > 220 ? '...' : ''}</pre>` : `<div style="font-size:12px;color:var(--c-text-3);padding:8px;background:var(--c-surface-alt);border-radius:6px">${escapeHtml(d.note || '본문 미리보기 없음 (바이너리 파일)')}</div>`}
+              </div>`;
+          }).join('')}
+          <div style="margin-top:4px">${addBtn}</div>
+        </div>`;
+    };
+
+    window.refreshDoc = async function(projectId, idx) {
+      const docs = window.getConnectedDocs(projectId);
+      const d = docs[idx];
+      if (!d || !d.url) return;
+      showToast('<span class="ok">⏳</span>다시 fetch 중...');
+      const apiBase = location.protocol === 'file:' ? 'https://b2c-dashboard-sigma.vercel.app' : '';
+      try {
+        const r = await fetch(apiBase + '/api/fetch-doc', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: d.url }) });
+        const j = await r.json();
+        if (!j.ok) { showToast(`<span class="ok">⚠️</span>${j.error}`); return; }
+        Object.assign(d, j);
+        window.saveConnectedDocs(projectId, docs);
+        window.renderDocsSection(projectId);
+        showToast('<span class="ok">✓</span>본문 갱신');
+      } catch(e) { showToast(`<span class="ok">⚠️</span>${e.message}`); }
+    };
+
+    window.removeDoc = function(projectId, idx) {
+      if (!confirm('이 문서 연결을 지울까요?')) return;
+      const docs = window.getConnectedDocs(projectId);
+      docs.splice(idx, 1);
+      window.saveConnectedDocs(projectId, docs);
+      window.renderDocsSection(projectId);
+      showToast('<span class="ok">✓</span>지웠어요');
+    };
+
+    window.openDocConnectModal = function(projectId) {
+      let bg = document.getElementById('docConnBg');
+      if (bg) bg.remove();
+      bg = document.createElement('div');
+      bg.id = 'docConnBg';
+      bg.className = 'reason-modal-bg is-open';
+      bg.innerHTML = `
+        <div class="reason-modal" onclick="event.stopPropagation()" style="max-width:560px">
+          <div class="reason-modal-head">
+            <div class="reason-modal-title">📄 문서 URL 연결</div>
+            <div class="reason-modal-sub">구글 docs · drive 공유 파일 URL 박으면 본문 미리보기까지 자동 추출</div>
+          </div>
+          <div class="reason-modal-body" style="display:flex;flex-direction:column;gap:10px">
+            <label style="font-size:12px;font-weight:700;color:var(--c-text-2)">URL
+              <input id="dcUrl" type="url" placeholder="https://docs.google.com/document/d/... 또는 https://drive.google.com/file/d/..." style="width:100%;margin-top:4px;padding:12px;border:1px solid var(--c-border);border-radius:8px;font-family:inherit;font-size:13px">
+            </label>
+            <label style="font-size:12px;font-weight:700;color:var(--c-text-2)">제목 (선택)
+              <input id="dcTitle" type="text" placeholder="예: 워크페스트 이메일 카피 / 광고 가이드 / 운영 매뉴얼" style="width:100%;margin-top:4px;padding:12px;border:1px solid var(--c-border);border-radius:8px;font-family:inherit;font-size:13px">
+            </label>
+            <div style="font-size:11px;color:var(--c-text-3);line-height:1.6">💡 권한이 <strong>"링크 있는 모두 — 뷰어"</strong>여야 본문 자동 추출. 비공개면 본문 없이 링크만 박힘.</div>
+          </div>
+          <div class="reason-modal-foot">
+            <button class="btn-cancel" id="dcCancel">취소</button>
+            <button class="dl-btn-confirm" id="dcSubmit">🚀 연결</button>
+          </div>
+        </div>`;
+      document.body.appendChild(bg);
+      bg.addEventListener('click', () => bg.remove());
+      bg.querySelector('#dcCancel').addEventListener('click', () => bg.remove());
+      bg.querySelector('#dcSubmit').addEventListener('click', async () => {
+        const url = bg.querySelector('#dcUrl').value.trim();
+        const title = bg.querySelector('#dcTitle').value.trim();
+        if (!url) { showToast('<span class="ok">⚠️</span>URL 입력해주세요'); return; }
+        showToast('<span class="ok">⏳</span>fetch 중...');
+        const apiBase = location.protocol === 'file:' ? 'https://b2c-dashboard-sigma.vercel.app' : '';
+        try {
+          const r = await fetch(apiBase + '/api/fetch-doc', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) });
+          const j = await r.json();
+          const docs = window.getConnectedDocs(projectId);
+          if (!j.ok) {
+            // 실패해도 URL은 박아둠 (한나님 시간 안 뺏기게)
+            docs.push({ url, title: title || url, error: j.error, fetchedAt: new Date().toISOString() });
+            window.saveConnectedDocs(projectId, docs);
+            bg.remove();
+            showToast(`<span class="ok">⚠️</span>본문 추출 실패: ${j.error} — 링크만 박았어요`);
+          } else {
+            docs.push({ ...j, url, title: title || j.title || url });
+            window.saveConnectedDocs(projectId, docs);
+            bg.remove();
+            showToast(`<span class="ok">✓</span>${j.length ? j.length.toLocaleString() + '자' : ''} 박힘`);
+          }
+          window.renderDocsSection(projectId);
+        } catch(e) {
+          showToast(`<span class="ok">⚠️</span>네트워크 에러: ${e.message}`);
+        }
       });
     };
 
