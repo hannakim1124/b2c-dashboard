@@ -5347,21 +5347,47 @@ CPA: 2,977원
             () => downloadFile(`${projectName}_${today}.md`, md, 'text/markdown')
           );
         } else {
-          // txt — 메모장에서 깔끔하게 보이게 markdown 기호 일부 제거
-          const txt = selected.map(s => {
+          // txt — 한나님 형식 (▣ + · 트리, ━ 구분선)
+          const title = (p?.title || projectName);
+          const period = p?.period || p?.date || '';
+          const BAR = '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━';
+          let out = '';
+          out += BAR + '\n';
+          out += `  ${title} 분석 보고서\n`;
+          if (period) out += `  기준기간: ${period}\n`;
+          out += `  생성일: ${today}\n`;
+          out += BAR + '\n';
+          selected.forEach(s => {
             const md = s.getMD();
-            return md
-              .replace(/^#+\s*/gm, '')          // 헤딩 # 제거
-              .replace(/\*\*(.+?)\*\*/g, '$1')  // **bold** 제거
-              .replace(/\*(.+?)\*/g, '$1')      // *italic* 제거
-              .replace(/^\|/gm, '')             // 표 시작 | 제거
-              .replace(/\|$/gm, '')             // 표 끝 | 제거
-              .replace(/\|/g, '\t')             // 표 구분자 | → tab
-              .replace(/^-+\s*$/gm, '')         // 표 구분 줄 (---) 제거
-              .replace(/^-\s*/gm, '· ');        // 리스트 - → ·
-          }).join('\n\n────────────────────\n\n');
-          downloadFile(`${projectName}_${today}.txt`, txt, 'text/plain');
-          showToast(`<span class="ok">✓</span>${selected.length}개 섹션 텍스트 다운로드 (메모장으로 열림)`);
+            // 줄 단위 변환
+            const lines = md.split('\n');
+            const converted = lines.map(line => {
+              // 표 구분 줄 (|---|---|) 제거
+              if (/^\s*\|?\s*[-:]+\s*(\|\s*[-:]+\s*)*\|?\s*$/.test(line)) return null;
+              // 헤딩 # → ▣
+              let m = line.match(/^#+\s+(.+)$/);
+              if (m) return '\n▣ ' + m[1].replace(/\*\*/g, '');
+              // quote > → 들여쓰기
+              m = line.match(/^>\s+(.+)$/);
+              if (m) return '  ' + m[1];
+              // 표 행 | a | b | c | → · a    b    c
+              if (/^\s*\|.+\|\s*$/.test(line)) {
+                const cells = line.replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|').map(c => c.trim());
+                return '  · ' + cells.join(' :: ');
+              }
+              // 리스트 - / • → ·
+              m = line.match(/^[-•]\s+(.+)$/);
+              if (m) return '  · ' + m[1];
+              return line;
+            }).filter(l => l !== null);
+            out += converted.join('\n')
+              .replace(/\*\*(.+?)\*\*/g, '$1')
+              .replace(/\*(.+?)\*/g, '$1')
+              + '\n';
+          });
+          out += '\n' + BAR + '\n';
+          downloadFile(`${projectName}_${today}.txt`, out, 'text/plain');
+          showToast(`<span class="ok">✓</span>${selected.length}개 섹션 텍스트 다운로드 (▣ + · 트리 형식)`);
         }
         close();
       });
