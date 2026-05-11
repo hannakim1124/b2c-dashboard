@@ -15,27 +15,30 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
 
   try {
-    const { text, channel } = req.body || {};
-    if (!text) return res.status(400).json({ error: 'text required' });
+    const { text, channel, debug } = req.body || {};
 
-    // 채널별 webhook 선택 (확장 가능)
+    // 채널별 webhook 선택 + 양끝 공백/줄바꿈 제거 (vercel env var 복붙 시 오염 방지)
     const envKey = channel ? `SLACK_WEBHOOK_${channel.toUpperCase()}` : 'SLACK_WEBHOOK_DDANNA';
-    const webhook = process.env[envKey] || process.env.SLACK_WEBHOOK_DDANNA;
+    const rawWebhook = process.env[envKey] || process.env.SLACK_WEBHOOK_DDANNA || '';
+    const webhook = rawWebhook.trim();
     if (!webhook) {
-      return res.status(500).json({
-        ok: false,
-        error: `${envKey} 환경변수 없음. vercel Dashboard → Settings → Environment Variables 추가`
-      });
+      return res.status(500).json({ ok: false, error: `${envKey} 환경변수 없음` });
     }
-    // 디버그 모드 (?debug=1)
-    if (req.query?.debug === '1' || (req.body && req.body.debug)) {
+    // 디버그 모드 — text 없이도 호출 가능
+    if (debug || req.query?.debug === '1') {
       return res.status(200).json({
         ok: true,
-        webhookPrefix: webhook.substring(0, 50),
+        envKey,
         webhookLength: webhook.length,
-        envKey
+        rawLength: rawWebhook.length,
+        wasTrimmed: rawWebhook.length !== webhook.length,
+        webhookPrefix: webhook.substring(0, 45),
+        webhookSuffix: webhook.substring(webhook.length - 8),
+        startsWithSlack: webhook.startsWith('https://hooks.slack.com/services/')
       });
     }
+
+    if (!text) return res.status(400).json({ error: 'text required' });
 
     const r = await fetch(webhook, {
       method: 'POST',
