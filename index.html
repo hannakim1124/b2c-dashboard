@@ -905,6 +905,36 @@
   </style>
 </head>
 <body>
+  <!-- ① 카드 자동 복원 (sync-client 의존성 없이 inline 강제 PULL) -->
+  <script>
+  (function autoRestore() {
+    try {
+      // localStorage에 카드 있으면 skip — 단 빈 배열 '[]'이면 PULL 시도
+      const cur = localStorage.getItem('b2c_user_projects');
+      if (cur && cur !== '[]' && cur !== 'null') return;
+      if (sessionStorage.getItem('_b2c_inline_restored')) return; // 무한루프 방지
+
+      fetch('/api/sync?t=' + Date.now(), { cache: 'no-store' })
+        .then(r => r.json())
+        .then(j => {
+          if (!j || !j.data) return;
+          const o = typeof j.data === 'string' ? JSON.parse(j.data) : j.data;
+          let restored = 0;
+          for (const k in o) {
+            if (typeof o[k] === 'string' && !localStorage.getItem(k)) {
+              localStorage.setItem(k, o[k]);
+              restored++;
+            }
+          }
+          if (restored > 0) {
+            sessionStorage.setItem('_b2c_inline_restored', '1');
+            location.reload();
+          }
+        })
+        .catch(() => {});
+    } catch (e) {}
+  })();
+  </script>
   <!-- 디바이스 간 동기화 (Vercel KV) -->
   <script src="sync-client.js?v=20260508c"></script>
   <!-- 업데이트 띠 배너 (fixed, nav 위) -->
