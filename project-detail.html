@@ -1202,6 +1202,7 @@
         <div class="dl-format-row">
           <button class="dl-format-btn is-active" data-fmt="csv">📊 CSV (엑셀)</button>
           <button class="dl-format-btn" data-fmt="md">📝 마크다운 (노션)</button>
+          <button class="dl-format-btn" data-fmt="txt">📄 텍스트 (메모장)</button>
         </div>
       </div>
       <div class="dl-modal-foot">
@@ -3371,23 +3372,31 @@
         <div class="reason-modal" onclick="event.stopPropagation()" style="max-width:580px">
           <div class="reason-modal-head">
             <div class="reason-modal-title">📥 광고 리포트 제출</div>
-            <div class="reason-modal-sub">링크 또는 텍스트 복붙 — 클로드가 읽고 가독성 있게 박아드려요</div>
+            <div class="reason-modal-sub">시트 URL · 파일 업로드 · 텍스트 복붙 — 즉시 분석</div>
           </div>
           <div class="reason-modal-body" style="display:flex;flex-direction:column;gap:8px">
-            <label class="reason-option" style="cursor:pointer">
-              <input type="radio" name="adMethod" value="link" style="width:18px;height:18px;accent-color:var(--c-primary)">
+            <label class="reason-option is-selected" style="cursor:pointer">
+              <input type="radio" name="adMethod" value="link" checked style="width:18px;height:18px;accent-color:var(--c-primary)">
               <span class="ic">🔗</span>
               <div style="flex:1">
-                <div style="font-weight:700">링크 연결 (구글 시트 / 엑셀 / Drive)</div>
-                <div style="font-size:11px;color:var(--c-text-3);font-weight:500">광고 리포트 URL 입력</div>
+                <div style="font-weight:700">구글 시트 URL (자동 fetch)</div>
+                <div style="font-size:11px;color:var(--c-text-3);font-weight:500">시트 공유 풀어두면 즉시 읽음 — 공유 안 풀려있어도 친절히 안내</div>
               </div>
             </label>
-            <label class="reason-option is-selected" style="cursor:pointer">
-              <input type="radio" name="adMethod" value="text" checked style="width:18px;height:18px;accent-color:var(--c-primary)">
+            <label class="reason-option" style="cursor:pointer">
+              <input type="radio" name="adMethod" value="file" style="width:18px;height:18px;accent-color:var(--c-primary)">
+              <span class="ic">📎</span>
+              <div style="flex:1">
+                <div style="font-weight:700">파일 업로드 (csv · xlsx · pdf · 이미지)</div>
+                <div style="font-size:11px;color:var(--c-text-3);font-weight:500">CSV는 즉시 파싱 · 나머지는 클로드 보완</div>
+              </div>
+            </label>
+            <label class="reason-option" style="cursor:pointer">
+              <input type="radio" name="adMethod" value="text" style="width:18px;height:18px;accent-color:var(--c-primary)">
               <span class="ic">📝</span>
               <div style="flex:1">
-                <div style="font-weight:700">텍스트 복붙 (가장 빠름)</div>
-                <div style="font-size:11px;color:var(--c-text-3);font-weight:500">광고 리포트 표/요약 Ctrl+C → 여기 Ctrl+V</div>
+                <div style="font-weight:700">텍스트 복붙</div>
+                <div style="font-size:11px;color:var(--c-text-3);font-weight:500">광고 리포트 표/요약 Ctrl+C → Ctrl+V</div>
               </div>
             </label>
             <div id="adMethodArea" style="margin-top:12px"></div>
@@ -3405,10 +3414,32 @@
       function render(method) {
         if (method === 'link') {
           area.innerHTML = `
-            <input type="url" id="adLinkInput" placeholder="https://docs.google.com/spreadsheets/... 또는 광고 리포트 URL" style="width:100%;padding:10px;border:1px solid var(--c-border);border-radius:8px;font-family:inherit;font-size:13px">
+            <input type="url" id="adLinkInput" placeholder="https://docs.google.com/spreadsheets/d/.../edit?gid=..." style="width:100%;padding:10px;border:1px solid var(--c-border);border-radius:8px;font-family:inherit;font-size:13px">
             <div style="font-size:11px;color:var(--c-text-3);margin-top:6px;line-height:1.6">
-              제출 → 슬랙 알림 + 클립보드 복사 → 클로드 채팅에 붙여넣기 → 클로드가 시트 분석 → 카드 갱신
+              제출 → 자동 fetch → 자체 파싱 → 부족분 클로드 보완.<br>
+              <strong style="color:var(--c-text-2)">읽기 실패 시</strong>: 시트 우상단 <em>공유 → 일반 액세스 → 링크가 있는 모든 사용자 (뷰어)</em>로 설정.
             </div>`;
+        } else if (method === 'file') {
+          area.innerHTML = `
+            <input type="file" id="adFileInput" accept=".csv,.xlsx,.xls,.pdf,.png,.jpg,.jpeg" style="width:100%;padding:10px;border:1px solid var(--c-border);border-radius:8px;font-family:inherit;font-size:13px;background:#fff">
+            <div id="adFilePreview" style="margin-top:8px;font-size:11px;color:var(--c-text-3);line-height:1.6">
+              CSV/엑셀로 저장된 광고 리포트는 즉시 파싱 · PDF/이미지는 클로드 보완으로 처리
+            </div>`;
+          // 파일 미리보기 — CSV는 즉시 head 보여줌
+          bg.querySelector('#adFileInput').addEventListener('change', (e) => {
+            const f = e.target.files?.[0];
+            if (!f) return;
+            const prev = bg.querySelector('#adFilePreview');
+            prev.innerHTML = `📎 <strong>${escapeHtml(f.name)}</strong> · ${(f.size/1024).toFixed(1)}KB`;
+            if (/\.csv$/i.test(f.name)) {
+              const reader = new FileReader();
+              reader.onload = (ev) => {
+                const head = ev.target.result.split('\n').slice(0,3).join('\n');
+                prev.innerHTML += `<pre style="margin-top:8px;padding:8px;background:var(--c-surface-alt);border-radius:6px;font-size:10px;overflow-x:auto;max-height:80px">${escapeHtml(head)}</pre>`;
+              };
+              reader.readAsText(f);
+            }
+          });
         } else {
           area.innerHTML = `
             <textarea id="adTextInput" rows="12" placeholder="광고 리포트 텍스트 붙여넣기 (Ctrl+V)
@@ -3428,11 +3459,11 @@ CPA: 2,977원
 - 연사이미지 1,785,000원  39.7%  ...
 ..." style="width:100%;padding:12px;border:1px solid var(--c-border);border-radius:8px;font-family:monospace;font-size:12px;line-height:1.5;resize:vertical"></textarea>
             <div style="font-size:11px;color:var(--c-text-3);margin-top:6px;line-height:1.6">
-              제출 → 자체 1차 파싱 → 부족분은 클로드가 읽고 보완 → 카드에 가독성 있게 박힘
+              제출 → 자체 1차 파싱 → 부족분은 클로드가 보완 → 카드에 가독성 있게 박힘
             </div>`;
         }
       }
-      render('text');
+      render('link');
       bg.querySelectorAll('input[name="adMethod"]').forEach(rb => {
         rb.addEventListener('change', () => {
           bg.querySelectorAll('.reason-option').forEach(o => o.classList.remove('is-selected'));
@@ -3441,7 +3472,7 @@ CPA: 2,977원
         });
       });
 
-      bg.querySelector('#adSubmit').addEventListener('click', () => {
+      bg.querySelector('#adSubmit').addEventListener('click', async () => {
         const method = bg.querySelector('input[name="adMethod"]:checked').value;
         const adKey = 'b2c_ad_report_' + projectId;
         const project = window.getProject ? window.getProject(projectId) : null;
@@ -3450,18 +3481,86 @@ CPA: 2,977원
         if (method === 'link') {
           const url = bg.querySelector('#adLinkInput').value.trim();
           if (!url) { showToast('<span class="ok">⚠️</span>URL 입력!'); return; }
-          // placeholder 박고 클로드한테 분석 요청
-          const placeholder = { source: 'link', sourceUrl: url, lastUpdated: new Date().toISOString().slice(0,10), pending: true };
-          localStorage.setItem(adKey, JSON.stringify(placeholder));
-          const requestMsg = `${title} 광고 리포트 분석해줘\n- 시트: ${url}\n- 프로젝트 ID: ${projectId}\n\n→ 시트 fetch해서 \`b2c_ad_report_${projectId}\` 갱신:\n\`\`\`json\n{"totalSpent":0,"impressions":0,"clicks":0,"ctr":0,"cpc":0,"conversions":0,"cpa":0,"byCampaign":[{"name":"...","spent":0,"share":0}],"bySource":[],"note":"...","lastUpdated":"YYYY-MM-DD"}\n\`\`\``;
+          const sm = url.match(/spreadsheets\/d\/([\w-]+)/);
+          if (!sm) { showToast('<span class="ok">⚠️</span>구글 시트 URL 형식이 아니에요'); return; }
+          const sheetId = sm[1];
+          const gidMatch = url.match(/[#&?]gid=(\d+)/);
+          const gid = gidMatch ? gidMatch[1] : null;
+          showToast('<span class="ok">⏳</span>시트 자동 fetch 중...');
+          const apiBase = location.protocol === 'file:' ? 'https://b2c-dashboard-sigma.vercel.app' : '';
           try {
-            fetch(SLACK_WEBHOOK_DDANNA, { method:'POST', mode:'no-cors', body: JSON.stringify({ text: `<@U09UQNGH6DC> 📈 *광고 리포트 링크 제출*\n• 프로젝트: ${title}\n• URL: ${url}\n\n${requestMsg}` }) }).catch(()=>{});
-          } catch(e) {}
-          if (navigator.clipboard) navigator.clipboard.writeText(requestMsg).catch(()=>{});
-          showToast(`<span class="ok">✓</span>링크 저장 + 매니저 요청!<br>분석 완료 후 자동 반영`);
+            const r = await fetch(apiBase + '/api/fetch-sheet', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ sheetUrl: url, sheetId, gid })
+            });
+            const j = await r.json();
+            if (!j.ok) {
+              // 시트 비공개 또는 fetch 실패 → 친절한 안내 + 텍스트 모드 fallback
+              showToast(`<span class="ok">⚠️</span>${j.error || '시트 못 읽음'} — 텍스트 복붙으로 전환`);
+              bg.querySelector('input[name="adMethod"][value="text"]').click();
+              return;
+            }
+            // 시트 raw → 광고 리포트 형태로 자체 파싱
+            const flat = j.rows.map(r => r.join(' ')).join('\n');
+            const parsed = parseAdReportText(flat);
+            parsed.source = 'sheet';
+            parsed.sourceUrl = url;
+            parsed.rawRows = j.rows.length;
+            parsed.lastUpdated = new Date().toISOString().slice(0,10);
+            localStorage.setItem(adKey, JSON.stringify(parsed));
+            const hasGaps = !parsed.totalSpent || !parsed.cpa || (parsed.byCampaign?.length || 0) === 0;
+            if (hasGaps) {
+              const requestMsg = `${title} 광고 리포트 시트 보완해줘\n- 프로젝트 ID: ${projectId}\n- 시트: ${url}\n\n자체 파싱: 광고비=${parsed.totalSpent || 0}, CPA=${parsed.cpa || 0}, 캠페인수=${parsed.byCampaign?.length || 0} (시트 ${j.rows.length}행)\n→ 부족분 채워서 \`b2c_ad_report_${projectId}\` 갱신`;
+              try { fetch(SLACK_WEBHOOK_DDANNA, { method:'POST', mode:'no-cors', body: JSON.stringify({ text: `<@U09UQNGH6DC> 📈 *광고 시트 자동 파싱 (보완 필요)*\n${requestMsg}` }) }).catch(()=>{}); } catch(e) {}
+              if (navigator.clipboard) navigator.clipboard.writeText(requestMsg).catch(()=>{});
+              showToast(`<span class="ok">✓</span>시트 ${j.rows.length}행 fetch 완료 · 부족분 클로드 보완 요청`);
+            } else {
+              showToast(`<span class="ok">✓</span>시트 ${j.rows.length}행 fetch + 완전 파싱!`);
+            }
+            bg.remove();
+            setTimeout(() => location.reload(), 800);
+          } catch (e) {
+            showToast(`<span class="ok">⚠️</span>네트워크 에러: ${e.message}`);
+          }
+          return;
+        }
+
+        if (method === 'file') {
+          const f = bg.querySelector('#adFileInput').files?.[0];
+          if (!f) { showToast('<span class="ok">⚠️</span>파일을 선택해주세요'); return; }
+          showToast(`<span class="ok">⏳</span>${f.name} 읽는 중...`);
+          if (/\.csv$/i.test(f.name)) {
+            // CSV 즉시 파싱
+            const text = await f.text();
+            const parsed = parseAdReportText(text);
+            parsed.source = 'file';
+            parsed.fileName = f.name;
+            parsed.rawText = text.slice(0, 5000);
+            parsed.lastUpdated = new Date().toISOString().slice(0,10);
+            localStorage.setItem(adKey, JSON.stringify(parsed));
+            const hasGaps = !parsed.totalSpent || !parsed.cpa;
+            if (hasGaps) {
+              const requestMsg = `${title} 광고 리포트 CSV 파일 보완해줘\n프로젝트 ID: ${projectId}\n\n파일명: ${f.name}\n자체 파싱: 광고비=${parsed.totalSpent || 0}, CPA=${parsed.cpa || 0}`;
+              try { fetch(SLACK_WEBHOOK_DDANNA, { method:'POST', mode:'no-cors', body: JSON.stringify({ text: `<@U09UQNGH6DC> 📈 *광고 CSV 파일 (보완 필요)*\n${requestMsg}` }) }).catch(()=>{}); } catch(e) {}
+              showToast(`<span class="ok">✓</span>CSV 파싱 + 부족분 클로드 보완 요청`);
+            } else {
+              showToast(`<span class="ok">✓</span>CSV 즉시 파싱 완료!`);
+            }
+          } else {
+            // xlsx/pdf/이미지 → placeholder + 슬랙 (Base64 첨부 못 함, 한나님이 파일 직접 슬랙 업로드 안내)
+            const placeholder = { source: 'file', fileName: f.name, fileSize: f.size, pending: true, lastUpdated: new Date().toISOString().slice(0,10) };
+            localStorage.setItem(adKey, JSON.stringify(placeholder));
+            const requestMsg = `${title} 광고 리포트 파일 분석해줘\n프로젝트 ID: ${projectId}\n파일명: ${f.name} (${(f.size/1024).toFixed(1)}KB)\n→ 한나님이 #딴나봇 채널에 파일 첨부할게요`;
+            try { fetch(SLACK_WEBHOOK_DDANNA, { method:'POST', mode:'no-cors', body: JSON.stringify({ text: `<@U09UQNGH6DC> 📈 *광고 파일 분석 요청 — ${f.name}*\n${requestMsg}\n\n[파일은 슬랙에 직접 첨부 필요]` }) }).catch(()=>{}); } catch(e) {}
+            showToast(`<span class="ok">✓</span>${f.name} 등록 · 파일은 #딴나봇 채널에 첨부해주세요`);
+          }
           bg.remove();
-          setTimeout(() => location.reload(), 600);
-        } else {
+          setTimeout(() => location.reload(), 800);
+          return;
+        }
+
+        {
           // 텍스트 1차 자체 파싱
           const raw = bg.querySelector('#adTextInput').value.trim();
           if (!raw) { showToast('<span class="ok">⚠️</span>텍스트 입력!'); return; }
@@ -5252,12 +5351,28 @@ CPA: 2,977원
           const csv = out.map(r => r.map(csvEscape).join(',')).join('\n');
           downloadFile(`${projectName}_${today}.csv`, csv, 'text/csv');
           showToast(`<span class="ok">✓</span>${selected.length}개 섹션 CSV 다운로드!`);
-        } else {
+        } else if (currentFormat === 'md') {
           const md = selected.map(s => s.getMD()).join('\n\n---\n\n');
           navigator.clipboard.writeText(md).then(
             () => showToast(`<span class="ok">✓</span>${selected.length}개 섹션 마크다운 복사됨! 노션에 ㄱ`),
             () => downloadFile(`${projectName}_${today}.md`, md, 'text/markdown')
           );
+        } else {
+          // txt — 메모장에서 깔끔하게 보이게 markdown 기호 일부 제거
+          const txt = selected.map(s => {
+            const md = s.getMD();
+            return md
+              .replace(/^#+\s*/gm, '')          // 헤딩 # 제거
+              .replace(/\*\*(.+?)\*\*/g, '$1')  // **bold** 제거
+              .replace(/\*(.+?)\*/g, '$1')      // *italic* 제거
+              .replace(/^\|/gm, '')             // 표 시작 | 제거
+              .replace(/\|$/gm, '')             // 표 끝 | 제거
+              .replace(/\|/g, '\t')             // 표 구분자 | → tab
+              .replace(/^-+\s*$/gm, '')         // 표 구분 줄 (---) 제거
+              .replace(/^-\s*/gm, '· ');        // 리스트 - → ·
+          }).join('\n\n────────────────────\n\n');
+          downloadFile(`${projectName}_${today}.txt`, txt, 'text/plain');
+          showToast(`<span class="ok">✓</span>${selected.length}개 섹션 텍스트 다운로드 (메모장으로 열림)`);
         }
         close();
       });
