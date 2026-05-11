@@ -7,6 +7,7 @@
   ],
   "functions": {
     "api/fetch-sheet.js": { "maxDuration": 30 },
+    "api/fetch-doc.js": { "maxDuration": 20 },
     "api/sync.js": { "maxDuration": 10 }
   }
 }
