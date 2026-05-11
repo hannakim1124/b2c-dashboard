@@ -27,13 +27,30 @@ export default async function handler(req, res) {
         error: `${envKey} 환경변수 없음. vercel Dashboard → Settings → Environment Variables 추가`
       });
     }
+    // 디버그 모드 (?debug=1)
+    if (req.query?.debug === '1' || (req.body && req.body.debug)) {
+      return res.status(200).json({
+        ok: true,
+        webhookPrefix: webhook.substring(0, 50),
+        webhookLength: webhook.length,
+        envKey
+      });
+    }
 
     const r = await fetch(webhook, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text })
     });
-    return res.status(200).json({ ok: r.ok, status: r.status });
+    const responseBody = await r.text();
+    // 슬랙 webhook 표준: 성공 = body "ok", 실패 = "no_service" / "invalid_payload" 등
+    const slackOk = responseBody === 'ok';
+    return res.status(200).json({
+      ok: slackOk,
+      httpStatus: r.status,
+      slackResponse: responseBody,
+      delivered: slackOk
+    });
   } catch (e) {
     return res.status(500).json({ ok: false, error: e.message || String(e) });
   }
