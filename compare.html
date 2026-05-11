@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📊 월별 이벤트 비교 — 인사이트전략팀</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<style>
+  :root {
+    --c-text: #191F28;
+    --c-text-2: #4E5968;
+    --c-text-3: #8B95A1;
+    --c-border: #E5E8EB;
+    --c-surface: #F2F4F6;
+    --c-surface-alt: #F9FAFB;
+    --c-primary: #3182F6;
+    --c-primary-bg: #E8F3FF;
+    --c-success: #00C471;
+    --c-success-bg: #E5F8EE;
+    --c-warning-bg: #FFF4DB;
+    --c-danger: #F04438;
+    --c-danger-bg: #FEE4E2;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; color: var(--c-text); background: #fff; letter-spacing: -0.01em; }
+  .nav { position: sticky; top: 0; background: #fff; border-bottom: 1px solid var(--c-border); z-index: 100; }
+  .nav-inner { max-width: 1280px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; gap: 24px; }
+  .nav-brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 14px; color: var(--c-text); text-decoration: none; }
+  .logo { width: 28px; height: 28px; background: var(--c-text); color: #fff; border-radius: 8px; display: grid; place-items: center; font-size: 11px; font-weight: 800; }
+  .nav-menu { display: flex; list-style: none; gap: 4px; padding: 0; margin: 0; }
+  .nav-menu a { padding: 8px 14px; color: var(--c-text-2); text-decoration: none; font-size: 13px; font-weight: 700; border-radius: 8px; }
+  .nav-menu a:hover { background: var(--c-surface); color: var(--c-text); }
+  .nav-menu a.is-active { background: var(--c-primary-bg); color: var(--c-primary); }
+  .page { max-width: 1280px; margin: 0 auto; padding: 28px 20px 60px; }
+  .page-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 28px; gap: 16px; flex-wrap: wrap; }
+  .page-head h1 { font-size: 24px; margin: 0 0 6px; font-weight: 800; letter-spacing: -0.02em; }
+  .page-head .sub { font-size: 13px; color: var(--c-text-3); font-weight: 500; }
+  /* 우상단 다운로드 버튼 그룹 */
+  .dl-tabs { display: flex; gap: 6px; align-items: center; }
+  .dl-tabs .label { font-size: 11px; font-weight: 700; color: var(--c-text-3); margin-right: 4px; }
+  .dl-btn { padding: 8px 14px; background: #fff; color: var(--c-text-2); border: 1px solid var(--c-border); border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+  .dl-btn:hover { background: var(--c-primary-bg); border-color: var(--c-primary); color: var(--c-primary); }
+  .dl-btn.is-excel:hover { background: var(--c-success-bg); border-color: var(--c-success); color: var(--c-success); }
+  .dl-btn.is-notion:hover { background: var(--c-warning-bg); border-color: #C2A445; color: #8B5A00; }
+  /* 비교 표 */
+  .cmp-card { background: #fff; border: 1px solid var(--c-border); border-radius: 12px; padding: 0; overflow: hidden; margin-bottom: 24px; }
+  .cmp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .cmp-table th, .cmp-table td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--c-border); }
+  .cmp-table th { background: var(--c-surface-alt); font-weight: 700; color: var(--c-text-2); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; position: sticky; top: 56px; }
+  .cmp-table th:first-child { width: 180px; }
+  .cmp-table td.metric-label { font-weight: 700; color: var(--c-text); background: var(--c-surface-alt); }
+  .cmp-table td.value { font-weight: 700; color: var(--c-text); font-variant-numeric: tabular-nums; }
+  .cmp-table td.value .sub { display: block; font-size: 11px; font-weight: 500; color: var(--c-text-3); margin-top: 2px; }
+  .cmp-table tr:last-child td { border-bottom: none; }
+  .cmp-table .delta-up { color: var(--c-success); font-size: 11px; margin-left: 6px; }
+  .cmp-table .delta-down { color: var(--c-danger); font-size: 11px; margin-left: 6px; }
+  /* 빈 상태 */
+  .empty { padding: 60px 24px; text-align: center; background: var(--c-surface-alt); border-radius: 12px; }
+  .empty .ic { font-size: 40px; margin-bottom: 12px; }
+  .empty h2 { font-size: 16px; margin: 0 0 6px; color: var(--c-text); }
+  .empty p { font-size: 13px; color: var(--c-text-3); margin: 0 0 16px; line-height: 1.6; }
+  .empty a { color: var(--c-primary); font-weight: 700; text-decoration: none; }
+  /* 트렌드 */
+  .trend-card { background: #fff; border: 1px solid var(--c-border); border-radius: 12px; padding: 20px; }
+  .trend-card h3 { font-size: 14px; margin: 0 0 16px; font-weight: 800; }
+  .trend-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .trend-row .label { width: 140px; font-size: 12px; color: var(--c-text-2); font-weight: 700; flex-shrink: 0; }
+  .trend-row .bars { flex: 1; display: flex; gap: 6px; align-items: flex-end; height: 60px; }
+  .trend-bar { flex: 1; min-width: 40px; position: relative; background: var(--c-primary-bg); border-radius: 4px 4px 0 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+  .trend-bar .fill { width: 100%; background: var(--c-primary); border-radius: 4px 4px 0 0; }
+  .trend-bar .lbl { font-size: 10px; font-weight: 700; color: var(--c-text-2); margin-top: 4px; white-space: nowrap; }
+  .trend-bar .val { font-size: 10px; font-weight: 700; color: var(--c-text); position: absolute; top: -16px; left: 50%; transform: translateX(-50%); }
+  /* 토스트 */
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120%); background: var(--c-text); color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 700; transition: transform 0.3s; z-index: 1000; }
+  .toast.is-show { transform: translateX(-50%) translateY(0); }
+
+  /* ─── 반응형 (모바일 / 태블릿) ─── */
+  @media (max-width: 768px) {
+    .nav-inner { padding: 12px 16px; gap: 12px; flex-wrap: wrap; }
+    .nav-brand span:last-child { display: none; } /* 모바일은 로고만 */
+    .nav-menu { gap: 0; }
+    .nav-menu a { padding: 6px 10px; font-size: 12px; }
+    .page { padding: 20px 16px 48px; }
+    .page-head { flex-direction: column; align-items: stretch; gap: 12px; margin-bottom: 20px; }
+    .page-head h1 { font-size: 20px; }
+    .dl-tabs { flex-wrap: wrap; gap: 6px; }
+    .dl-tabs .label { width: 100%; margin-bottom: 4px; }
+    .dl-btn { flex: 1; min-width: 0; justify-content: center; padding: 10px 8px; font-size: 11px; }
+    .cmp-table { font-size: 11px; min-width: 600px; }
+    .cmp-table th, .cmp-table td { padding: 10px 12px; }
+    .cmp-table th { position: static; } /* 모바일에서 sticky 끔 (이중 sticky 깨짐 방지) */
+    .cmp-table th:first-child, .cmp-table td.metric-label { position: sticky; left: 0; background: var(--c-surface-alt); z-index: 2; }
+    .trend-card { padding: 14px; }
+    .trend-row { flex-direction: column; align-items: stretch; gap: 6px; margin-bottom: 16px; }
+    .trend-row .label { width: auto; font-size: 11px; }
+    .trend-row .bars { height: 50px; }
+    .trend-bar { min-width: 30px; }
+    .trend-bar .lbl { font-size: 9px; }
+    .empty { padding: 40px 16px; }
+  }
+  @media (max-width: 480px) {
+    .page-head h1 { font-size: 18px; }
+    .page-head .sub { font-size: 11px; }
+    .dl-btn { font-size: 10px; padding: 8px 6px; }
+  }
+</style>
+</head>
+<body>
+  <!-- 인라인 자동 복원 (메인과 동일) -->
+  <script>
+  (function autoRestore() {
+    try {
+      const cur = localStorage.getItem('b2c_user_projects');
+      if (cur && cur !== '[]' && cur !== 'null') return;
+      if (sessionStorage.getItem('_b2c_inline_restored')) return;
+      fetch('/api/sync?t=' + Date.now(), { cache: 'no-store' })
+        .then(r => r.json())
+        .then(j => {
+          if (!j || !j.data) return;
+          const o = typeof j.data === 'string' ? JSON.parse(j.data) : j.data;
+          let restored = 0;
+          for (const k in o) {
+            if (typeof o[k] === 'string' && !localStorage.getItem(k)) {
+              localStorage.setItem(k, o[k]); restored++;
+            }
+          }
+          if (restored > 0) { sessionStorage.setItem('_b2c_inline_restored', '1'); location.reload(); }
+        }).catch(() => {});
+    } catch (e) {}
+  })();
+  </script>
+  <script src="sync-client.js?v=20260508c"></script>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="index.html">
+        <span class="logo">IS</span>
+        <span>인사이트전략팀</span>
+      </a>
+      <ul class="nav-menu">
+        <li><a href="index.html">프로젝트</a></li>
+        <li><a href="compare.html" class="is-active">📊 비교하기</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="page">
+    <div class="page-head">
+      <div>
+        <h1>📊 월별 이벤트 비교</h1>
+        <div class="sub">신청자 · DB 매칭 · 이력서 업데이트 · 신규/기존 가입 · 광고 효율을 한눈에</div>
+      </div>
+      <div class="dl-tabs">
+        <span class="label">다운로드</span>
+        <button class="dl-btn is-excel" onclick="downloadAs('excel')">📊 엑셀</button>
+        <button class="dl-btn is-notion" onclick="downloadAs('notion')">📝 노션</button>
+        <button class="dl-btn" onclick="downloadAs('txt')">📄 텍스트</button>
+      </div>
+    </div>
+
+    <div id="content"></div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="projects-data.js"></script>
+  <script>
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('is-show');
+    setTimeout(() => t.classList.remove('is-show'), 2500);
+  }
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function loadEventData() {
+    // 1) 카드 리스트
+    const projects = (window.getUserProjects ? window.getUserProjects() : JSON.parse(localStorage.getItem('b2c_user_projects') || '[]')) || [];
+    if (!projects.length) return [];
+
+    // 2) 각 카드의 resume_stats + ad_report 결합
+    const events = projects.map(p => {
+      const stats = JSON.parse(localStorage.getItem('b2c_resume_stats_' + p.id) || 'null') || {};
+      const ad = JSON.parse(localStorage.getItem('b2c_ad_report_' + p.id) || 'null') || {};
+      return {
+        id: p.id,
+        title: p.title || p.id,
+        period: p.period || p.date || '',
+        date: p.date || '',
+        emoji: p.emoji || '🎯',
+        category: p.categoryLabel || p.category || '',
+        // 신청자
+        applicants: stats.applicants ?? stats.totalIds ?? null,
+        unique: stats.unique ?? stats.totalIds ?? null,
+        matched: stats.matched ?? null,
+        // 이력서
+        resumeUpdated: stats.resumeUpdated ?? stats.updated ?? null,
+        // 신규/기존
+        newSignup: stats.newSignup ?? null,
+        existing: stats.existing ?? null,
+        // 광고
+        adCost: ad.totalCost ?? ad.totalSpent ?? (stats.ad && stats.ad.totalCost) ?? null,
+        cpa: ad.cpa ?? ad.applicationCPA ?? null,
+        resumeCPA: ad.resumeCPA ?? null,
+        ctr: ad.ctr ?? (stats.ad && stats.ad.ctr) ?? null
+      };
+    });
+
+    // date 기준 정렬 (오래된 → 최신)
+    events.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+    return events;
+  }
+
+  function fmt(n) {
+    if (n == null) return '-';
+    if (typeof n === 'number') return n.toLocaleString();
+    return String(n);
+  }
+  function fmtPct(num, den) {
+    if (num == null || !den) return '';
+    return `<span class="sub">${((num / den) * 100).toFixed(1)}%</span>`;
+  }
+  function fmtMoney(n) {
+    if (n == null) return '-';
+    if (n >= 1000000) return (n / 10000).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '만원';
+    return n.toLocaleString() + '원';
+  }
+
+  function render() {
+    const events = loadEventData();
+    const root = document.getElementById('content');
+
+    if (!events.length) {
+      root.innerHTML = `
+        <div class="empty">
+          <div class="ic">📊</div>
+          <h2>비교할 이벤트가 없어요</h2>
+          <p>프로젝트 카드 등록 + 시트/메타베이스 매칭 결과가 박혀야 비교됩니다.<br>먼저 <a href="index.html">프로젝트 페이지</a>에서 카드를 만드세요.</p>
+        </div>`;
+      return;
+    }
+
+    // 표 헤더
+    const headers = ['<th>지표</th>'].concat(events.map(e => `<th><div style="font-weight:800;color:var(--c-text)">${escapeHtml(e.emoji)} ${escapeHtml(e.title)}</div><div style="font-size:10px;color:var(--c-text-3);font-weight:500;margin-top:2px">${escapeHtml(e.period)}</div></th>`)).join('');
+
+    // 행 정의
+    const rows = [
+      { label: '신청자 (raw)', get: e => fmt(e.applicants) },
+      { label: '신청자 (uniq)', get: e => fmt(e.unique) },
+      { label: 'DB 매칭', get: e => `${fmt(e.matched)}${e.unique ? fmtPct(e.matched, e.unique) : ''}` },
+      { label: '이력서 업데이트', get: e => `${fmt(e.resumeUpdated)}${e.matched ? fmtPct(e.resumeUpdated, e.matched) : ''}` },
+      { label: '신규 가입', get: e => `${fmt(e.newSignup)}${e.matched ? fmtPct(e.newSignup, e.matched) : ''}` },
+      { label: '기존 가입', get: e => `${fmt(e.existing)}${e.matched ? fmtPct(e.existing, e.matched) : ''}` },
+      { label: '광고비', get: e => fmtMoney(e.adCost) },
+      { label: '신청 단가 (CPA)', get: e => e.cpa != null ? e.cpa.toLocaleString() + '원' : '-' },
+      { label: '이력서 단가', get: e => e.resumeCPA != null ? e.resumeCPA.toLocaleString() + '원' : '-' },
+      { label: 'CTR', get: e => e.ctr != null ? e.ctr + '%' : '-' }
+    ];
+
+    const bodyRows = rows.map(r => {
+      const tds = events.map(e => `<td class="value">${r.get(e)}</td>`).join('');
+      return `<tr><td class="metric-label">${escapeHtml(r.label)}</td>${tds}</tr>`;
+    }).join('');
+
+    // 트렌드 (신청자/이력서/신규)
+    const trendMetrics = [
+      { label: '신청자 (uniq)', key: 'unique', color: 'var(--c-primary)' },
+      { label: '이력서 업데이트', key: 'resumeUpdated', color: 'var(--c-success)' },
+      { label: '신규 가입', key: 'newSignup', color: '#F4A100' }
+    ];
+    const trendHtml = trendMetrics.map(m => {
+      const max = Math.max(...events.map(e => e[m.key] || 0), 1);
+      const bars = events.map(e => {
+        const v = e[m.key] || 0;
+        const h = (v / max) * 50;
+        return `<div class="trend-bar"><span class="val">${fmt(v)}</span><div class="fill" style="height:${h}px;background:${m.color}"></div><div class="lbl">${escapeHtml(e.emoji)}${escapeHtml((e.title || '').slice(0,8))}</div></div>`;
+      }).join('');
+      return `<div class="trend-row"><div class="label">${escapeHtml(m.label)}</div><div class="bars">${bars}</div></div>`;
+    }).join('');
+
+    root.innerHTML = `
+      <div class="cmp-card">
+        <div style="overflow-x:auto">
+          <table class="cmp-table">
+            <thead><tr>${headers}</tr></thead>
+            <tbody>${bodyRows}</tbody>
+          </table>
+        </div>
+      </div>
+      <div class="trend-card">
+        <h3>📈 월별 트렌드</h3>
+        ${trendHtml}
+      </div>
+    `;
+  }
+
+  // ─────────────────────────────────────────
+  // 다운로드 (엑셀/노션/txt)
+  // ─────────────────────────────────────────
+  function buildRows() {
+    const events = loadEventData();
+    const headers = ['지표', ...events.map(e => `${e.title} (${e.period})`)];
+    const metrics = [
+      ['신청자 (raw)', e => e.applicants ?? ''],
+      ['신청자 (uniq)', e => e.unique ?? ''],
+      ['DB 매칭', e => e.matched ?? ''],
+      ['DB 매칭률 %', e => (e.matched && e.unique) ? ((e.matched / e.unique) * 100).toFixed(1) : ''],
+      ['이력서 업데이트', e => e.resumeUpdated ?? ''],
+      ['이력서 업뎃률 %', e => (e.resumeUpdated && e.matched) ? ((e.resumeUpdated / e.matched) * 100).toFixed(1) : ''],
+      ['신규 가입', e => e.newSignup ?? ''],
+      ['기존 가입', e => e.existing ?? ''],
+      ['광고비', e => e.adCost ?? ''],
+      ['신청 단가 (CPA, 원)', e => e.cpa ?? ''],
+      ['이력서 단가 (원)', e => e.resumeCPA ?? ''],
+      ['CTR %', e => e.ctr ?? '']
+    ];
+    const data = [headers];
+    metrics.forEach(([label, fn]) => {
+      data.push([label, ...events.map(e => fn(e))]);
+    });
+    return { headers, data, events, metrics };
+  }
+
+  function csvEscape(s) {
+    s = String(s == null ? '' : s);
+    if (/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+
+  function downloadFile(filename, content, mime) {
+    const blob = new Blob(['﻿' + content], { type: mime + ';charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100);
+  }
+
+  window.downloadAs = function(format) {
+    const { data, events, metrics } = buildRows();
+    const today = new Date().toISOString().slice(0, 10);
+    const filename = `월별이벤트비교_${today}`;
+
+    if (format === 'excel') {
+      // CSV (엑셀에서 더블클릭하면 열림)
+      const csv = data.map(r => r.map(csvEscape).join(',')).join('\n');
+      downloadFile(filename + '.csv', csv, 'text/csv');
+      showToast('✓ 엑셀(CSV) 다운로드 완료');
+    } else if (format === 'notion') {
+      // 마크다운 표 (노션에 paste하면 표로 변환됨)
+      let md = `# 📊 월별 이벤트 비교 (${today})\n\n`;
+      md += '| ' + data[0].join(' | ') + ' |\n';
+      md += '|' + data[0].map(() => '---').join('|') + '|\n';
+      for (let i = 1; i < data.length; i++) {
+        md += '| ' + data[i].join(' | ') + ' |\n';
+      }
+      navigator.clipboard.writeText(md).then(
+        () => showToast('✓ 마크다운 클립보드 복사 — 노션에 Ctrl+V'),
+        () => { downloadFile(filename + '.md', md, 'text/markdown'); showToast('✓ 마크다운 파일 다운로드'); }
+      );
+    } else {
+      // txt — 한나님 형식 (▣ + ·)
+      const BAR = '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━';
+      let txt = BAR + '\n';
+      txt += `  📊 월별 이벤트 비교\n  생성일: ${today}\n`;
+      txt += BAR + '\n\n';
+      events.forEach(e => {
+        txt += `▣ ${e.emoji} ${e.title} (${e.period})\n`;
+        metrics.forEach(([label, fn]) => {
+          const v = fn(e);
+          if (v !== '' && v != null) txt += `  · ${label.padEnd(20)} ${v}\n`;
+        });
+        txt += '\n';
+      });
+      txt += BAR + '\n';
+      downloadFile(filename + '.txt', txt, 'text/plain');
+      showToast('✓ 텍스트 다운로드 (메모장으로 열림)');
+    }
+  };
+
+  // 페이지 로드 시
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', render);
+  } else {
+    render();
+  }
+  </script>
+</body>
+</html>
