@@ -980,6 +980,9 @@
           <input class="nav-search-input" id="searchInput" placeholder="이벤트, 멤버, 카테고리 검색…" autocomplete="off">
           <div class="search-pop" id="searchPop"></div>
         </div>
+        <button class="nav-add" id="openDownloadBtn" type="button"
+          style="background:#fff;color:var(--c-text-2);border:1px solid var(--c-border);margin-right:6px"
+          onclick="openCardDownloadModal()">📥 다운로드</button>
         <button class="nav-add" id="openAddBtn">+ 프로젝트 추가</button>
       </div>
     </div>
@@ -1448,6 +1451,8 @@
          data-year="${(p.date || p.period || '').match(/\d{4}/)?.[0] || ''}"
          data-impact="${impactScore(p)}" href="${escapeHtml(getDetailHref(p))}"${target}>
         <div class="card-actions">
+          <button class="card-act-btn" title="다운로드"
+            onclick="event.preventDefault();event.stopPropagation();openCardDownloadModal('${idEsc}')">📥</button>
           <button class="card-act-btn" title="편집"
             onclick="event.preventDefault();event.stopPropagation();openEditModal('${idEsc}')">✏️</button>
           <button class="card-act-btn del" title="삭제"
@@ -2609,6 +2614,134 @@
       window.deleteProject(id);
       renderGrid();
       showToast(`<span class="ok">✓</span>삭제했어요.`);
+    };
+
+    // === 카드 다운로드 (엑셀/노션/텍스트) — 전체 또는 단일 카드 ===
+    function buildCardRows(scopeProjects) {
+      const headers = ['제목','카테고리','상태','기간','담당자','이력서 업데이트','신청자','광고비','태그','회고'];
+      const rows = scopeProjects.map(p => {
+        const stats = (function() {
+          try { return JSON.parse(localStorage.getItem('b2c_resume_stats_' + p.id) || 'null') || {}; }
+          catch(e) { return {}; }
+        })();
+        const ad = (function() {
+          try { return JSON.parse(localStorage.getItem('b2c_ad_report_' + p.id) || 'null') || {}; }
+          catch(e) { return {}; }
+        })();
+        // KPI 라벨로 신청자/이력서 추출 (raw 우선)
+        const findKpi = re => (p.kpis || []).find(k => re.test(k.label || ''));
+        const applicantKpi = findKpi(/신청|응모|register|참여|참가/i);
+        const resumeKpi = findKpi(/이력서|업데이트|resume/i);
+        return [
+          p.title || '',
+          p.categoryLabel || p.category || '',
+          ({ongoing:'진행중',soon:'예정',done:'완료',live:'LIVE'})[p.status] || p.status || '',
+          p.period || p.date || '',
+          (window.MEMBERS[p.member]?.name) || p.memberName || '',
+          (stats.resumeUpdated ?? stats.updated ?? resumeKpi?.value ?? ''),
+          (stats.applicants ?? stats.totalIds ?? applicantKpi?.value ?? ''),
+          (ad.totalCost ?? ad.totalSpent ?? ''),
+          (p.tags || []).map(t => '#' + t).join(' '),
+          (p.retroNote || '').replace(/\n/g, ' ')
+        ];
+      });
+      return { headers, rows };
+    }
+
+    function runCardDownload(format, scopeProjects, filenameBase) {
+      const { headers, rows } = buildCardRows(scopeProjects);
+      const today = new Date().toISOString().slice(0, 10);
+      const fname = (filenameBase || '카드') + '_' + today;
+      const downloadBlob = (filename, content, mime) => {
+        const blob = new Blob(['﻿' + content], { type: mime + ';charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click();
+        setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100);
+      };
+
+      if (format === 'excel') {
+        const esc = v => {
+          const s = String(v == null ? '' : v);
+          return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+        };
+        const csv = [headers.map(esc).join(','), ...rows.map(r => r.map(esc).join(','))].join('\r\n');
+        downloadBlob(fname + '.csv', csv, 'text/csv');
+        showToast('<span class="ok">✓</span>엑셀(CSV) 다운로드 완료');
+      } else if (format === 'notion') {
+        const esc = v => String(v == null ? '' : v).replace(/\|/g, '\\|').replace(/\n/g, ' ');
+        let md = `# 📥 카드 리포트 (${today})\n\n총 ${rows.length}건\n\n`;
+        md += '| ' + headers.map(esc).join(' | ') + ' |\n';
+        md += '|' + headers.map(() => '---').join('|') + '|\n';
+        rows.forEach(r => md += '| ' + r.map(esc).join(' | ') + ' |\n');
+        if (navigator.clipboard?.writeText) {
+          navigator.clipboard.writeText(md).then(
+            () => showToast('<span class="ok">✓</span>노션 마크다운 클립보드 복사 — 노션에 Ctrl+V'),
+            () => { downloadBlob(fname + '.md', md, 'text/markdown'); showToast('<span class="ok">✓</span>마크다운 파일 다운로드'); }
+          );
+        } else {
+          downloadBlob(fname + '.md', md, 'text/markdown');
+          showToast('<span class="ok">✓</span>마크다운 파일 다운로드');
+        }
+      } else {
+        const BAR = '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━';
+        let txt = BAR + '\n  📥 카드 리포트\n  생성일: ' + today + '\n  총 ' + rows.length + '건\n' + BAR + '\n\n';
+        rows.forEach(r => {
+          txt += `▣ ${r[0]}\n`;
+          headers.slice(1).forEach((h, i) => {
+            const v = r[i + 1];
+            if (v !== '' && v != null) txt += `  · ${h.padEnd(14)} ${v}\n`;
+          });
+          txt += '\n';
+        });
+        txt += BAR + '\n';
+        downloadBlob(fname + '.txt', txt, 'text/plain');
+        showToast('<span class="ok">✓</span>텍스트 다운로드 (메모장으로 열림)');
+      }
+    }
+
+    window.openCardDownloadModal = function(cardId) {
+      // 기존 인라인 모달 제거
+      document.getElementById('cardDlBg')?.remove();
+      const scopeProjects = cardId
+        ? [window.getProject(cardId)].filter(Boolean)
+        : (function() {
+            const ids = new Set();
+            Object.keys(window.PROJECTS || {}).forEach(id => { if (!window.getDeletedIds().includes(id)) ids.add(id); });
+            window.getUserProjects().forEach(p => ids.add(p.id));
+            Object.keys(window.getOverrides()).forEach(id => ids.add(id));
+            return [...ids].map(id => window.getProject(id)).filter(Boolean);
+          })();
+      if (!scopeProjects.length) { showToast('<span class="ok">⚠️</span>다운로드할 카드가 없어요'); return; }
+      const title = cardId ? `"${scopeProjects[0].title}" 다운로드` : `전체 카드 다운로드 (${scopeProjects.length}건)`;
+      const filenameBase = cardId ? scopeProjects[0].title.replace(/[\\/:*?"<>|]/g, '_') : '전체카드';
+
+      const bg = document.createElement('div');
+      bg.id = 'cardDlBg';
+      bg.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;display:grid;place-items:center;padding:20px';
+      bg.innerHTML = `
+        <div style="background:#fff;border-radius:14px;padding:24px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.25)" onclick="event.stopPropagation()">
+          <div style="font-size:18px;font-weight:800;margin-bottom:4px">📥 ${escapeHtml(title)}</div>
+          <div style="font-size:12px;color:#8B95A1;margin-bottom:18px">원하는 포맷을 선택하세요</div>
+          <div style="display:grid;gap:8px">
+            <button class="dl-fmt-btn" data-fmt="excel" style="padding:14px 16px;background:#E5F8EE;color:#00C471;border:1px solid #00C471;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;text-align:left">📊 엑셀 (CSV) <span style="font-weight:500;color:#4E5968;margin-left:6px">— 더블클릭으로 엑셀에서 열림</span></button>
+            <button class="dl-fmt-btn" data-fmt="notion" style="padding:14px 16px;background:#FFF4DB;color:#8B5A00;border:1px solid #C2A445;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;text-align:left">📝 노션 (Markdown) <span style="font-weight:500;color:#4E5968;margin-left:6px">— 클립보드 복사, Ctrl+V로 표 붙여넣기</span></button>
+            <button class="dl-fmt-btn" data-fmt="text" style="padding:14px 16px;background:#F2F4F6;color:#191F28;border:1px solid #E5E8EB;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;text-align:left">📄 텍스트 (TXT) <span style="font-weight:500;color:#4E5968;margin-left:6px">— 메모장으로 열림</span></button>
+          </div>
+          <div style="display:flex;justify-content:flex-end;margin-top:18px">
+            <button onclick="document.getElementById('cardDlBg').remove()" style="padding:10px 16px;background:transparent;color:#4E5968;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">취소</button>
+          </div>
+        </div>`;
+      bg.addEventListener('click', () => bg.remove());
+      bg.querySelectorAll('.dl-fmt-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const fmt = btn.dataset.fmt;
+          runCardDownload(fmt, scopeProjects, filenameBase);
+          bg.remove();
+        });
+      });
+      document.body.appendChild(bg);
     };
 
     // === 프로젝트 내보내기 (모달 + 컬럼 선택 + CSV/Markdown) ===
