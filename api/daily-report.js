@@ -58,7 +58,8 @@ export default async function handler(req, res) {
       text: `데브콘 모닝 리포트\n\n신청자: ${total.toLocaleString()}명 (KPI ${kpiPct}%) | ${dDayText}\n오늘 +${todayN} / 어제 +${ydN}\n이력서: ${resumeCount}명 (KPI ${resumePct}%${resumeCount >= 150 ? ' 달성!' : ''})\n일평균: ${avgDaily}명 (4/1 이후)\n\n<https://b2c-dashboard-sigma.vercel.app/devcon-dashboard.html|대시보드 바로가기>`
     };
 
-    const webhookUrl = 'https://hooks.slack.com/services/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';
+    const webhookUrl = process.env.SLACK_WEBHOOK_DDANNA;
+    if (!webhookUrl) return res.status(500).json({ ok: false, error: 'SLACK_WEBHOOK_DDANNA env var not set' });
     const slackResp = await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

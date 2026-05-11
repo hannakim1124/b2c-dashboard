@@ -228,8 +228,8 @@
     ──────────────────────────────────────────────── */
     .section { padding-bottom: 56px; }
     .section + .section { padding-top: 8px; border-top: 1px solid var(--c-border); padding-top: 56px; }
-    .sec-eyebrow { display: inline-block; font-size: 11px; font-weight: 800; color: var(--c-primary); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
-    .sec-title { font-size: 28px; font-weight: 900; letter-spacing: -0.025em; margin-bottom: 24px; line-height: 1.2; }
+    .sec-eyebrow { display: inline-block; font-size: 11px; font-weight: 800; color: var(--c-primary); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 4px; }
+    .sec-title { font-size: 30px; font-weight: 900; letter-spacing: -0.028em; margin-bottom: 28px; line-height: 1.15; color: var(--c-text); }
 
     /* Sheet auto-render */
     .sheet-card { background: var(--c-surface); }
@@ -1917,6 +1917,75 @@
           <div class="container">
             <div class="body-grid">
               <div class="body-main">
+                ${(() => {
+                  // 🚀 Setup Checklist — 카드 셋업 진행 단계 (3-step 가이드, 한나님 UX 요청)
+                  const _stats = JSON.parse(localStorage.getItem('b2c_resume_stats_' + (p.id || '')) || 'null') || {};
+                  const _ad = JSON.parse(localStorage.getItem('b2c_ad_report_' + (p.id || '')) || 'null') || {};
+                  const hasSheet = !!sheetUrl;
+                  const hasStats = !!(_stats.resumeUpdated != null || _stats.matched);
+                  const hasAd = !!(_ad.totalCost || _ad.totalSpent);
+                  const steps = [
+                    { n: 1, ic: '📥', label: '시트 연결', done: hasSheet, hint: hasSheet ? '연결됨' : '카드 등록 시 시트 URL 입력' },
+                    { n: 2, ic: '🔍', label: '메타베이스 매칭', done: hasStats, hint: hasStats ? `이력서 ${(_stats.resumeUpdated||0).toLocaleString()}명` : '시트 연결 후 자동 매칭' },
+                    { n: 3, ic: '💸', label: '광고 리포트', done: hasAd, hint: hasAd ? '집행 ' + Math.round((_ad.totalCost||_ad.totalSpent)/10000) + '만원' : '광고 효율 섹션에서 입력' }
+                  ];
+                  const doneCount = steps.filter(s => s.done).length;
+                  if (doneCount === 3) return ''; // 다 끝났으면 숨김
+                  return `
+                    <section style="margin-bottom:16px">
+                      <div style="background:var(--c-surface-alt);border:1px dashed var(--c-border);border-radius:12px;padding:14px 18px">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                          <div style="font-size:11px;font-weight:800;color:var(--c-text-3);letter-spacing:0.05em;text-transform:uppercase">🚀 카드 셋업 (${doneCount}/3)</div>
+                          <div style="font-size:11px;color:var(--c-text-3);font-weight:600">완료될수록 카드 상단 'At a glance'에 자동 반영돼요</div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px">
+                          ${steps.map(s => `
+                            <div style="padding:10px 14px;background:${s.done ? '#fff' : '#FFFCEB'};border:1px solid ${s.done ? 'var(--c-border)' : '#F2D77A'};border-radius:8px;opacity:${s.done ? 0.65 : 1}">
+                              <div style="font-size:11px;color:var(--c-text-3);font-weight:700;display:flex;align-items:center;gap:6px">${s.done ? '✅' : s.n + '️⃣'} <span>STEP ${s.n}</span></div>
+                              <div style="font-size:13px;font-weight:800;color:var(--c-text);margin:2px 0">${s.ic} ${s.label}</div>
+                              <div style="font-size:11px;color:${s.done ? 'var(--c-success)' : '#8B5A00'};font-weight:600">${s.hint}</div>
+                            </div>
+                          `).join('')}
+                        </div>
+                      </div>
+                    </section>`;
+                })()}
+                ${(() => {
+                  // ✨ Hero Summary — 카드 상단 핵심 수치 한눈에 (한나님 UX 요청)
+                  const stats = JSON.parse(localStorage.getItem('b2c_resume_stats_' + (p.id || '')) || 'null') || {};
+                  const ad = JSON.parse(localStorage.getItem('b2c_ad_report_' + (p.id || '')) || 'null') || {};
+                  const hero = [];
+                  if (stats.totalIds || stats.unique || stats.applicants) {
+                    hero.push({ ic: '📥', label: '신청자', val: (stats.unique || stats.totalIds || stats.applicants).toLocaleString() + '명' });
+                  } else if (liveSheetUnique) {
+                    hero.push({ ic: '📥', label: '신청자(uniq)', val: liveSheetUnique.toLocaleString() + '명' });
+                  } else if (liveSheetTotal) {
+                    hero.push({ ic: '📥', label: '신청자(raw)', val: liveSheetTotal.toLocaleString() + '명' });
+                  }
+                  if (stats.resumeUpdated != null) hero.push({ ic: '📝', label: '이력서 업데이트', val: stats.resumeUpdated.toLocaleString() + '명' });
+                  if (stats.newSignup != null) hero.push({ ic: '✨', label: '신규 가입', val: stats.newSignup.toLocaleString() + '명' });
+                  if (ad.totalCost || ad.totalSpent) {
+                    const v = ad.totalCost || ad.totalSpent;
+                    hero.push({ ic: '💸', label: '광고비', val: (v >= 10000 ? (v/10000).toFixed(0) + '만원' : v.toLocaleString() + '원') });
+                  }
+                  if (ad.ctr != null) hero.push({ ic: '🎯', label: 'CTR', val: ad.ctr + '%' });
+                  if (ad.cpa != null) hero.push({ ic: '💰', label: '신청 CPA', val: ad.cpa.toLocaleString() + '원' });
+                  if (!hero.length) return '';
+                  return `
+                    <section class="section" id="hero-summary" style="margin-bottom:20px">
+                      <div style="background:linear-gradient(135deg,var(--c-primary-bg),var(--c-success-bg));border:1px solid var(--c-border);border-radius:14px;padding:18px 22px">
+                        <div style="font-size:11px;font-weight:800;color:var(--c-text-3);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:10px">⚡ At a glance</div>
+                        <div style="display:flex;gap:24px;flex-wrap:wrap">
+                          ${hero.map(h => `
+                            <div style="min-width:88px">
+                              <div style="font-size:11px;color:var(--c-text-3);font-weight:600;margin-bottom:2px">${h.ic} ${escapeHtml(h.label)}</div>
+                              <div style="font-size:18px;font-weight:800;color:var(--c-text);letter-spacing:-0.02em">${escapeHtml(h.val)}</div>
+                            </div>
+                          `).join('')}
+                        </div>
+                      </div>
+                    </section>`;
+                })()}
                 <section class="section" id="kpi">
                   <span class="sec-eyebrow">Key Metrics</span>
                   <h2 class="sec-title">핵심 지표</h2>
@@ -2412,8 +2481,10 @@
     }, 600);
 
     // 한나 선배님께 에러 자동 보고 (#딴나봇 슬랙 채널)
-    // 딴나봇 채널 — 한나님 개인 알림용 (2026-05-08 갱신)
-    const SLACK_WEBHOOK_DDANNA = 'https://hooks.slack.com/services/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';
+    // 딴나봇 채널 — 한나님 개인 알림용 (2026-05-11 갱신 — 이전 webhook revoke됨)
+    // ⚠️ 보안: webhook URL은 server-side env var로 격리 (vercel SLACK_WEBHOOK_DDANNA)
+    // 클라이언트는 /api/notify-slack 프록시만 호출
+    const SLACK_WEBHOOK_DDANNA = (location.protocol === 'file:' ? 'https://b2c-dashboard-sigma.vercel.app' : '') + '/api/notify-slack';
     function reportDashboardError(opts) {
       const key = `err-reported-${opts.projectId}-${opts.sheetId}-${opts.reason}`;
       if (sessionStorage.getItem(key)) return;
