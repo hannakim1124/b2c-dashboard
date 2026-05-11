@@ -1690,32 +1690,34 @@
           }</div>
         </section>`;
 
-      // 수정 기록 섹션
-      const historyHtml = (p.history && p.history.length) ? `
+      // 수정 기록 섹션 — 카드 일관성: 데이터 없어도 빈 상태로 항상 표시
+      const historyHtml = `
         <section class="section" id="history">
           <span class="sec-eyebrow">Edit History</span>
           <h2 class="sec-title">🕐 수정 기록</h2>
-          <div class="history-list">
-            ${p.history.slice().reverse().map(h => `
-              <div class="history-item">
-                <div class="history-head">
-                  <span class="history-date">${escapeHtml(h.date)} ${escapeHtml(h.time || '')}</span>
-                  <span class="history-user">${escapeHtml(h.user)}</span>
+          ${(p.history && p.history.length) ? `
+            <div class="history-list">
+              ${p.history.slice().reverse().map(h => `
+                <div class="history-item">
+                  <div class="history-head">
+                    <span class="history-date">${escapeHtml(h.date)} ${escapeHtml(h.time || '')}</span>
+                    <span class="history-user">${escapeHtml(h.user)}</span>
+                  </div>
+                  <div class="history-changes">
+                    ${(h.changes || []).map(c => `
+                      <div class="history-change">
+                        <strong>${escapeHtml(c.field)}</strong>:
+                        <span class="from">${escapeHtml(String(c.from || '(없음)'))}</span>
+                        <span class="arrow">→</span>
+                        <span class="to">${escapeHtml(String(c.to || ''))}</span>
+                      </div>
+                    `).join('')}
+                  </div>
                 </div>
-                <div class="history-changes">
-                  ${(h.changes || []).map(c => `
-                    <div class="history-change">
-                      <strong>${escapeHtml(c.field)}</strong>:
-                      <span class="from">${escapeHtml(String(c.from || '(없음)'))}</span>
-                      <span class="arrow">→</span>
-                      <span class="to">${escapeHtml(String(c.to || ''))}</span>
-                    </div>
-                  `).join('')}
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        </section>` : '';
+              `).join('')}
+            </div>` : `
+            <div style="padding:20px;background:var(--c-surface-alt);border-radius:8px;font-size:13px;color:var(--c-text-3);text-align:center">아직 수정 기록이 없어요</div>`}
+        </section>`;
 
       // 태그 — cover 우측 상단으로 이동 (메인 영역 안 차지)
       const tagsHtml = '';
@@ -1882,40 +1884,46 @@
           </div>
         </section>`;
 
-      const actionsHtml = (p.nextActions && p.nextActions.length) ? `
+      // 다음 액션 섹션 — 카드 일관성: 데이터 없어도 빈 상태로 항상 표시
+      const actionsHtml = `
         <section class="section" id="next">
           <span class="sec-eyebrow">Next Steps</span>
           <h2 class="sec-title">다음 액션</h2>
-          <div class="actions">
-            <div class="actions-eyebrow">앞으로 할 일</div>
-            <h3>이 프로젝트 다음은요</h3>
-            <ul>${p.nextActions.map(a => `<li>${escapeHtml(a)}</li>`).join('')}</ul>
-          </div>
-        </section>` : '';
+          ${(p.nextActions && p.nextActions.length) ? `
+            <div class="actions">
+              <div class="actions-eyebrow">앞으로 할 일</div>
+              <h3>이 프로젝트 다음은요</h3>
+              <ul>${p.nextActions.map(a => `<li>${escapeHtml(a)}</li>`).join('')}</ul>
+            </div>` : `
+            <div style="padding:20px;background:var(--c-surface-alt);border-radius:8px;font-size:13px;color:var(--c-text-3);text-align:center">아직 다음 액션이 없어요 · 우상단 <strong>✏️ 편집</strong>으로 추가</div>`}
+        </section>`;
 
       const relList = (p.related || []).map(rid => window.getProject(rid)).filter(Boolean).slice(0, 3);
-      const relHtml = relList.length ? `
+      // 관련 프로젝트 섹션 — 카드 일관성: 데이터 없어도 빈 상태로 항상 표시
+      const relHtml = `
         <section class="section" id="related">
           <span class="sec-eyebrow">More to read</span>
           <h2 class="sec-title">관련 프로젝트</h2>
-          <div class="rel-grid">
-            ${relList.map(r => {
-              const rm = window.MEMBERS[r.member] || { name: '?', avatar: '?', cls: 'hanna' };
-              const detailHref = r.detailHref || ('project-detail.html?id=' + encodeURIComponent(r.id));
-              const target = (r.detailHref && r.detailHref.indexOf('http') === 0) ? ' target="_blank"' : '';
-              return `
-                <a class="rel-card" href="${escapeHtml(detailHref)}"${target}>
-                  <div class="rel-card-cat">${escapeHtml(r.categoryLabel || r.category)}</div>
-                  <div class="rel-card-title">${escapeHtml(r.title)}</div>
-                  <div class="rel-card-foot">
-                    <span class="av av-${rm.cls}">${escapeHtml(rm.avatar)}</span>
-                    <span class="name">${escapeHtml(rm.name)}</span>
-                    <span class="meta">${escapeHtml((r.date || '').replace(/-/g, '.'))}</span>
-                  </div>
-                </a>`;
-            }).join('')}
-          </div>
-        </section>` : '';
+          ${relList.length ? `
+            <div class="rel-grid">
+              ${relList.map(r => {
+                const rm = window.MEMBERS[r.member] || { name: '?', avatar: '?', cls: 'hanna' };
+                const detailHref = r.detailHref || ('project-detail.html?id=' + encodeURIComponent(r.id));
+                const target = (r.detailHref && r.detailHref.indexOf('http') === 0) ? ' target="_blank"' : '';
+                return `
+                  <a class="rel-card" href="${escapeHtml(detailHref)}"${target}>
+                    <div class="rel-card-cat">${escapeHtml(r.categoryLabel || r.category)}</div>
+                    <div class="rel-card-title">${escapeHtml(r.title)}</div>
+                    <div class="rel-card-foot">
+                      <span class="av av-${rm.cls}">${escapeHtml(rm.avatar)}</span>
+                      <span class="name">${escapeHtml(rm.name)}</span>
+                      <span class="meta">${escapeHtml((r.date || '').replace(/-/g, '.'))}</span>
+                    </div>
+                  </a>`;
+              }).join('')}
+            </div>` : `
+            <div style="padding:20px;background:var(--c-surface-alt);border-radius:8px;font-size:13px;color:var(--c-text-3);text-align:center">아직 관련 프로젝트가 없어요 · 우상단 <strong>✏️ 편집</strong>에서 연결 가능</div>`}
+        </section>`;
 
       document.title = `${p.title} · 인사이트전략팀`;
       topDel.style.display = '';
@@ -2051,9 +2059,12 @@
                 </section>
 
                 ${(() => {
-                  // 웨비나 전용 메트릭 (카테고리 == 웨비나일 때만)
-                  const isWebinar = /웨비나|webinar|컨퍼런스|conference/i.test((p.category || '') + ' ' + (p.categoryLabel || '') + ' ' + (p.title || ''));
-                  if (!isWebinar) return '';
+                  // 📺 실참여 메트릭 — 모든 카드 공통 표시 (한나 님 가이드라인: 카드 일관성)
+                  // 카테고리에 따라 라벨만 적응: 온라인/웨비나면 줌 기준, 오프라인이면 현장 실참석 기준
+                  const isOnline = /웨비나|webinar|컨퍼런스|conference|온라인|online|줌|zoom/i.test((p.category || '') + ' ' + (p.categoryLabel || '') + ' ' + (p.title || ''));
+                  const labels = isOnline
+                    ? { sec: '📺 실참여 메트릭', eyebrow: 'Live Metrics', m1: '📺 줌 유니크 참여자', m2: '⚡ 최대 동시 참여자', m3: '😊 만족도', urlBtn: '📊 줌 리포트 URL 입력 (구글 시트면 자동 분석)', urlTitle: '📎 줌 리포트 / 데이터 자료' }
+                    : { sec: '🎟 실참석 메트릭', eyebrow: 'Onsite Metrics', m1: '🎟 현장 실참석자', m2: '👥 최대 동시 인원', m3: '😊 만족도', urlBtn: '📊 참석 리포트 URL 입력 (구글 시트면 자동 분석)', urlTitle: '📎 참석 리포트 / 데이터 자료' };
                   const wKey = 'b2c_webinar_metrics_' + (p.id || 'default');
                   let wm = null;
                   try { wm = JSON.parse(localStorage.getItem(wKey) || 'null'); } catch(e) {}
@@ -2072,27 +2083,27 @@
                   try { zoomUrl = localStorage.getItem('b2c_webinar_data_url_' + p.id) || ''; } catch(e) {}
                   return `
                     <section class="section" id="webinar-metrics">
-                      <span class="sec-eyebrow">Webinar Metrics</span>
-                      <h2 class="sec-title">📺 웨비나 메트릭</h2>
+                      <span class="sec-eyebrow">${labels.eyebrow}</span>
+                      <h2 class="sec-title">${labels.sec}</h2>
                       <div class="kpi-grid">
-                        <div class="kpi-card" onclick="editWebinarMetric('${escapeHtml(p.id || '')}', 'zoomUnique', '줌 유니크 참여자')" style="cursor:pointer">
-                          <div class="lbl">📺 줌 유니크 참여자</div>
+                        <div class="kpi-card" onclick="editWebinarMetric('${escapeHtml(p.id || '')}', 'zoomUnique', '${labels.m1.replace(/[📺🎟]\s*/, '')}')" style="cursor:pointer">
+                          <div class="lbl">${labels.m1}</div>
                           <div class="val primary">${fmt(wm.zoomUnique)}${wm.zoomUnique != null ? '명' : ''}</div>
                           <div style="font-size:11px;color:var(--c-text-3);margin-top:4px">클릭해서 입력</div>
                         </div>
-                        <div class="kpi-card" onclick="editWebinarMetric('${escapeHtml(p.id || '')}', 'zoomPeak', '최대 동시 참여자')" style="cursor:pointer">
-                          <div class="lbl">⚡ 최대 동시 참여자</div>
+                        <div class="kpi-card" onclick="editWebinarMetric('${escapeHtml(p.id || '')}', 'zoomPeak', '${labels.m2.replace(/[⚡👥]\s*/, '')}')" style="cursor:pointer">
+                          <div class="lbl">${labels.m2}</div>
                           <div class="val">${fmt(wm.zoomPeak)}${wm.zoomPeak != null ? '명' : ''}</div>
                           <div style="font-size:11px;color:var(--c-text-3);margin-top:4px">클릭해서 입력</div>
                         </div>
                         <div class="kpi-card" onclick="editWebinarMetric('${escapeHtml(p.id || '')}', 'satisfaction', '만족도')" style="cursor:pointer">
-                          <div class="lbl">😊 만족도</div>
+                          <div class="lbl">${labels.m3}</div>
                           <div class="val success">${wm.satisfaction || '—'}</div>
                           <div style="font-size:11px;color:var(--c-text-3);margin-top:4px">클릭해서 입력 (예: 4.33/5)</div>
                         </div>
                       </div>
                       <div style="margin-top:12px;padding:14px 16px;background:var(--c-surface-alt);border-radius:8px">
-                        <div style="font-size:12px;font-weight:800;color:var(--c-text-2);margin-bottom:8px">📎 줌 리포트 / 데이터 자료</div>
+                        <div style="font-size:12px;font-weight:800;color:var(--c-text-2);margin-bottom:8px">${labels.urlTitle}</div>
                         ${zoomUrl ? `
                           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
                             <a href="${escapeHtml(zoomUrl)}" target="_blank" rel="noopener" style="flex:1;min-width:200px;font-size:12px;color:var(--c-primary);font-weight:600;word-break:break-all">${escapeHtml(zoomUrl)}</a>
@@ -2101,7 +2112,7 @@
                             <button onclick="if(confirm('자료 URL 삭제?')){localStorage.removeItem('b2c_webinar_data_url_${escapeHtml(p.id || '')}');location.reload();}" style="padding:6px 10px;background:transparent;color:var(--c-text-3);border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">🗑</button>
                           </div>
                         ` : `
-                          <button onclick="attachWebinarDataUrl('${escapeHtml(p.id || '')}')" style="padding:10px 14px;background:var(--c-warning-bg);color:#B57F00;border:1px dashed #B57F00;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;width:100%">📊 줌 리포트 URL 입력 (구글 시트면 자동 분석)</button>
+                          <button onclick="attachWebinarDataUrl('${escapeHtml(p.id || '')}')" style="padding:10px 14px;background:var(--c-warning-bg);color:#B57F00;border:1px dashed #B57F00;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;width:100%">${labels.urlBtn}</button>
                         `}
                       </div>
                     </section>`;
@@ -2471,11 +2482,13 @@
                 <div class="toc-title">목차</div>
                 <ul>
                   <li><a href="#kpi" data-toc><span class="num">01</span>핵심 지표</a></li>
-                  <li><a href="#budget" data-toc><span class="num">02</span>예산</a></li>
-                  <li><a href="#ad-efficiency" data-toc><span class="num">03</span>광고 효율</a></li>
-                  <li><a href="#docs" data-toc><span class="num">04</span>문서 연결</a></li>
-                  ${(p.nextActions && p.nextActions.length) ? `<li><a href="#next" data-toc><span class="num">05</span>다음 액션</a></li>` : ''}
-                  ${relList.length ? `<li><a href="#related" data-toc><span class="num">06</span>관련 프로젝트</a></li>` : ''}
+                  <li><a href="#webinar-metrics" data-toc><span class="num">02</span>실참여 메트릭</a></li>
+                  <li><a href="#budget" data-toc><span class="num">03</span>예산</a></li>
+                  <li><a href="#ad-efficiency" data-toc><span class="num">04</span>광고 효율</a></li>
+                  <li><a href="#docs" data-toc><span class="num">05</span>문서 연결</a></li>
+                  <li><a href="#next" data-toc><span class="num">06</span>다음 액션</a></li>
+                  <li><a href="#retro" data-toc><span class="num">07</span>회고</a></li>
+                  <li><a href="#related" data-toc><span class="num">08</span>관련 프로젝트</a></li>
                 </ul>
                 <div class="toc-timeline">
                   <div class="toc-title">📅 진행 타임라인</div>
