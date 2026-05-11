@@ -54,11 +54,37 @@ export default async function handler(req, res) {
       if (typeof incoming !== 'object') {
         return res.status(400).json({ error: 'data 필수 (object)' });
       }
-      // 메타 추가
-      incoming._updatedAt = new Date().toISOString();
-      incoming._updatedBy = body.updatedBy || 'unknown';
-      await kvSet(KEY, JSON.stringify(incoming));
-      return res.status(200).json({ ok: true, updatedAt: incoming._updatedAt });
+      // 기본 = merge (타 카드 데이터 보호). replace=true 명시 시만 통째 덮어쓰기
+      const merge = body.replace !== true;
+      let finalData = incoming;
+      let mergedKeys = 0;
+      if (merge) {
+        const raw = await kvGet(KEY);
+        let existing = {};
+        if (typeof raw === 'string') {
+          try { existing = JSON.parse(raw); } catch (e) { existing = {}; }
+        } else if (raw && typeof raw === 'object') {
+          existing = raw;
+        }
+        // 들어온 키만 덮어쓰고 나머지는 보존 (다른 카드 stats 손실 방지)
+        finalData = { ...existing, ...incoming };
+        mergedKeys = Object.keys(incoming).filter(k => !k.startsWith('_')).length;
+      }
+      finalData._updatedAt = new Date().toISOString();
+      finalData._updatedBy = body.updatedBy || 'unknown';
+      await kvSet(KEY, JSON.stringify(finalData));
+      return res.status(200).json({ ok: true, updatedAt: finalData._updatedAt, mode: merge ? 'merge' : 'replace', mergedKeys, totalKeys: Object.keys(finalData).filter(k => !k.startsWith('_')).length });
+    }
+
+    if (req.method === 'DELETE') {
+      // 명시적 전체 초기화 — body.confirm === 'CLEAR_ALL'
+      const body = req.body || {};
+      if (body.confirm !== 'CLEAR_ALL') {
+        return res.status(400).json({ error: 'DELETE 시 body.confirm = "CLEAR_ALL" 필수 (실수 방지)' });
+      }
+      const empty = { _updatedAt: new Date().toISOString(), _updatedBy: body.updatedBy || 'unknown' };
+      await kvSet(KEY, JSON.stringify(empty));
+      return res.status(200).json({ ok: true, cleared: true });
     }
 
     return res.status(405).json({ error: 'Method not allowed' });
