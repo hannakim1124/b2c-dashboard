@@ -1189,6 +1189,9 @@
         <a class="back-link" href="index.html">← 목록</a>
         <button id="queueBadge" onclick="openQueueModal()" style="display:none;padding:6px 12px;background:#FFF4E5;color:#B57F00;border:1px solid #B57F00;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;align-items:center;gap:4px">⏳ 큐 <span id="queueBadgeCount">0</span>건</button>
         <button class="share-btn" id="shareBtn" onclick="shareLink()">🔗 공유</button>
+        <button class="top-download" id="memberIdsBtn"
+          onclick="openMemberIdsModal()"
+          style="background:#fff;color:var(--c-text-2);border:1px solid var(--c-border)">📋 신청자 ID</button>
         <button class="top-download" id="topDownload">📥 다운로드</button>
         <button class="top-del" id="topDel" style="display:none">삭제</button>
         <button class="top-edit" id="topEdit">✏️ 편집</button>
@@ -1228,6 +1231,38 @@
         <span class="dl-foot-info" id="dlFootInfo">0개 선택됨</span>
         <button class="dl-btn-cancel" id="dlCancel">취소</button>
         <button class="dl-btn-confirm" id="dlConfirm">다운로드</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 신청자 ID 붙여넣기 모달 -->
+  <div id="memberIdsBg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;padding:20px"
+       onclick="if(event.target.id==='memberIdsBg')closeMemberIdsModal()">
+    <div style="background:#fff;border-radius:14px;max-width:640px;width:100%;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.25)">
+      <div style="padding:20px 24px 12px;border-bottom:1px solid #E5E8EB">
+        <div style="font-size:18px;font-weight:800;color:#191F28">📋 신청자 회원ID 붙여넣기</div>
+        <div style="font-size:12px;color:#8B95A1;margin-top:4px">구글폼 응답 시트의 회원ID 컬럼 전체 선택 → 복사 → 아래 박스에 붙여넣기</div>
+      </div>
+      <div style="padding:16px 24px;overflow-y:auto;flex:1">
+        <textarea id="memberIdsTextarea" placeholder="sungwo101&#10;NV_34183522&#10;user@gmail.com&#10;dhkdhk32&#10;..."
+          style="width:100%;height:240px;padding:12px;border:1px solid #E5E8EB;border-radius:8px;font-family:'Pretendard',monospace;font-size:13px;resize:vertical;line-height:1.5"
+          oninput="previewMemberIds()"></textarea>
+        <div id="memberIdsPreview" style="margin-top:12px;padding:12px;background:#F9FAFB;border-radius:8px;font-size:12px;color:#4E5968;display:none">
+          <div style="font-weight:800;color:#191F28;margin-bottom:6px">📊 분류 결과</div>
+          <div id="memberIdsPreviewDetail"></div>
+        </div>
+        <div style="margin-top:12px;font-size:11px;color:#8B95A1;line-height:1.6">
+          • 줄바꿈 · 콤마 · 탭 어떤 구분자든 OK<br>
+          • 헤더 줄 (회원ID/id 등) · 빈 줄 · 중복 자동 제거<br>
+          • <strong>NV_xxx · KA_xxx · GL_xxx · FB_xxx</strong> = 소셜 (mem_sys_no 추출)<br>
+          • <strong>abc123 형태</strong> = 평문 (SHA256 매칭용)<br>
+          • <strong>user@gmail.com</strong> = 이메일 (SHA256 매칭용)
+        </div>
+      </div>
+      <div style="padding:14px 24px 18px;border-top:1px solid #E5E8EB;display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap">
+        <span id="memberIdsExistingInfo" style="font-size:11px;color:#8B95A1;margin-right:auto"></span>
+        <button onclick="closeMemberIdsModal()" style="padding:10px 16px;background:transparent;color:#4E5968;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">취소</button>
+        <button onclick="saveMemberIds()" id="memberIdsSaveBtn" style="padding:10px 18px;background:#3182F6;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">💾 저장 + 매칭 큐 등록</button>
       </div>
     </div>
   </div>
@@ -4544,6 +4579,158 @@ CPA: 2,977원
       if (window.upsertProject) window.upsertProject(proj);
       showToast('<span class="ok">✓</span>KPI 삭제');
       setTimeout(() => location.reload(), 350);
+    };
+
+    // ─── 신청자 회원ID 붙여넣기 + 분류 + 저장 + 큐 등록 ───
+    // 한나 님이 구글폼 시트 회원ID 컬럼 복붙 → 자동 분류 → KV 저장 → 매칭 큐 등록
+    function parseMemberIdsText(text) {
+      const HEADER_RE = /^(회원\s*id|회원|id|m_?id|이메일|email|아이디|email|회원아이디)\s*$/i;
+      const seen = new Set();
+      const raw = [];
+      const plain = [];
+      const social = [];
+      const emails = [];
+      const normalized = []; // 교집합용 표준 키: p:xxx / s:nnn / e:xxx
+      String(text || '')
+        .split(/[\n\r\t,;]+/)
+        .map(s => s.trim())
+        .filter(Boolean)
+        .filter(s => !HEADER_RE.test(s))
+        .forEach(id => {
+          const lower = id.toLowerCase();
+          if (seen.has(lower)) return;
+          seen.add(lower);
+          raw.push(id);
+          const social_m = lower.match(/^(nv|ka|gl|fb)_(\d+)$/);
+          if (social_m) {
+            social.push({ prefix: social_m[1].toUpperCase(), mem_sys_no: parseInt(social_m[2]) });
+            normalized.push('s:' + social_m[2]);
+          } else if (lower.includes('@')) {
+            emails.push(lower);
+            normalized.push('e:' + lower);
+          } else {
+            plain.push(lower);
+            normalized.push('p:' + lower);
+          }
+        });
+      return { raw, plain, social, emails, normalized, total: raw.length };
+    }
+
+    window.previewMemberIds = function() {
+      const ta = document.getElementById('memberIdsTextarea');
+      const preview = document.getElementById('memberIdsPreview');
+      const detail = document.getElementById('memberIdsPreviewDetail');
+      if (!ta || !preview || !detail) return;
+      const text = ta.value || '';
+      if (!text.trim()) { preview.style.display = 'none'; return; }
+      const parsed = parseMemberIdsText(text);
+      preview.style.display = '';
+      detail.innerHTML = `
+        총 <strong style="color:#3182F6">${parsed.total.toLocaleString()}명</strong> (중복 자동 제거됨)<br>
+        · 평문 <strong>${parsed.plain.length.toLocaleString()}</strong>
+        · 소셜 <strong>${parsed.social.length.toLocaleString()}</strong>
+        · 이메일 <strong>${parsed.emails.length.toLocaleString()}</strong>
+        ${parsed.social.length ? '<div style="margin-top:6px;font-size:11px;color:#8B95A1">소셜 분포: ' +
+          ['NV','KA','GL','FB'].map(p => {
+            const n = parsed.social.filter(s => s.prefix === p).length;
+            return n ? `${p} ${n}` : '';
+          }).filter(Boolean).join(' · ') + '</div>' : ''}
+      `;
+    };
+
+    window.openMemberIdsModal = function() {
+      const bg = document.getElementById('memberIdsBg');
+      const ta = document.getElementById('memberIdsTextarea');
+      const info = document.getElementById('memberIdsExistingInfo');
+      if (!bg || !ta) return;
+      const pid = (typeof p !== 'undefined' && p) ? p.id : (new URLSearchParams(location.search).get('id') || '');
+      bg.dataset.pid = pid;
+      // 기존 저장 데이터 안내
+      let existing = null;
+      try { existing = JSON.parse(localStorage.getItem('b2c_member_ids_' + pid) || 'null'); } catch(e) {}
+      if (existing && existing.total) {
+        info.innerHTML = `<span style="color:#00C471;font-weight:700">✓ 이미 ${existing.total.toLocaleString()}명 저장됨</span> · 다시 붙여넣으면 덮어씌워집니다 (${existing.pastedAt ? existing.pastedAt.slice(0,10) : ''})`;
+      } else {
+        info.textContent = '';
+      }
+      ta.value = '';
+      document.getElementById('memberIdsPreview').style.display = 'none';
+      bg.style.display = 'flex';
+      setTimeout(() => ta.focus(), 50);
+    };
+
+    window.closeMemberIdsModal = function() {
+      const bg = document.getElementById('memberIdsBg');
+      if (bg) bg.style.display = 'none';
+    };
+
+    window.saveMemberIds = async function() {
+      const bg = document.getElementById('memberIdsBg');
+      const ta = document.getElementById('memberIdsTextarea');
+      const btn = document.getElementById('memberIdsSaveBtn');
+      const pid = bg?.dataset.pid;
+      if (!pid) { showToast('<span class="ok">⚠️</span>프로젝트 ID 없음'); return; }
+      const parsed = parseMemberIdsText(ta?.value || '');
+      if (!parsed.total) { showToast('<span class="ok">⚠️</span>유효한 ID가 없어요'); return; }
+
+      btn.disabled = true; btn.textContent = '⏳ 저장 중...';
+
+      const payload = {
+        projectId: pid,
+        total: parsed.total,
+        raw: parsed.raw,
+        plain: parsed.plain,
+        social: parsed.social,
+        emails: parsed.emails,
+        normalized: parsed.normalized,
+        pastedAt: new Date().toISOString(),
+        pastedBy: 'hanna-paste'
+      };
+
+      // 1) localStorage 저장 (즉시)
+      try { localStorage.setItem('b2c_member_ids_' + pid, JSON.stringify(payload)); } catch(e) {}
+
+      // 2) KV sync (다른 디바이스 + compare.html에서 사용)
+      const apiBase = location.protocol === 'file:' ? 'https://b2c-dashboard-sigma.vercel.app' : '';
+      try {
+        await fetch(apiBase + '/api/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            data: { ['b2c_member_ids_' + pid]: JSON.stringify(payload) },
+            updatedBy: 'member-ids-paste'
+          })
+        });
+      } catch(e) {
+        console.warn('[member-ids] KV sync 실패 — 로컬에는 저장됨', e);
+      }
+
+      // 3) 매칭 큐 등록 (메타베이스 매칭 자동 시작)
+      const project = window.getProject ? window.getProject(pid) : null;
+      const title = project?.title || pid;
+      const period = project?.period || project?.date || '';
+      let queueOk = false;
+      try {
+        const r = await fetch(apiBase + '/api/match-queue', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            projectId: pid,
+            sheetUrl: '__pasted__',  // 시트 fetch 없이 paste된 ID 사용
+            period, kpiLabel: '이력서 업데이트', title,
+            pastedMemberIds: true,
+            requestedBy: 'paste-modal'
+          })
+        });
+        const j = await r.json();
+        queueOk = !!j.ok;
+      } catch(e) {
+        console.warn('[member-ids] 큐 등록 실패', e);
+      }
+
+      btn.disabled = false; btn.textContent = '💾 저장 + 매칭 큐 등록';
+      closeMemberIdsModal();
+      showToast(`<span class="ok">✓</span>${parsed.total.toLocaleString()}명 저장 완료${queueOk ? ' · 매칭 큐 등록' : ''}<br>클로드 채팅에 <strong>"큐 비워줘"</strong> 한 마디면 메타베이스 매칭 시작합니다`);
     };
 
     // KPI별 데이터팀 자료 URL 입력 (저장 후 자동 fetch + 비교 모달)
