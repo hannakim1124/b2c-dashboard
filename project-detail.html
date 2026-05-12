@@ -591,6 +591,28 @@
     }
     .budget-actions button:hover { background: var(--c-primary-bg); color: var(--c-primary); }
 
+    /* 📊 자동 분석 리포트 */
+    .auto-report-pre {
+      background: var(--c-surface-alt);
+      border: 1px solid var(--c-border);
+      border-radius: var(--r-md);
+      padding: 24px 28px;
+      font-family: 'D2 Coding', 'JetBrains Mono', 'Menlo', 'Consolas', monospace;
+      font-size: 12.5px;
+      line-height: 1.75;
+      color: var(--c-text);
+      white-space: pre;
+      word-wrap: normal;
+      overflow-x: auto;
+      overflow-y: auto;
+      max-height: 75vh;
+      margin: 0;
+      letter-spacing: 0;
+      tab-size: 4;
+    }
+    .auto-report-pre::-webkit-scrollbar { width: 8px; height: 8px; }
+    .auto-report-pre::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 4px; }
+
     /* 📈 광고 효율 섹션 */
     .ad-card {
       background: var(--c-surface); border: 1px solid var(--c-border);
@@ -2057,6 +2079,44 @@
                   <h2 class="sec-title">핵심 지표</h2>
                   <div class="kpi-grid">${kpiHtml}</div>
                 </section>
+
+                ${(function renderAutoReport() {
+                  let analysis = null;
+                  try { analysis = JSON.parse(localStorage.getItem('b2c_sheet_analysis_' + p.id) || 'null'); } catch(e) {}
+                  let resumeStats = null;
+                  try { resumeStats = JSON.parse(localStorage.getItem('b2c_resume_stats_' + p.id) || 'null'); } catch(e) {}
+                  const text = (analysis && window.buildAutoReportText) ? window.buildAutoReportText(p, analysis, resumeStats) : '';
+                  const hasSheetUrl = (p.sheets || []).some(s => s && s.url);
+                  return `
+                    <section class="section" id="auto-report">
+                      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+                        <div>
+                          <span class="sec-eyebrow">Auto Report</span>
+                          <h2 class="sec-title" style="margin-top:4px">📊 분석 리포트</h2>
+                          ${analysis?.analyzedAt ? `<div style="font-size:11px;color:var(--c-text-3);margin-top:4px;font-weight:600">마지막 분석: ${escapeHtml(analysis.analyzedAt)}</div>` : ''}
+                        </div>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap">
+                          <button onclick="refreshAutoReport('${escapeHtml(p.id || '')}')" style="padding:10px 16px;background:var(--c-primary);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit">🔄 다시 분석</button>
+                          ${text ? `
+                            <button onclick="copyAutoReport('${escapeHtml(p.id || '')}')" style="padding:10px 14px;background:var(--c-surface-alt);color:var(--c-text);border:1px solid var(--c-border);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">📋 복사</button>
+                            <button onclick="downloadAutoReport('${escapeHtml(p.id || '')}')" style="padding:10px 14px;background:var(--c-surface-alt);color:var(--c-text);border:1px solid var(--c-border);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">💾 .txt</button>
+                          ` : ''}
+                        </div>
+                      </div>
+                      ${text ? `
+                        <pre id="autoReportPre-${escapeHtml(p.id || '')}" class="auto-report-pre">${escapeHtml(text)}</pre>
+                      ` : `
+                        <div style="padding:48px 24px;text-align:center;background:var(--c-surface-alt);border:1px dashed var(--c-border);border-radius:12px">
+                          <div style="font-size:48px;margin-bottom:14px">📊</div>
+                          <div style="font-weight:800;color:var(--c-text);margin-bottom:6px;font-size:14px">아직 분석된 데이터가 없어요</div>
+                          <div style="font-size:12px;color:var(--c-text-3);margin-bottom:20px;line-height:1.7">
+                            ${hasSheetUrl ? '시트가 박혀있어요. <strong>[🔄 다시 분석]</strong> 한 번 눌러주세요.' : '먼저 카드에 <strong>시트 URL</strong>을 박아주세요.<br>(매번 시점 분석 → 텍스트 리포트로 출력)'}
+                          </div>
+                          <button onclick="refreshAutoReport('${escapeHtml(p.id || '')}')" style="padding:13px 28px;background:var(--c-primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">🔄 지금 분석하기</button>
+                        </div>
+                      `}
+                    </section>`;
+                })()}
 
                 ${(() => {
                   // 📺 실참여 메트릭 — 모든 카드 공통 표시 (한나 님 가이드라인: 카드 일관성)
@@ -4910,6 +4970,253 @@ CPA: 2,977원
       } catch(e) {
         // 네트워크 오류 무시 (오프라인 OK)
       }
+    };
+
+    // ════════════════════════════════════════════════
+    // 📊 자동 분석 리포트 (시트 → 텍스트 보고서)
+    // ════════════════════════════════════════════════
+    function padCol(s, n) {
+      s = String(s);
+      let w = 0;
+      for (let i = 0; i < s.length; i++) {
+        const c = s.charCodeAt(i);
+        w += (c > 127) ? 2 : 1;
+      }
+      return s + ' '.repeat(Math.max(0, n - w));
+    }
+
+    function analyzeSheetRows(rows) {
+      if (!rows || rows.length < 2) return null;
+      const header = rows[0] || [];
+      const findCol = (re) => header.findIndex(h => re.test((h || '').replace(/\s+/g, ' ')));
+      const tsIdx = findCol(/타임\s*스(탬|태)프|timestamp/i);
+      const nameIdx = findCol(/성함|이름|name/i);
+      const idIdx = findCol(/잡코리아\s*id|아이디|user.*id|^id$/i);
+      const yearIdx = findCol(/연차|경력/i);
+      const jobIdx = findCol(/직군|^직무$/i);
+      const phoneIdx = findCol(/핸드폰|전화|연락처|phone/i);
+      const swmIdx = findCol(/스터디윗미|온라인\s*스터디/i);
+      const channelIdx = findCol(/어디서|알게|^경로$|^채널$/i);
+      const smsIdx = findCol(/sms/i);
+
+      const data = rows.slice(1).filter(r => r[tsIdx] && r[nameIdx]);
+
+      function parseKDate(s) {
+        if (!s) return null;
+        const m = String(s).match(/(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})\s+(오전|오후)\s+(\d{1,2}):(\d{1,2})/);
+        if (!m) return null;
+        let h = parseInt(m[5]);
+        if (m[4] === '오후' && h < 12) h += 12;
+        if (m[4] === '오전' && h === 12) h = 0;
+        return new Date(parseInt(m[1]), parseInt(m[2]) - 1, parseInt(m[3]), h, parseInt(m[6]));
+      }
+      function normPhone(p) { return (p || '').replace(/[\s-]/g, '').trim(); }
+      function normId(id) { return (id || '').trim(); }
+
+      const seenId = new Set();
+      const seenPhone = new Set();
+      let uniqueCount = 0;
+      data.forEach(r => {
+        const id = normId(r[idIdx]);
+        const phone = normPhone(r[phoneIdx]);
+        if (!id && !phone) return;
+        if (id && seenId.has(id.toLowerCase())) return;
+        if (phone && seenPhone.has(phone)) return;
+        if (id) seenId.add(id.toLowerCase());
+        if (phone) seenPhone.add(phone);
+        uniqueCount++;
+      });
+
+      const byDay = {};
+      data.forEach(r => {
+        const ts = parseKDate(r[tsIdx]);
+        if (!ts) return;
+        const day = ts.getFullYear() + '-' + String(ts.getMonth() + 1).padStart(2, '0') + '-' + String(ts.getDate()).padStart(2, '0');
+        byDay[day] = (byDay[day] || 0) + 1;
+      });
+
+      const tally = (idx) => {
+        const out = {};
+        if (idx < 0) return out;
+        data.forEach(r => {
+          const v = (r[idx] || '미입력').trim();
+          out[v] = (out[v] || 0) + 1;
+        });
+        return out;
+      };
+      const years = tally(yearIdx);
+      const jobs = tally(jobIdx);
+      const channels = tally(channelIdx);
+      const studyWithMe = tally(swmIdx);
+
+      let smsAgree = 0;
+      if (smsIdx >= 0) {
+        data.forEach(r => { if (/동의/.test(r[smsIdx] || '')) smsAgree++; });
+      }
+
+      return {
+        rawCount: data.length,
+        uniqueCount,
+        byDay,
+        years,
+        jobs,
+        channels,
+        studyWithMe,
+        smsAgree,
+        smsIdxFound: smsIdx >= 0
+      };
+    }
+
+    window.buildAutoReportText = function(p, t, r) {
+      r = r || {};
+      const title = p.title || '이벤트';
+      const period = p.period || '미입력';
+      const sheetUrl = (p.sheets || [])[0]?.url || '';
+      const sheetIdMatch = sheetUrl.match(/\/d\/([^\/]+)/);
+      const sheetId = sheetIdMatch ? sheetIdMatch[1] : '미연결';
+      const dateStr = (t.analyzedAt || '').slice(0, 10).replace(/-/g, '.') || new Date().toISOString().slice(0, 10).replace(/-/g, '.');
+      const targetApplicants = p.target_signup || p.kpi_signup || (p.kpis && p.kpis.signup) || 1000;
+      const targetResume = p.target_resume || p.kpi_resume || (p.kpis && p.kpis.resume) || 500;
+      const raw = t.rawCount || 0;
+      const unique = t.uniqueCount || 0;
+      const matched = r.idMatched || 0;
+      const resumeUpdated = r.resumeUpdated || 0;
+
+      const pct = (v, target) => {
+        if (!target) return '';
+        const p = (v / target) * 100;
+        return p.toFixed(1) + '%   ' + (v >= target ? '✅' : '');
+      };
+
+      const L = [];
+      L.push('═══════════════════════════════════════════════');
+      L.push(title + ' 신청자 분석 + 이력서 매칭 (' + dateStr + ' 기준)');
+      L.push('═══════════════════════════════════════════════');
+      L.push('');
+      L.push('■ 기간: ' + period);
+      L.push('■ 시트: ' + sheetId);
+      L.push('');
+      L.push('');
+      L.push('[핵심 KPI]');
+      L.push('─────────────────────────────────────');
+      L.push(padCol('지표', 30) + padCol('수치', 18) + 'KPI 대비');
+      L.push(padCol('총 응답 (raw)', 30) + padCol(raw.toLocaleString() + '명', 18) + pct(raw, targetApplicants));
+      L.push(padCol('유니크 잡코리아 ID', 30) + padCol(unique.toLocaleString() + '명', 18) + pct(unique, targetApplicants));
+      if (matched) L.push(padCol('DB 매칭', 30) + padCol(matched.toLocaleString() + '명', 18) + '매칭률 ' + ((matched / unique) * 100).toFixed(1) + '%');
+      if (resumeUpdated) L.push(padCol('이력서 업데이트', 30) + padCol(resumeUpdated.toLocaleString() + '명', 18) + pct(resumeUpdated, targetResume));
+      L.push('');
+      if (unique > 0) {
+        const pa = ((unique / targetApplicants) * 100).toFixed(1);
+        const pr = resumeUpdated ? ((resumeUpdated / targetResume) * 100).toFixed(1) : null;
+        L.push('▶ 신청 KPI ' + pa + '%' + (pr ? ' / 이력서 KPI ' + pr + '%' : ''));
+      }
+      L.push('');
+      L.push('');
+
+      if (Object.keys(t.byDay || {}).length) {
+        L.push('[일별 추이]');
+        L.push('─────────────────────────────────────');
+        const days = Object.entries(t.byDay).sort((a, b) => a[0].localeCompare(b[0]));
+        const maxCnt = Math.max(...days.map(d => d[1]));
+        days.forEach(([day, cnt]) => {
+          const dayShort = day.slice(5).replace('-', '/');
+          const bar = '█'.repeat(Math.max(1, Math.round(cnt / maxCnt * 32)));
+          L.push(padCol(dayShort, 8) + padCol(cnt.toString(), 6) + bar);
+        });
+        L.push('');
+        L.push('');
+      }
+
+      const distSection = (label, dict, topN) => {
+        const arr = Object.entries(dict || {}).sort((a, b) => b[1] - a[1]);
+        if (!arr.length) return;
+        L.push('[' + label + ']');
+        L.push('─────────────────────────────────────');
+        (topN ? arr.slice(0, topN) : arr).forEach(([k, v]) => {
+          L.push(padCol(k, 30) + padCol(v.toLocaleString() + '명', 10) + ((v / raw) * 100).toFixed(1) + '%');
+        });
+        L.push('');
+        L.push('');
+      };
+
+      distSection('연차 분포 (raw)', t.years);
+      distSection('직군 분포 (Top)', t.jobs, 10);
+      distSection('유입 경로 (raw)', t.channels);
+      distSection('스터디윗미 참여 의향', t.studyWithMe);
+
+      if (t.smsIdxFound) {
+        L.push('[SMS 알림 수신 동의]');
+        L.push('─────────────────────────────────────');
+        L.push(padCol('동의', 28) + padCol(t.smsAgree.toLocaleString() + '명', 10) + ((t.smsAgree / raw) * 100).toFixed(1) + '%');
+        const noSms = raw - t.smsAgree;
+        L.push(padCol('미동의/미입력', 28) + padCol(noSms.toLocaleString() + '명', 10) + ((noSms / raw) * 100).toFixed(1) + '%');
+        L.push('');
+        L.push('');
+      }
+
+      L.push('═══════════════════════════════════════════════');
+      L.push('표기 원칙: raw + 유니크 둘 다 병기');
+      L.push('매칭 방법: 평문 SHA256 16자 / 소셜 mem_sys_no 직접');
+      L.push('═══════════════════════════════════════════════');
+      return L.join('\n');
+    };
+
+    window.refreshAutoReport = async function(projectId) {
+      try {
+        const projects = JSON.parse(localStorage.getItem('b2c_user_projects') || '[]');
+        const overrides = JSON.parse(localStorage.getItem('b2c_overrides') || '{}');
+        const p = overrides[projectId] || projects.find(x => x.id === projectId);
+        if (!p) { showToast('<span class="ok">⚠️</span>카드 정보를 못 찾았어요'); return; }
+        const sheet = (p.sheets || []).find(s => s && s.url);
+        if (!sheet) { showToast('<span class="ok">⚠️</span>먼저 카드에 시트 URL을 박아주세요'); return; }
+        const m = sheet.url.match(/\/d\/([^\/]+)/);
+        if (!m) { showToast('<span class="ok">⚠️</span>시트 URL 형식이 이상해요'); return; }
+        const sheetId = m[1];
+        const gm = sheet.url.match(/[?&#]gid=(\d+)/);
+        const gid = gm ? gm[1] : '0';
+        showToast('<span class="ok">⏳</span>시트 fetch 중...');
+        const apiBase = location.protocol === 'file:' ? 'https://b2c-dashboard-sigma.vercel.app' : '';
+        const r = await fetch(apiBase + '/api/fetch-sheet?sheetId=' + encodeURIComponent(sheetId) + '&gid=' + encodeURIComponent(gid));
+        const j = await r.json();
+        if (!j.ok) { showToast('<span class="ok">⚠️</span>fetch 실패: ' + (j.error || 'unknown')); return; }
+        const analysis = analyzeSheetRows(j.rows);
+        if (!analysis) { showToast('<span class="ok">⚠️</span>시트가 비어있어요'); return; }
+        const now = new Date();
+        const pad2 = n => String(n).padStart(2, '0');
+        analysis.analyzedAt = now.getFullYear() + '-' + pad2(now.getMonth() + 1) + '-' + pad2(now.getDate()) + ' ' + pad2(now.getHours()) + ':' + pad2(now.getMinutes());
+        localStorage.setItem('b2c_sheet_analysis_' + projectId, JSON.stringify(analysis));
+        showToast('<span class="ok">✓</span>' + analysis.rawCount.toLocaleString() + '건 분석 완료');
+        setTimeout(() => location.reload(), 600);
+      } catch (e) {
+        showToast('<span class="ok">⚠️</span>에러: ' + e.message);
+      }
+    };
+
+    window.copyAutoReport = async function(projectId) {
+      const pre = document.getElementById('autoReportPre-' + projectId);
+      if (!pre) return;
+      try {
+        await navigator.clipboard.writeText(pre.textContent);
+        showToast('<span class="ok">✓</span>복사됨 — 슬랙에 그대로 붙여넣기 OK');
+      } catch (e) {
+        showToast('<span class="ok">⚠️</span>복사 실패: ' + e.message);
+      }
+    };
+
+    window.downloadAutoReport = function(projectId) {
+      const pre = document.getElementById('autoReportPre-' + projectId);
+      if (!pre) return;
+      const blob = new Blob(['﻿' + pre.textContent], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const today = new Date().toISOString().slice(0, 10);
+      a.download = (projectId || 'project') + '_분석리포트_' + today + '.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('<span class="ok">✓</span>다운로드됨');
     };
     // 페이지 로드 시 + 30초마다 자동 갱신
     if (document.readyState === 'loading') {
