@@ -310,6 +310,98 @@ function getJSON(key) {
   try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch(e) { return null; }
 }
 
+// ─── 시트 자동 분석 ───
+function analyzeSheet(rows) {
+  if (!rows || rows.length < 2) return { total: 0, unique: null, daily: [], columns: {} };
+  const headers = rows[0] || [];
+  const data = rows.slice(1);
+  const out = { total: data.length, unique: null, daily: [], columns: {} };
+
+  // ID 컬럼 자동 인식 → unique 카운트
+  let idIdx = -1;
+  headers.forEach((h, i) => {
+    if (idIdx < 0 && /(잡코|jobkorea|회원id|memberid)/i.test(String(h).replace(/\s/g, ''))) idIdx = i;
+  });
+  if (idIdx >= 0) {
+    const ids = data.map(r => (r[idIdx] || '').trim().toLowerCase()).filter(Boolean);
+    out.unique = new Set(ids).size;
+  }
+
+  // 타임스탬프 컬럼 → 일별 분포
+  let tsIdx = -1;
+  headers.forEach((h, i) => {
+    if (tsIdx < 0 && /(타임|timestamp|날짜|date)/i.test(String(h).replace(/\s/g, ''))) tsIdx = i;
+  });
+  if (tsIdx < 0 && headers.length > 0) tsIdx = 0; // 폴백: 첫 컬럼
+  if (tsIdx >= 0) {
+    const byDay = {};
+    data.forEach(r => {
+      const ts = (r[tsIdx] || '').trim();
+      let mo, da;
+      let m = ts.match(/(\d{4})[.\-/]\s*(\d{1,2})[.\-/]\s*(\d{1,2})/);
+      if (m) { mo = +m[2]; da = +m[3]; }
+      else {
+        m = ts.match(/(\d{1,2})\/(\d{1,2})/);
+        if (m) { mo = +m[1]; da = +m[2]; }
+      }
+      if (mo && da) {
+        const k = `${mo}/${da}`;
+        byDay[k] = (byDay[k] || 0) + 1;
+      }
+    });
+    const keys = Object.keys(byDay);
+    if (keys.length > 1) {
+      out.daily = keys.sort((a, b) => {
+        const [am, ad] = a.split('/').map(Number);
+        const [bm, bd] = b.split('/').map(Number);
+        return am * 100 + ad - (bm * 100 + bd);
+      }).map(k => ({ date: k, count: byDay[k] }));
+    }
+  }
+
+  // 카테고리 컬럼 자동 분석 (값 종류 2~30개, 헤더 한글 우선)
+  headers.forEach((h, idx) => {
+    if (idx === tsIdx || idx === idIdx) return;
+    const headerStr = String(h || '').trim();
+    if (!headerStr || headerStr.length > 60) return;
+    // 성함·핸드폰·이메일 등 PII는 스킵
+    if (/(성함|이름|핸드폰|전화|이메일|email|phone)/i.test(headerStr.replace(/\s/g, ''))) return;
+    const vals = data.map(r => (r[idx] || '').trim()).filter(Boolean);
+    if (vals.length < 2) return;
+    const counts = {};
+    vals.forEach(v => { counts[v] = (counts[v] || 0) + 1; });
+    const types = Object.keys(counts).length;
+    if (types >= 2 && types <= 30) {
+      // 헤더 라벨 정제 (긴 설명 자르기)
+      const shortHead = headerStr.split(/\n|\(|\*/)[0].trim().slice(0, 40);
+      out.columns[shortHead] = counts;
+    }
+  });
+
+  return out;
+}
+
+// ─── 분석 진행 토스트 ───
+function showToast(msg, persist) {
+  let t = document.getElementById('__toast__');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = '__toast__';
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#191f28;color:#fff;padding:12px 22px;border-radius:8px;font-family:var(--mono,monospace);font-size:13px;font-weight:700;z-index:2000;box-shadow:0 10px 30px rgba(0,0,0,0.2);transition:opacity 0.25s;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  if (!persist) {
+    clearTimeout(window.__toastTimer);
+    window.__toastTimer = setTimeout(() => { t.style.opacity = '0'; }, 2400);
+  }
+}
+function hideToast() {
+  const t = document.getElementById('__toast__');
+  if (t) t.style.opacity = '0';
+}
+
 // ─── 시트 자동 fetch ───
 async function fetchSheetAuto(url, opts) {
   if (!url) return null;
@@ -355,10 +447,14 @@ window.refreshCard = async function(id) {
   const urls = [...(p.resources || []), p.links?.sheet].filter(Boolean);
   const sheetUrl = urls.find(u => /spreadsheets\/d\//.test(u || ''));
   if (!sheetUrl) { alert('이 카드에 시트 URL이 없습니다. 편집에서 추가해주세요.'); return; }
-  const btn = document.querySelector(`.card[data-id="${id}"] .icon-btn[data-act="refresh"]`);
-  if (btn) btn.textContent = '⏳';
-  await fetchSheetAuto(sheetUrl, { verbose: true });
+  showToast('🔄 시트 분석 중...', true);
+  const c = await fetchSheetAuto(sheetUrl, { verbose: true });
+  hideToast();
+  if (c) showToast('✅ 분석 완료 — ' + (c.rows?.length - 1 || 0) + '건');
+  else showToast('⚠️ 분석 실패');
   render();
+  const el = document.querySelector(`.card[data-id="${id}"]`);
+  if (el) el.classList.add('open');
 };
 
 // ─── 카드 데이터 수집 ───
@@ -527,13 +623,50 @@ function cardBody(p) {
     lines.push('');
   }
 
-  // 신청자 자동 분석
-  if (liveTotal != null) {
-    lines.push(`<span class="sec">[ 신청자 자동 분석 ]</span>`);
-    lines.push(`<span class="bar">${'─'.repeat(W)}</span>`);
-    lines.push(`  ${pad('총 응답 (raw)', 18)}${pad(fmt(liveTotal), 10, true)}`);
-    if (liveUnique != null) lines.push(`  ${pad('유니크 ID', 18)}${pad(fmt(liveUnique), 10, true)}`);
-    lines.push('');
+  // 신청자 자동 분석 (풍부 분석)
+  if (sheetUrl) {
+    const sid = (sheetUrl.match(/spreadsheets\/d\/([\w-]+)/) || [])[1];
+    const cache = sid ? ((window.SHEET_CACHES && window.SHEET_CACHES[sid]) || getJSON('b2c_sheet_data_' + sid)) : null;
+    if (cache?.rows && cache.rows.length > 1) {
+      const ana = analyzeSheet(cache.rows);
+      lines.push(`<span class="sec">[ 신청자 자동 분석 ]</span>`);
+      lines.push(`<span class="bar">${'─'.repeat(W)}</span>`);
+      lines.push(`  ${pad('총 응답 (raw)', 18)}${pad(fmt(ana.total), 10, true)}`);
+      if (ana.unique != null) lines.push(`  ${pad('유니크 ID', 18)}${pad(fmt(ana.unique), 10, true)}`);
+      if (cache.fetchedAt) {
+        const d = new Date(cache.fetchedAt);
+        lines.push(`  <span class="muted">└ fetch: ${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}</span>`);
+      }
+      lines.push('');
+
+      // 일별 추이
+      if (ana.daily && ana.daily.length > 1) {
+        lines.push(`  <span class="muted">일별 추이</span>`);
+        const max = Math.max(...ana.daily.map(d => d.count), 1);
+        ana.daily.forEach(d => {
+          const barLen = Math.max(1, Math.round((d.count / max) * 20));
+          const bar = '█'.repeat(barLen);
+          const spike = d.count >= 500 ? ' 🔥' : '';
+          lines.push(`  ${pad(d.date, 8)}<span class="blue">${pad(bar, 22)}</span>${pad(fmt(d.count), 6, true)}${spike}`);
+        });
+        lines.push('');
+      }
+
+      // 카테고리 분포 (Top 컬럼)
+      const cats = Object.entries(ana.columns || {});
+      cats.forEach(([header, counts]) => {
+        const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+        if (!entries.length) return;
+        const totalC = entries.reduce((s, [, c]) => s + c, 0);
+        lines.push(`  <span class="muted">${esc(header)}</span>`);
+        entries.slice(0, 10).forEach(([k, c]) => {
+          const pctV = (c / totalC * 100).toFixed(1);
+          lines.push(`    ${pad(esc(k), 26)}${pad(fmt(c), 8, true)}   <span class="muted">${pad(pctV + '%', 7, true)}</span>`);
+        });
+        if (entries.length > 10) lines.push(`    <span class="muted">... 외 ${entries.length - 10}건</span>`);
+        lines.push('');
+      });
+    }
   }
 
   // 광고
@@ -750,15 +883,19 @@ window.saveCard = function() {
   closeModal();
   render();
 
-  // 시트 URL 박혔으면 자동 fetch
+  // 시트 URL 박혔으면 자동 fetch + 분석
   const sheetUrl = card.links?.sheet || (card.resources || []).find(u => /spreadsheets\/d\//.test(u || ''));
   if (sheetUrl) {
+    showToast('🔄 시트 분석 중...', true);
     fetchSheetAuto(sheetUrl, { verbose: true }).then(c => {
+      hideToast();
       if (c) {
-        // 카드 자동 펼침 + 다시 렌더
+        showToast('✅ 분석 완료 — ' + (c.rows?.length - 1 || 0) + '건');
         render();
         const el = document.querySelector(`.card[data-id="${card.id}"]`);
         if (el) el.classList.add('open');
+      } else {
+        showToast('⚠️ 분석 실패');
       }
     });
   }
