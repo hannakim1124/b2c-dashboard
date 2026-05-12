@@ -17,3 +17,10 @@ _dt_raw.tsv
 _e.csv
 _e_list.json
 _e_sql.txt
+
+# 모든 _ 시작 임시 분석 파일/폴더 (PII 포함, 회사 DLP 위협 트리거 위험)
+_wf_*
+_drive_*
+_analyze_*
+_devcon_*
+_doc_*
