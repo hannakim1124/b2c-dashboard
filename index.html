@@ -577,185 +577,312 @@ function cardSummary(p) {
   return parts.join(' · ');
 }
 
-// ─── 카드 본문 (메모장 양식) ───
+// ─── 자동 CTO 코멘트 휴리스틱 ───
+function generateInsights(p, ana, r, kpis, dDay) {
+  const out = [];
+
+  // ① KPI 달성률 인사이트
+  if (kpis.length && ana) {
+    const exceeded = [];
+    const underperf = [];
+    kpis.forEach(k => {
+      const target = parseTarget(k.value);
+      const l = (k.label || '').toLowerCase();
+      let current = null;
+      if (/이력서|업데이트/.test(l)) current = r?.resumeUpdated;
+      else if (/신청|응모|지원|참여|참가/.test(l)) current = ana?.unique ?? ana?.total;
+      if (target != null && current != null) {
+        const pct = current / target * 100;
+        if (pct >= 100) exceeded.push({ label: k.label, pct });
+        else if (pct < 70) underperf.push({ label: k.label, pct });
+      }
+    });
+    if (exceeded.length && /D-\d+/.test(dDay || '')) {
+      out.push(`KPI ${exceeded.length}개 모두 ${dDay} 시점에 이미 초과 달성. 광고/홍보 예산 일부는 다른 캠페인(신규 회원 유입 등)으로 재배분 검토 가능합니다.`);
+    } else if (exceeded.length) {
+      out.push(`KPI ${exceeded.length}개 초과 달성 (${exceeded.map(e => e.label + ' ' + e.pct.toFixed(0) + '%').join(', ')}).`);
+    }
+    if (underperf.length) {
+      out.push(`주의: ${underperf.map(u => u.label + ' ' + u.pct.toFixed(0) + '%').join(', ')} — 남은 기간 가속 필요.`);
+    }
+  }
+
+  // ② 이력서 전환율 인사이트 (데브콘 벤치마크 ~52%)
+  if (r?.resumeUpdated && r?.matched) {
+    const updateRate = r.resumeUpdated / r.matched * 100;
+    if (updateRate >= 70) {
+      out.push(`이력서 업데이트 전환율 ${updateRate.toFixed(1)}%는 데브콘(약 52%) 대비 매우 높은 수준. 이벤트 컨셉이 실제 행동으로 잘 연결되고 있습니다.`);
+    } else if (updateRate >= 50) {
+      out.push(`이력서 업데이트 전환율 ${updateRate.toFixed(1)}% — 데브콘(약 52%)과 비슷한 수준.`);
+    } else if (updateRate >= 30) {
+      out.push(`이력서 업데이트 전환율 ${updateRate.toFixed(1)}% — 컨셉과 행동 연결 점검 필요.`);
+    }
+  }
+
+  // ③ 중복 제출 인사이트
+  if (ana?.total && ana?.unique) {
+    const dups = ana.total - ana.unique;
+    if (dups >= 30) {
+      out.push(`중복 제출 ${dups}건 (${(dups / ana.total * 100).toFixed(1)}%) — 폼에 중복 방지 로직 없음. 유니크 기준은 깨끗하게 정리되어 보고는 안전.`);
+    } else if (dups >= 5) {
+      out.push(`중복 제출 ${dups}건 — 큰 영향 없음. 유니크 기준 보고 권장.`);
+    }
+  }
+
+  // ④ 미매칭 인사이트
+  if (r?.byClassification?.none > 0 && ana?.unique > 0) {
+    const noneCount = r.byClassification.none;
+    const nonePct = noneCount / ana.unique * 100;
+    if (nonePct >= 15) {
+      const potential = (noneCount * 0.3).toFixed(0);
+      out.push(`미매칭 ${noneCount}명 (${nonePct.toFixed(1)}%) — 잡코리아 ID 오탈자 가능. 수동 정정 시 매칭 +약 ${potential}명 추가 가능.`);
+    } else if (nonePct >= 5) {
+      out.push(`미매칭 ${noneCount}명 (${nonePct.toFixed(1)}%) — 정상 범위 내.`);
+    }
+  }
+
+  // ⑤ 일별 추이 스파이크 인사이트
+  if (ana?.daily && ana.daily.length >= 3) {
+    const spikes = ana.daily.filter(d => d.count >= 500);
+    if (spikes.length) {
+      out.push(`일별 스파이크: ${spikes.map(s => s.date + '(' + s.count + ')').join(', ')} — 광고 ON / CRM 발송 / 공지 노출 시점 확인 권장.`);
+    }
+  }
+
+  // ⑥ 신규 가입 인사이트
+  if (r?.byClassification && r.matched > 0) {
+    const newPct = (r.byClassification.new || 0) / r.matched * 100;
+    if (newPct < 3) {
+      out.push(`신규 가입자 비중 ${newPct.toFixed(1)}% — 휴면/기존 회원 활성화 중심. 신규 회원 유입은 별도 캠페인 분리가 효율적.`);
+    } else if (newPct >= 20) {
+      out.push(`신규 가입자 비중 ${newPct.toFixed(1)}% — 신규 유입 효과 우수.`);
+    }
+  }
+
+  return out;
+}
+
+// ─── 카드 본문 (메모장 리포트 양식 — 한나님 보고서 결) ───
 function cardBody(p) {
   const lines = [];
-  const W = 56;
+  const W = 64;
+  const SEP = '═'.repeat(W);
+  const SUB = '━'.repeat(W);
+  const MIN = '─'.repeat(40);
 
-  // 헤더
+  // 기간 & D-day
   const periodMatch = String(p.period || '').match(/(\d{4}[.\-/]\d{1,2}[.\-/]\d{1,2}).*?(\d{4}[.\-/]\d{1,2}[.\-/]\d{1,2})/);
-  let dDay = '', dayN = '';
+  let dDay = '', dayN = '', totalDays = 0, startStr = '', endStr = '';
   if (periodMatch) {
-    const sd = parseDate(periodMatch[1]);
-    const ed = parseDate(periodMatch[2]);
+    startStr = periodMatch[1]; endStr = periodMatch[2];
+    const sd = parseDate(startStr);
+    const ed = parseDate(endStr);
     const td = new Date(); td.setHours(0,0,0,0);
     if (sd && ed) {
-      const totalDays = Math.round((ed - sd) / 86400000) + 1;
+      totalDays = Math.round((ed - sd) / 86400000) + 1;
       const dN = Math.round((td - sd) / 86400000) + 1;
       const dE = Math.round((ed - td) / 86400000);
       if (td < sd) dDay = `D-${Math.abs(dE)} (예정)`;
       else if (td > ed) dDay = `종료 (${Math.abs(dE)}일 전)`;
-      else { dDay = `D-${dE}`; dayN = `모집 ${dN}일차 / 총 ${totalDays}일`; }
+      else { dDay = `D-${dE} 남음`; dayN = `모집 ${dN}일차 / 총 ${totalDays}일`; }
     }
   }
   const st = getEffectiveStatus(p);
-  const stBadge = st === 'done' ? '✅ 종료' : st === 'soon' ? '📅 예정' : '🟢 진행 중';
 
-  lines.push(`<span class="bar">${'═'.repeat(W)}</span>`);
-  lines.push(`<span class="h1">${p.emoji || '📊'}  ${esc(p.title || p.name || '(제목 없음)')}</span>`);
-  lines.push(`<span class="muted">기간:</span> ${esc(p.period || '(미정)')}`);
-  if (dDay) lines.push(`<span class="muted">D-day:</span> <span class="b">${dDay}</span>${dayN ? `  <span class="muted">· ${dayN}</span>` : ''}`);
-  lines.push(`<span class="muted">상태:</span> ${stBadge}`);
-  lines.push(`<span class="bar">${'═'.repeat(W)}</span>`);
-  lines.push('');
-
-  // KPI
-  const kpis = (p.extKpis && p.extKpis.length ? p.extKpis : p.kpis || []).filter(k => k && k.label && k.value && k.label !== '—' && k.value !== '—');
-
-  // 시트 자동
+  // 데이터 수집
   const allUrls = [...(p.resources || []), p.links?.sheet, p.links?.notion].filter(Boolean);
   const sheetUrl = allUrls.find(u => /spreadsheets\/d\//.test(u || ''));
-  let liveTotal = null, liveUnique = null;
-  if (sheetUrl) {
-    const sid = (sheetUrl.match(/spreadsheets\/d\/([\w-]+)/) || [])[1];
-    if (sid) {
-      const c = (window.SHEET_CACHES && window.SHEET_CACHES[sid]) || getJSON('b2c_sheet_data_' + sid);
-      if (c?.rows && c.rows.length > 1) {
-        liveTotal = c.rows.length - 1;
-        const headers = c.rows[0] || [];
-        let idIdx = -1;
-        headers.forEach((h, i) => {
-          if (idIdx < 0 && /(잡코|jobkorea|회원id|memberid)/i.test(String(h).replace(/\s/g,''))) idIdx = i;
-        });
-        if (idIdx >= 0) {
-          const ids = c.rows.slice(1).map(r => (r[idIdx] || '').trim().toLowerCase()).filter(Boolean);
-          liveUnique = new Set(ids).size;
-        }
-      }
-    }
-  }
-  // 이력서 매칭 결과: 카드 ID 기준 → 시트 ID 기준 fallback (카드 ID 신경 X)
+  const sheetId = sheetUrl ? (sheetUrl.match(/spreadsheets\/d\/([\w-]+)/) || [])[1] : null;
+  const cache = sheetId ? ((window.SHEET_CACHES && window.SHEET_CACHES[sheetId]) || getJSON('b2c_sheet_data_' + sheetId)) : null;
+  const ana = cache?.rows ? analyzeSheet(cache.rows) : null;
+
   let resumeStats = getJSON('b2c_resume_stats_' + p.id);
-  if (!resumeStats && sheetUrl) {
-    const sidMatch = sheetUrl.match(/spreadsheets\/d\/([\w-]+)/);
-    if (sidMatch) {
-      resumeStats = getJSON('b2c_resume_stats_by_sheet_' + sidMatch[1]);
+  if (!resumeStats && sheetId) resumeStats = getJSON('b2c_resume_stats_by_sheet_' + sheetId);
+  const r = resumeStats;
+
+  // ─── 헤더 ───
+  lines.push(`<span class="bar">${SEP}</span>`);
+  lines.push(`<span class="h1">  ${p.emoji || '📊'}  ${esc(p.title || p.name || '(제목 없음)')} · 신청자 분석</span>`);
+  lines.push(`<span class="muted">  기간: ${esc(p.period || '(미정)')}${dDay ? `  ·  ${dDay}` : ''}</span>`);
+  const nowStr = new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', dateStyle: 'short', timeStyle: 'short' });
+  lines.push(`<span class="muted">  데이터 기준: ${nowStr}</span>`);
+  if (sheetId) lines.push(`<span class="muted">  시트: ${esc(sheetId)}</span>`);
+  lines.push(`<span class="bar">${SEP}</span>`);
+  lines.push('');
+
+  // ─── ▣ 응답 요약 ───
+  lines.push(`<span class="sec">▣ 응답 요약</span>`);
+  if (ana) {
+    lines.push(`   전체 응답:        <span class="b">${fmt(ana.total)}</span>건`);
+    if (ana.unique != null) {
+      lines.push(`   유니크 신청자:    <span class="b">${fmt(ana.unique)}</span>명`);
+      const dups = ana.total - ana.unique;
+      if (dups > 0) lines.push(`   중복 제출 제거:   ${fmt(dups)}건`);
     }
-  }
-  const liveResume = resumeStats?.resumeUpdated ?? null;
-
-  function matchCurrent(label) {
-    const l = (label || '').toLowerCase();
-    if (/이력서|업데이트|resume|update/.test(l)) return liveResume;
-    if (/유니크|unique|중복.*제외|dedup/.test(l)) return liveUnique ?? liveTotal;
-    if (/신청|응모|register|지원|참여|참가/.test(l)) return liveTotal;
-    return null;
-  }
-
-  lines.push(`<span class="sec">[ 핵심 KPI ]</span>`);
-  lines.push(`<span class="bar">${'─'.repeat(W)}</span>`);
-  if (kpis.length) {
-    lines.push(`  ${pad('지표', 16)}${pad('목표', 12, true)}${pad('실적', 12, true)}${pad('달성률', 10, true)}`);
-    kpis.forEach(k => {
-      const target = parseTarget(k.value);
-      const current = matchCurrent(k.label);
-      let pctStr = '—', cls = 'muted', light = '·';
-      if (target != null && current != null) {
-        const pct = current / target * 100;
-        pctStr = pct.toFixed(1) + '%';
-        if (pct >= 100) { cls = 'blue'; light = '✅'; }
-        else if (pct >= 70) { cls = 'ok'; light = '🟢'; }
-        else if (pct >= 40) { cls = 'warn'; light = '🟡'; }
-        else { cls = 'danger'; light = '🔴'; }
+    if (r) {
+      lines.push(`   잡코리아 회원 매칭: <span class="b">${fmt(r.matched)}</span>명 <span class="muted">(${r.matchRate ?? '—'}%)</span>`);
+      if (r.byType) {
+        lines.push(`     · 소셜 로그인 ID: ${fmt(r.byType.social || 0)}개 입력`);
+        lines.push(`     · 평문/이메일 ID: ${fmt((r.byType.plain || 0) + (r.byType.email || 0))}개 입력`);
       }
-      const curStr = current != null ? fmt(current) : '—';
-      lines.push(`  ${pad(esc(k.label), 16)}${pad(esc(k.value), 12, true)}${pad(curStr, 12, true)}<span class="${cls}">${pad(pctStr, 8, true)} ${light}</span>`);
-    });
+      if (r.byClassification?.none != null) {
+        lines.push(`   미매칭 (탈퇴/오탈자 등): ${fmt(r.byClassification.none)}명`);
+      }
+    } else {
+      lines.push(`   <span class="muted">잡코리아 회원 매칭: 데이터를 입력해 주세요 · 카드 헤더 [📊 매칭 요청]</span>`);
+    }
   } else {
-    lines.push(`  <span class="muted">(KPI 미설정)</span>`);
+    lines.push(`   <span class="muted">데이터를 입력해 주세요 · 편집에서 시트 URL을 추가하면 자동 분석됩니다</span>`);
   }
   lines.push('');
 
-  // 이력서 매칭 — 항상 섹션 표시. 결과 없으면 안내.
-  lines.push(`<span class="sec">[ 이력서 매칭 ]</span>`);
-  lines.push(`<span class="bar">${'─'.repeat(W)}</span>`);
-  if (resumeStats) {
-    const r = resumeStats;
-    lines.push(`  ${pad('시트 ID 입력', 18)}${pad(fmt(r.totalIds), 10, true)}`);
-    lines.push(`  ${pad('DB 매칭', 18)}${pad(fmt(r.matched), 10, true)}   <span class="muted">(${r.matchRate ?? '—'}%)</span>`);
-    lines.push(`  ${pad('이력서 업데이트', 18)}${pad(fmt(r.resumeUpdated), 10, true)}   <span class="muted">(${r.updateRate ?? '—'}%)</span>`);
-    if (r.byType) lines.push(`  <span class="muted">└ 소셜 ${r.byType.social || 0} · 평문 ${r.byType.plain || 0} · 이메일 ${r.byType.email || 0}</span>`);
-    if (r.lastUpdated) lines.push(`  <span class="muted">└ 매칭 일시: ${r.lastUpdated}</span>`);
-    lines.push('');
-    if (r.byClassification) {
-      const cls = r.byClassification;
-      const totalCls = (cls.new || 0) + (cls.old || 0) + (cls.none || 0);
-      if (totalCls > 0) {
-        lines.push(`  <span class="muted">신규/기존/미매칭 분류</span>`);
-        const pNew = ((cls.new || 0) / totalCls * 100).toFixed(1);
-        const pOld = ((cls.old || 0) / totalCls * 100).toFixed(1);
-        const pNone = ((cls.none || 0) / totalCls * 100).toFixed(1);
-        lines.push(`    ${pad('신규 가입 (이벤트 기간 내)', 28)}${pad(fmt(cls.new), 8, true)}   <span class="muted">${pad(pNew + '%', 7, true)}</span>`);
-        lines.push(`    ${pad('기존 회원 (이전 가입)', 28)}${pad(fmt(cls.old), 8, true)}   <span class="muted">${pad(pOld + '%', 7, true)}</span>`);
-        lines.push(`    ${pad('미매칭 (탈퇴/오탈자)', 28)}${pad(fmt(cls.none), 8, true)}   <span class="muted">${pad(pNone + '%', 7, true)}</span>`);
-        lines.push('');
+  // ─── ▣ KPI 진척도 ───
+  const rawKpis = (p.extKpis && p.extKpis.length ? p.extKpis : p.kpis || []).filter(k => k && k.label && k.value && k.label !== '—' && k.value !== '—');
+  function matchCurrent(label) {
+    const l = (label || '').toLowerCase();
+    if (/이력서|업데이트|resume|update/.test(l)) return r?.resumeUpdated ?? null;
+    if (/유니크|unique|중복.*제외|dedup/.test(l)) return ana?.unique ?? ana?.total ?? null;
+    if (/신청|응모|register|지원|참여|참가/.test(l)) return ana?.unique ?? ana?.total ?? null;
+    return null;
+  }
+  lines.push(`<span class="sec">▣ KPI 진척도 (현재 vs 목표)</span>`);
+  if (rawKpis.length) {
+    rawKpis.forEach(k => {
+      const target = parseTarget(k.value);
+      const current = matchCurrent(k.label);
+      if (target != null && current != null) {
+        const pct = current / target * 100;
+        let cls = 'muted', light = '·', tag = '';
+        if (pct >= 100) { cls = 'blue'; light = '✅'; tag = '초과'; }
+        else if (pct >= 70) { cls = 'ok'; light = '🟢'; tag = '안정'; }
+        else if (pct >= 40) { cls = 'warn'; light = '🟡'; tag = '주의'; }
+        else { cls = 'danger'; light = '🔴'; tag = '위험'; }
+        lines.push(`   ${pad(esc(k.label), 18)}: <span class="b">${fmt(current)}</span> / ${esc(k.value)} → <span class="${cls}">${pct.toFixed(1)}% ${light} ${tag}</span>`);
+      } else {
+        lines.push(`   ${pad(esc(k.label), 18)}: <span class="muted">${esc(k.value)} (실적 데이터 없음)</span>`);
       }
+    });
+  } else {
+    lines.push(`   <span class="muted">KPI 미설정 · 카드 편집에서 추가</span>`);
+  }
+  lines.push('');
+  lines.push(`<span class="bar">${SUB}</span>`);
+  lines.push('');
+
+  // ─── 1) 신규가입자 수 ───
+  lines.push(`<span class="sec">1) 신규가입자 수 (이벤트 기간 내 가입)</span>`);
+  lines.push(`   <span class="bar">${MIN}</span>`);
+  if (r?.byClassification) {
+    const cls = r.byClassification;
+    const totalCls = (cls.new || 0) + (cls.old || 0) + (cls.none || 0);
+    lines.push(`   new  (기간 내 신규 가입): <span class="b">${fmt(cls.new || 0)}</span>명`);
+    lines.push(`   old  (이전 기존 가입)   : <span class="b">${fmt(cls.old || 0)}</span>명`);
+    lines.push(`   none (미매칭/탈퇴 등)   : <span class="b">${fmt(cls.none || 0)}</span>명`);
+    if (totalCls > 0) {
+      const pctNew = ((cls.new || 0) / totalCls * 100).toFixed(1);
+      const pctOld = ((cls.old || 0) / totalCls * 100).toFixed(1);
+      lines.push(`   <span class="muted">→ 신규 가입 견인 ${pctNew}% / 휴면·기존 회원 활성화 ${pctOld}%</span>`);
     }
   } else {
-    lines.push(`  <span class="muted">데이터를 입력해 주세요</span>`);
-    if (sheetUrl) {
-      lines.push(`  <span class="muted">└ 카드 헤더의 [📊 매칭 요청] 버튼을 눌러주세요</span>`);
-    } else {
-      lines.push(`  <span class="muted">└ 카드 편집에서 시트 URL을 입력해 주세요</span>`);
-    }
-    lines.push('');
+    lines.push(`   <span class="muted">데이터를 입력해 주세요 · [📊 매칭 요청] 처리 후 자동 표시</span>`);
   }
+  lines.push('');
 
-  // 신청자 자동 분석 (풍부 분석)
-  if (sheetUrl) {
-    const sid = (sheetUrl.match(/spreadsheets\/d\/([\w-]+)/) || [])[1];
-    const cache = sid ? ((window.SHEET_CACHES && window.SHEET_CACHES[sid]) || getJSON('b2c_sheet_data_' + sid)) : null;
-    if (cache?.rows && cache.rows.length > 1) {
-      const ana = analyzeSheet(cache.rows);
-      lines.push(`<span class="sec">[ 신청자 자동 분석 ]</span>`);
-      lines.push(`<span class="bar">${'─'.repeat(W)}</span>`);
-      lines.push(`  ${pad('총 응답 (raw)', 18)}${pad(fmt(ana.total), 10, true)}`);
-      if (ana.unique != null) lines.push(`  ${pad('유니크 ID', 18)}${pad(fmt(ana.unique), 10, true)}`);
-      if (cache.fetchedAt) {
-        const d = new Date(cache.fetchedAt);
-        lines.push(`  <span class="muted">└ fetch: ${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}</span>`);
-      }
-      lines.push('');
+  // ─── 2) 이력서 업데이트 수 ───
+  lines.push(`<span class="sec">2) 이력서 업데이트 수${startStr ? ` (${startStr.replace(/^\d{4}[.\-/]/, '')} ~ ${endStr.replace(/^\d{4}[.\-/]/, '')} 기준)` : ''}</span>`);
+  lines.push(`   <span class="bar">${MIN}</span>`);
+  if (r) {
+    lines.push(`   업데이트 Y: <span class="b">${fmt(r.resumeUpdated)}</span>명`);
+    if (r.matched > 0) {
+      const pctM = (r.resumeUpdated / r.matched * 100).toFixed(1);
+      lines.push(`     · 매칭 대비 업데이트율 : ${pctM}%`);
+    }
+    if (ana?.unique > 0) {
+      const pctA = (r.resumeUpdated / ana.unique * 100).toFixed(1);
+      lines.push(`     · 전체 신청자 대비      : ${pctA}%`);
+    }
+  } else {
+    lines.push(`   <span class="muted">데이터를 입력해 주세요 · [📊 매칭 요청] 처리 후 자동 표시</span>`);
+  }
+  lines.push('');
 
-      // 일별 추이
-      if (ana.daily && ana.daily.length > 1) {
-        lines.push(`  <span class="muted">일별 추이</span>`);
-        const max = Math.max(...ana.daily.map(d => d.count), 1);
-        ana.daily.forEach(d => {
-          const barLen = Math.max(1, Math.round((d.count / max) * 20));
-          const bar = '█'.repeat(barLen);
-          const spike = d.count >= 500 ? ' 🔥' : '';
-          lines.push(`  ${pad(d.date, 8)}<span class="blue">${pad(bar, 22)}</span>${pad(fmt(d.count), 6, true)}${spike}`);
-        });
-        lines.push('');
-      }
-
-      // 카테고리 분포 (Top 컬럼)
-      const cats = Object.entries(ana.columns || {});
-      cats.forEach(([header, counts]) => {
+  // ─── 3) 직군 순위 ───
+  lines.push(`<span class="sec">3) 직군 순위</span>`);
+  lines.push(`   <span class="bar">${MIN}</span>`);
+  if (ana?.columns) {
+    const cats = Object.entries(ana.columns || {});
+    // 직군 관련 컬럼 우선
+    const jobCols = cats.filter(([h]) => /직군|직무|직종/.test(h));
+    const subCols = cats.filter(([h]) => /^[67-8]열$|세부|기타$/.test(h));
+    if (jobCols.length || subCols.length) {
+      jobCols.forEach(([h, counts]) => {
         const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-        if (!entries.length) return;
         const totalC = entries.reduce((s, [, c]) => s + c, 0);
-        lines.push(`  <span class="muted">${esc(header)}</span>`);
-        entries.slice(0, 10).forEach(([k, c]) => {
+        lines.push(`   <span class="muted">[${esc(h)}]</span>`);
+        entries.slice(0, 6).forEach(([k, c], i) => {
           const pctV = (c / totalC * 100).toFixed(1);
-          lines.push(`    ${pad(esc(k), 26)}${pad(fmt(c), 8, true)}   <span class="muted">${pad(pctV + '%', 7, true)}</span>`);
+          lines.push(`     ${i+1}. ${pad(esc(k), 24)} ${pad(fmt(c) + '명', 10, true)} <span class="muted">(${pctV}%)</span>`);
         });
-        if (entries.length > 10) lines.push(`    <span class="muted">... 외 ${entries.length - 10}건</span>`);
-        lines.push('');
+      });
+      if (subCols.length) {
+        const merged = {};
+        subCols.forEach(([, counts]) => Object.entries(counts).forEach(([k, c]) => { merged[k] = (merged[k] || 0) + c; }));
+        const entries = Object.entries(merged).sort((a, b) => b[1] - a[1]);
+        if (entries.length) {
+          lines.push('');
+          lines.push(`   <span class="muted">[세부 직무 TOP 15]</span>`);
+          entries.slice(0, 15).forEach(([k, c], i) => {
+            lines.push(`     ${pad((i+1) + '.', 5)} ${pad(esc(k), 24)} ${pad(fmt(c) + '명', 10, true)}`);
+          });
+        }
+      }
+    } else {
+      // 폴백: 카테고리 컬럼 전체 표시
+      cats.slice(0, 3).forEach(([h, counts]) => {
+        const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+        const totalC = entries.reduce((s, [, c]) => s + c, 0);
+        lines.push(`   <span class="muted">[${esc(h)}]</span>`);
+        entries.slice(0, 6).forEach(([k, c], i) => {
+          const pctV = (c / totalC * 100).toFixed(1);
+          lines.push(`     ${i+1}. ${pad(esc(k), 24)} ${pad(fmt(c) + '명', 10, true)} <span class="muted">(${pctV}%)</span>`);
+        });
       });
     }
+  } else {
+    lines.push(`   <span class="muted">데이터를 입력해 주세요 · 시트 URL 추가 후 자동 분석</span>`);
   }
+  lines.push('');
+
+  // ─── 4) 일별 추이 ───
+  lines.push(`<span class="sec">4) 신청자 일자별 추이</span>`);
+  lines.push(`   <span class="bar">${MIN}</span>`);
+  if (ana?.daily && ana.daily.length > 0) {
+    const max = Math.max(...ana.daily.map(d => d.count), 1);
+    ana.daily.forEach(d => {
+      const barLen = Math.max(1, Math.round((d.count / max) * 28));
+      const bar = '█'.repeat(barLen);
+      const spike = d.count >= 500 ? ' 🔥' : '';
+      const dateLabel = d.date.split('/').map(s => String(s).padStart(2, '0')).join('/');
+      lines.push(`   ${pad(dateLabel, 6)} │ ${pad(fmt(d.count), 5, true)}  <span class="blue">${bar}</span>${spike}`);
+    });
+  } else {
+    lines.push(`   <span class="muted">데이터를 입력해 주세요 · 시트 URL 추가 후 자동 분석</span>`);
+  }
+  lines.push('');
+  lines.push(`<span class="bar">${SUB}</span>`);
+  lines.push('');
+
+  // ─── ▣ CTO 코멘트 (자동 인사이트) ───
+  lines.push(`<span class="sec">▣ CTO 코멘트</span>`);
+  const insights = generateInsights(p, ana, r, rawKpis, dDay);
+  if (insights.length) {
+    insights.forEach((ins, i) => lines.push(`   ${['①','②','③','④','⑤','⑥'][i] || (i+1) + '.'} ${ins}`));
+  } else {
+    lines.push(`   <span class="muted">데이터가 더 쌓이면 자동으로 인사이트가 표시됩니다.</span>`);
+  }
+  lines.push('');
+  lines.push(`<span class="bar">${SUB}</span>`);
+  lines.push('');
 
   // 광고
   const adReport = getJSON('b2c_ad_report_' + p.id);
