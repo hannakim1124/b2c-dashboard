@@ -872,17 +872,6 @@ function cardBody(p) {
   lines.push(`<span class="bar">${SUB}</span>`);
   lines.push('');
 
-  // ─── ▣ CTO 코멘트 (자동 인사이트) ───
-  lines.push(`<span class="sec">▣ CTO 코멘트</span>`);
-  const insights = generateInsights(p, ana, r, rawKpis, dDay);
-  if (insights.length) {
-    insights.forEach((ins, i) => lines.push(`   ${['①','②','③','④','⑤','⑥'][i] || (i+1) + '.'} ${ins}`));
-  } else {
-    lines.push(`   <span class="muted">데이터가 더 쌓이면 자동으로 인사이트가 표시됩니다.</span>`);
-  }
-  lines.push('');
-  lines.push(`<span class="bar">${SUB}</span>`);
-  lines.push('');
 
   // 광고
   const adReport = getJSON('b2c_ad_report_' + p.id);
@@ -909,23 +898,6 @@ function cardBody(p) {
     const total = budget.items.reduce((s, it) => s + (Number(it.amount) || 0), 0);
     lines.push(`  <span class="bar">${'─'.repeat(36)}</span>`);
     lines.push(`  ${pad('합계', 22)}<span class="b">${pad(fmt(total) + '원', 14, true)}</span>`);
-    lines.push('');
-  }
-
-  // 외부 자료
-  const links = [];
-  if (p.links) {
-    if (p.links.notion) links.push({ label: '노션', url: p.links.notion });
-    if (p.links.sheet) links.push({ label: '시트', url: p.links.sheet });
-    if (p.links.figma) links.push({ label: '피그마', url: p.links.figma });
-  }
-  (p.resources || []).forEach((url, i) => { if (url) links.push({ label: `자료 ${i+1}`, url }); });
-  if (links.length) {
-    lines.push(`<span class="sec">[ 외부 자료 ]</span>`);
-    lines.push(`<span class="bar">${'─'.repeat(W)}</span>`);
-    links.forEach(l => {
-      lines.push(`  ${pad('• ' + esc(l.label), 14)}<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.url)}</a>`);
-    });
     lines.push('');
   }
 
