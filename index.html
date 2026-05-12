@@ -198,6 +198,7 @@
 <nav class="nav">
   <div class="brand">인사이트전략팀 <span class="muted">· B2C 대시보드</span></div>
   <div class="nav-actions">
+    <button class="nav-btn" id="queueBadge" onclick="showQueueDetail()" style="display:none">🔔 매칭 대기 <span id="queueCount">0</span>건</button>
     <button class="nav-btn primary" onclick="openAddModal()">＋ 카드 추가</button>
   </div>
 </nav>
@@ -696,8 +697,7 @@ function cardBody(p) {
   const cache = sheetId ? ((window.SHEET_CACHES && window.SHEET_CACHES[sheetId]) || getJSON('b2c_sheet_data_' + sheetId)) : null;
   const ana = cache?.rows ? analyzeSheet(cache.rows) : null;
 
-  let resumeStats = getJSON('b2c_resume_stats_' + p.id);
-  if (!resumeStats && sheetId) resumeStats = getJSON('b2c_resume_stats_by_sheet_' + sheetId);
+  const resumeStats = getJSON('b2c_resume_stats_' + p.id);
   const r = resumeStats;
 
   // ─── 헤더 ───
@@ -1110,11 +1110,43 @@ document.querySelectorAll('.chip').forEach(chip => {
   });
 });
 
+// 매칭 큐 상태 폴링 → 헤더 뱃지
+async function pollQueue() {
+  try {
+    const r = await fetch('/api/match-queue');
+    const data = await r.json();
+    const pending = data?.pending || [];
+    const badge = document.getElementById('queueBadge');
+    const count = document.getElementById('queueCount');
+    if (badge && count) {
+      if (pending.length > 0) {
+        count.textContent = pending.length;
+        badge.style.display = '';
+        badge.style.background = '#fff4db';
+        badge.style.color = '#b57f00';
+        badge.style.borderColor = '#ffb700';
+        window.__pendingJobs = pending;
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+  } catch(e) { /* 조용히 실패 */ }
+}
+
+window.showQueueDetail = function() {
+  const pending = window.__pendingJobs || [];
+  if (!pending.length) { showToast('매칭 대기 없음'); return; }
+  const msg = pending.map((j, i) => `${i+1}. ${j.title || j.projectId}\n   요청: ${(j.requestedAt || '').slice(0, 16).replace('T', ' ')}\n   시트: ${j.sheetUrl || '—'}`).join('\n\n');
+  alert(`📊 매칭 대기 ${pending.length}건\n\n${msg}\n\n→ claude에 "큐 비워줘" 한 마디로 자동 처리됩니다.`);
+};
+
 // 첫 렌더 — projects-data.js 로드 대기 + 마이그레이션
 function tryRender() {
   if (typeof window.getProject === 'function') {
     migrateLegacyIfNeeded();
     render();
+    pollQueue();
+    setInterval(pollQueue, 60000); // 1분마다 폴링
   } else {
     setTimeout(tryRender, 50);
   }
