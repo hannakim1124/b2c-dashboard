@@ -2113,9 +2113,17 @@
                         <button onclick="refreshAutoReport('${escapeHtml(p.id || '')}')"
                           style="padding:12px 24px;background:var(--c-primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap">🚀 분석</button>
                       </div>
-                      <div style="font-size:11px;color:var(--c-text-3);margin-bottom:14px;line-height:1.6">
-                        💡 시트 권한 <strong>"링크 있는 모두 — 뷰어"</strong> 필수. URL 박고 [🚀 분석] 누르면 메모장 양식 그대로 출력.
+                      <div style="font-size:11px;color:var(--c-text-3);margin-bottom:10px;line-height:1.6">
+                        💡 시트 권한 <strong>"링크 있는 모두 — 뷰어"</strong> 필수.
                       </div>
+                      <details style="margin-bottom:14px;background:var(--c-surface-alt);border:1px solid var(--c-border);border-radius:8px;padding:10px 14px">
+                        <summary style="cursor:pointer;font-size:12px;color:var(--c-text-2);font-weight:700;outline:none">📋 또는 시트 데이터 직접 복붙 (URL 권한 막혀있을 때) ▼</summary>
+                        <div style="margin-top:10px">
+                          <textarea id="autoReportPasteInput-${escapeHtml(p.id || '')}" rows="6" placeholder="시트에서 Ctrl+A → Ctrl+C → 여기 Ctrl+V&#10;(헤더 행 포함 전체 박아주세요)" style="width:100%;padding:10px 12px;border:1px solid var(--c-border);border-radius:6px;font-family:'D2 Coding','JetBrains Mono',Menlo,monospace;font-size:11px;background:#fff;outline:none;resize:vertical"></textarea>
+                          <button onclick="analyzePastedData('${escapeHtml(p.id || '')}')" style="margin-top:8px;padding:10px 20px;background:var(--c-text);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit">📊 박은 데이터로 분석</button>
+                          <div style="font-size:10px;color:var(--c-text-3);margin-top:6px">탭 구분(TSV) / 콤마 구분(CSV) 자동 판별</div>
+                        </div>
+                      </details>
                       ${text ? `
                         <pre id="autoReportPre-${escapeHtml(p.id || '')}" class="auto-report-pre">${escapeHtml(text)}</pre>
                       ` : `
@@ -5208,6 +5216,54 @@ CPA: 2,977원
         if (!j.ok) { showToast('<span class="ok">⚠️</span>fetch 실패: ' + (j.error || 'unknown') + ' — 시트 권한 "링크 있는 모두 — 뷰어" 확인'); return; }
         const analysis = analyzeSheetRows(j.rows);
         if (!analysis) { showToast('<span class="ok">⚠️</span>시트가 비어있어요'); return; }
+        const now = new Date();
+        const pad2 = n => String(n).padStart(2, '0');
+        analysis.analyzedAt = now.getFullYear() + '-' + pad2(now.getMonth() + 1) + '-' + pad2(now.getDate()) + ' ' + pad2(now.getHours()) + ':' + pad2(now.getMinutes());
+        localStorage.setItem('b2c_sheet_analysis_' + projectId, JSON.stringify(analysis));
+        showToast('<span class="ok">✓</span>' + analysis.rawCount.toLocaleString() + '건 분석 완료');
+        setTimeout(() => location.reload(), 600);
+      } catch (e) {
+        showToast('<span class="ok">⚠️</span>에러: ' + e.message);
+      }
+    };
+
+    window.analyzePastedData = function(projectId) {
+      try {
+        const ta = document.getElementById('autoReportPasteInput-' + projectId);
+        if (!ta) return;
+        const txt = ta.value.trim();
+        if (!txt) { showToast('<span class="ok">⚠️</span>박은 데이터가 없어요'); return; }
+        const lines = txt.split(/\r?\n/);
+        // 첫 줄 기준 구분자 자동 판별: 탭이 있으면 TSV, 아니면 CSV
+        const useTab = lines[0].includes('\t');
+        let rows;
+        if (useTab) {
+          rows = lines.map(l => l.split('\t'));
+        } else {
+          // CSV 파싱 (따옴표 처리)
+          rows = [];
+          for (const line of lines) {
+            const row = []; let f = '', q = false;
+            for (let i = 0; i < line.length; i++) {
+              const c = line[i];
+              if (q) {
+                if (c === '"' && line[i+1] === '"') { f += '"'; i++; }
+                else if (c === '"') q = false;
+                else f += c;
+              } else {
+                if (c === '"') q = true;
+                else if (c === ',') { row.push(f); f = ''; }
+                else f += c;
+              }
+            }
+            row.push(f);
+            rows.push(row);
+          }
+        }
+        rows = rows.filter(r => r.some(c => (c || '').trim()));
+        if (rows.length < 2) { showToast('<span class="ok">⚠️</span>데이터가 너무 적어요'); return; }
+        const analysis = analyzeSheetRows(rows);
+        if (!analysis) { showToast('<span class="ok">⚠️</span>분석 실패 — 헤더 행 확인'); return; }
         const now = new Date();
         const pad2 = n => String(n).padStart(2, '0');
         analysis.analyzedAt = now.getFullYear() + '-' + pad2(now.getMonth() + 1) + '-' + pad2(now.getDate()) + ' ' + pad2(now.getHours()) + ':' + pad2(now.getMinutes());
