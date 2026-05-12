@@ -2373,8 +2373,18 @@
                       ${empty ? '<div style="font-size:12px;color:var(--c-warning);font-weight:600;padding:10px 12px;background:var(--c-warning-bg);border-radius:6px;margin-top:8px">⚠️ UTM 컬럼(source/medium/campaign) 자동 인식 실패. 시트 헤더에 utm_source 등 키워드 포함 필요</div>' : ''}`;
                   }
 
+                  // 의미 있는 광고 데이터가 있는지 확인 (빈 객체 잔재 대응)
+                  const hasAdData = adReport && (
+                    adReport.totalSpent != null || adReport.totalCost != null ||
+                    adReport.impressions != null || adReport.clicks != null ||
+                    adReport.ctr != null || adReport.cpc != null || adReport.cpa != null ||
+                    (Array.isArray(adReport.byCampaign) && adReport.byCampaign.length) ||
+                    (Array.isArray(adReport.bySource) && adReport.bySource.length)
+                  );
                   // 데이터 없으면 입력 영역만
-                  if (!adReport) {
+                  if (!hasAdData) {
+                    // 빈 객체 잔재면 깨끗하게 정리
+                    if (adReport) { try { localStorage.removeItem(adKey); } catch(e) {} }
                     return `
                       <section class="section" id="ad-efficiency">
                         <span class="sec-eyebrow">Ad Efficiency</span>
