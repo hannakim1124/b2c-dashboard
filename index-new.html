@@ -306,6 +306,49 @@ function getJSON(key) {
   try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch(e) { return null; }
 }
 
+// ─── 시트 자동 fetch ───
+async function fetchSheetAuto(url, opts) {
+  if (!url) return null;
+  const m = url.match(/spreadsheets\/d\/([\w-]+)/);
+  if (!m) return null;
+  const sheetId = m[1];
+  const gidMatch = url.match(/[?&#]gid=(\d+)/);
+  const gid = gidMatch ? gidMatch[1] : '0';
+  try {
+    const r = await fetch('/api/fetch-sheet', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sheetUrl: url, sheetId, gid })
+    });
+    const data = await r.json();
+    if (!r.ok || !data || !data.rows) {
+      if (opts?.verbose) alert('시트를 가져오지 못했습니다. 권한이 "링크 있는 모두 — 뷰어"인지 확인해주세요.');
+      return null;
+    }
+    const cache = { rows: data.rows, fetchedAt: new Date().toISOString() };
+    localStorage.setItem('b2c_sheet_data_' + sheetId, JSON.stringify(cache));
+    window.SHEET_CACHES = window.SHEET_CACHES || {};
+    window.SHEET_CACHES[sheetId] = cache;
+    return cache;
+  } catch(e) {
+    console.error('fetch sheet failed', e);
+    if (opts?.verbose) alert('시트 fetch 실패: ' + e.message);
+    return null;
+  }
+}
+
+window.refreshCard = async function(id) {
+  const p = getAllCards().find(c => c.id === id);
+  if (!p) return;
+  const urls = [...(p.resources || []), p.links?.sheet].filter(Boolean);
+  const sheetUrl = urls.find(u => /spreadsheets\/d\//.test(u || ''));
+  if (!sheetUrl) { alert('이 카드에 시트 URL이 없습니다. 편집에서 추가해주세요.'); return; }
+  const btn = document.querySelector(`.card[data-id="${id}"] .icon-btn[data-act="refresh"]`);
+  if (btn) btn.textContent = '⏳';
+  await fetchSheetAuto(sheetUrl, { verbose: true });
+  render();
+};
+
 // ─── 카드 데이터 수집 ───
 function getAllCards() {
   const cards = [];
@@ -570,6 +613,7 @@ function render() {
           </div>
         </div>
         <div class="head-right">
+          <button class="icon-btn" data-act="refresh" onclick="event.stopPropagation(); refreshCard('${esc(p.id)}')" title="시트 새로고침">🔄</button>
           <button class="icon-btn" onclick="event.stopPropagation(); editCard('${esc(p.id)}')" title="편집">📝</button>
           <button class="icon-btn" onclick="event.stopPropagation(); deleteCard('${esc(p.id)}')" title="삭제">🗑</button>
           <span class="toggle">▼</span>
@@ -692,6 +736,19 @@ window.saveCard = function() {
   }
   closeModal();
   render();
+
+  // 시트 URL 박혔으면 자동 fetch
+  const sheetUrl = card.links?.sheet || (card.resources || []).find(u => /spreadsheets\/d\//.test(u || ''));
+  if (sheetUrl) {
+    fetchSheetAuto(sheetUrl, { verbose: true }).then(c => {
+      if (c) {
+        // 카드 자동 펼침 + 다시 렌더
+        render();
+        const el = document.querySelector(`.card[data-id="${card.id}"]`);
+        if (el) el.classList.add('open');
+      }
+    });
+  }
 };
 
 window.deleteCard = function(id) {
