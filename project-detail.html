@@ -5199,7 +5199,11 @@ CPA: 2,977원
         try { localStorage.setItem('b2c_auto_report_url_' + projectId, sheetUrl); } catch(e) {}
         showToast('<span class="ok">⏳</span>시트 fetch 중...');
         const apiBase = location.protocol === 'file:' ? 'https://b2c-dashboard-sigma.vercel.app' : '';
-        const r = await fetch(apiBase + '/api/fetch-sheet?sheetId=' + encodeURIComponent(sheetId) + '&gid=' + encodeURIComponent(gid));
+        const r = await fetch(apiBase + '/api/fetch-sheet', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sheetUrl, sheetId, gid })
+        });
         const j = await r.json();
         if (!j.ok) { showToast('<span class="ok">⚠️</span>fetch 실패: ' + (j.error || 'unknown') + ' — 시트 권한 "링크 있는 모두 — 뷰어" 확인'); return; }
         const analysis = analyzeSheetRows(j.rows);
