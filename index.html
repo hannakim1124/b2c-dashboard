@@ -223,7 +223,7 @@
     </div>
     <div class="field">
       <label>제목</label>
-      <input id="f_title" type="text" placeholder="예) WORK FEST" />
+      <input id="f_title" type="text" placeholder="예) WORK FEST" oninput="autoFillEmoji()" />
     </div>
     <div class="field-row">
       <div class="field">
@@ -319,6 +319,43 @@ function parseDate(s) {
 }
 function getJSON(key) {
   try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch(e) { return null; }
+}
+
+// ─── 이벤트 타입 → 이모지 자동 매핑 (노션 인사이트전략팀 DB 분류 기반) ───
+const EMOJI_RULES = [
+  // 이벤트 타입
+  { keys: ['웨비나', 'webinar'], emoji: '📺' },
+  { keys: ['밋업', 'meetup'], emoji: '🤝' },
+  { keys: ['해커톤', 'hackathon'], emoji: '💻' },
+  { keys: ['페스티벌', 'festival', '페스트', 'fest', 'work fest', '워크페스'], emoji: '🎉' },
+  { keys: ['컨퍼런스', 'conference', '커리어컨퍼런스', '커컨', '커리어 컨퍼런스'], emoji: '🎤' },
+  { keys: ['데브콘', 'devcon'], emoji: '👨‍💻' },
+  { keys: ['더리부트', 'reboot', '더 리부트'], emoji: '🚀' },
+  { keys: ['커리어데이', 'career day'], emoji: '🎯' },
+  // 콘텐츠
+  { keys: ['아티클', 'article'], emoji: '📰' },
+  { keys: ['뉴스레터', 'newsletter'], emoji: '📧' },
+  { keys: ['영상', 'video', 'youtube'], emoji: '🎬' },
+  { keys: ['ai 아티클', 'ai_'], emoji: '🤖' },
+  // SNS
+  { keys: ['인스타', 'instagram'], emoji: '📸' },
+  { keys: ['링크드인', 'linkedin'], emoji: '💼' },
+  { keys: ['블로그', 'blog'], emoji: '📝' },
+  { keys: ['오카방', '커뮤니티', 'community'], emoji: '💬' },
+  // 기타
+  { keys: ['채용', 'recruit'], emoji: '🧑‍💼' },
+  { keys: ['회고', 'retrospective'], emoji: '🔄' },
+  { keys: ['캘린더', 'calendar'], emoji: '📅' },
+  { keys: ['이력서', 'resume'], emoji: '📋' },
+];
+
+function detectEmoji(title) {
+  const t = String(title || '').toLowerCase().trim();
+  if (!t) return '📊';
+  for (const rule of EMOJI_RULES) {
+    if (rule.keys.some(k => t.includes(k.toLowerCase()))) return rule.emoji;
+  }
+  return '📊';
 }
 
 // ─── 시트 자동 분석 ───
@@ -1010,6 +1047,15 @@ window.editCard = function(id) {
 
 window.closeModal = function() { $('editModal').classList.remove('open'); };
 
+window.autoFillEmoji = function() {
+  const title = $('f_title').value;
+  const emojiField = $('f_emoji');
+  // 비어있거나 디폴트(📊)일 때만 자동 매칭
+  if (!emojiField.value.trim() || emojiField.value.trim() === '📊') {
+    emojiField.value = detectEmoji(title);
+  }
+};
+
 window.addKpiRow = function(label, value) {
   const row = document.createElement('div');
   row.className = 'kpi-row';
@@ -1053,7 +1099,7 @@ window.saveCard = function() {
 
   const card = {
     id: editingId || ('user-' + Date.now()),
-    emoji: $('f_emoji').value.trim() || '📊',
+    emoji: $('f_emoji').value.trim() || detectEmoji(title),
     title,
     period,
     status: $('f_status').value,
