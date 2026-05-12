@@ -638,6 +638,20 @@ function cardBody(p) {
     if (r.byType) lines.push(`  <span class="muted">└ 소셜 ${r.byType.social || 0} · 평문 ${r.byType.plain || 0} · 이메일 ${r.byType.email || 0}</span>`);
     if (r.lastUpdated) lines.push(`  <span class="muted">└ 매칭 일시: ${r.lastUpdated}</span>`);
     lines.push('');
+    if (r.byClassification) {
+      const cls = r.byClassification;
+      const totalCls = (cls.new || 0) + (cls.old || 0) + (cls.none || 0);
+      if (totalCls > 0) {
+        lines.push(`  <span class="muted">신규/기존/미매칭 분류</span>`);
+        const pNew = ((cls.new || 0) / totalCls * 100).toFixed(1);
+        const pOld = ((cls.old || 0) / totalCls * 100).toFixed(1);
+        const pNone = ((cls.none || 0) / totalCls * 100).toFixed(1);
+        lines.push(`    ${pad('신규 가입 (이벤트 기간 내)', 28)}${pad(fmt(cls.new), 8, true)}   <span class="muted">${pad(pNew + '%', 7, true)}</span>`);
+        lines.push(`    ${pad('기존 회원 (이전 가입)', 28)}${pad(fmt(cls.old), 8, true)}   <span class="muted">${pad(pOld + '%', 7, true)}</span>`);
+        lines.push(`    ${pad('미매칭 (탈퇴/오탈자)', 28)}${pad(fmt(cls.none), 8, true)}   <span class="muted">${pad(pNone + '%', 7, true)}</span>`);
+        lines.push('');
+      }
+    }
   }
 
   // 신청자 자동 분석 (풍부 분석)
