@@ -248,8 +248,12 @@
       <button class="nav-btn" type="button" onclick="addKpiRow()">＋ KPI 추가</button>
     </div>
     <div class="field">
-      <label>외부 자료 링크 (한 줄에 하나, "라벨 | URL")</label>
-      <textarea id="f_links" rows="3" placeholder="시트 | https://docs.google.com/..."></textarea>
+      <label>📊 구글 시트 URL (자동 fetch + 분석)</label>
+      <input id="f_sheet" type="text" placeholder="https://docs.google.com/spreadsheets/d/.../edit?gid=..." />
+    </div>
+    <div class="field">
+      <label>기타 외부 자료 (한 줄에 하나, URL만)</label>
+      <textarea id="f_links" rows="3" placeholder="https://www.notion.so/...&#10;https://www.figma.com/..."></textarea>
     </div>
     <div class="field">
       <label>메모</label>
@@ -321,8 +325,16 @@ async function fetchSheetAuto(url, opts) {
       body: JSON.stringify({ sheetUrl: url, sheetId, gid })
     });
     const data = await r.json();
-    if (!r.ok || !data || !data.rows) {
-      if (opts?.verbose) alert('시트를 가져오지 못했습니다. 권한이 "링크 있는 모두 — 뷰어"인지 확인해주세요.');
+    if (!r.ok) {
+      if (opts?.verbose) alert('서버 응답 오류: ' + r.status);
+      return null;
+    }
+    if (data && data.ok === false) {
+      if (opts?.verbose) alert(data.error || '시트 fetch 실패');
+      return null;
+    }
+    if (!data || !data.rows) {
+      if (opts?.verbose) alert('빈 응답: 시트가 비었거나 형식 이상');
       return null;
     }
     const cache = { rows: data.rows, fetchedAt: new Date().toISOString() };
@@ -640,6 +652,7 @@ window.openAddModal = function() {
   $('f_start').value = '';
   $('f_end').value = '';
   $('f_status').value = 'ongoing';
+  if ($('f_sheet')) $('f_sheet').value = '';
   $('f_links').value = '';
   $('f_note').value = '';
   $('kpiList').innerHTML = '';
@@ -659,11 +672,11 @@ window.editCard = function(id) {
   $('f_end').value = m ? m[2] : '';
   $('f_status').value = p.status || 'ongoing';
   // 링크
+  if ($('f_sheet')) $('f_sheet').value = p.links?.sheet || '';
   const linkLines = [];
-  if (p.links?.notion) linkLines.push('노션 | ' + p.links.notion);
-  if (p.links?.sheet) linkLines.push('시트 | ' + p.links.sheet);
-  if (p.links?.figma) linkLines.push('피그마 | ' + p.links.figma);
-  (p.resources || []).forEach((url, i) => { if (url) linkLines.push(`자료${i+1} | ${url}`); });
+  if (p.links?.notion) linkLines.push(p.links.notion);
+  if (p.links?.figma) linkLines.push(p.links.figma);
+  (p.resources || []).forEach(url => { if (url) linkLines.push(url); });
   $('f_links').value = linkLines.join('\n');
   $('f_note').value = p.note || p.description || '';
   // KPI
@@ -703,18 +716,18 @@ window.saveCard = function() {
     if (l && v) kpis.push({ label: l, value: v });
   });
 
-  // 링크 파싱
+  // 링크 파싱 — 시트 URL은 별도 필드, 기타는 textarea
   const links = {};
   const resources = [];
+  const sheetVal = ($('f_sheet')?.value || '').trim();
+  if (sheetVal) links.sheet = sheetVal;
   $('f_links').value.split('\n').forEach(line => {
-    const m = line.match(/^\s*([^|]+?)\s*\|\s*(https?:\/\/\S+)\s*$/);
-    if (m) {
-      const lbl = m[1].toLowerCase();
-      if (lbl.includes('노션') || lbl === 'notion') links.notion = m[2];
-      else if (lbl.includes('시트') || lbl === 'sheet') links.sheet = m[2];
-      else if (lbl.includes('피그마') || lbl === 'figma') links.figma = m[2];
-      else resources.push(m[2]);
-    }
+    const url = line.trim();
+    if (!/^https?:\/\//.test(url)) return;
+    if (/notion\.so|notion\.com/i.test(url)) links.notion = url;
+    else if (/figma\.com/i.test(url)) links.figma = url;
+    else if (/spreadsheets\/d\//.test(url) && !links.sheet) links.sheet = url;
+    else resources.push(url);
   });
 
   const card = {
