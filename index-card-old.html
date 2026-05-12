@@ -1,0 +1,3105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>인사이트전략팀 · 2026 프로젝트</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <style>
+    /* === Design tokens === */
+    :root {
+      --c-bg: #FFFFFF;
+      --c-surface: #FFFFFF;
+      --c-surface-alt: #F9FAFB;
+      --c-surface-deep: #F2F4F6;
+      --c-border: #F2F4F6;
+      --c-border-strong: #E5E8EB;
+      --c-text: #191F28;
+      --c-text-2: #4E5968;
+      --c-text-3: #8B95A1;
+      --c-text-4: #B0B8C1;
+      --c-primary: #3182F6;
+      --c-primary-hover: #1B64DA;
+      --c-primary-bg: #E8F3FF;
+      --c-primary-deep: #0E4BC9;
+      --c-navy: #0F1A30;
+      --c-success: #00C896;
+      --c-success-bg: #E5F9F4;
+      --c-warning: #FFB700;
+      --c-warning-bg: #FFF7E0;
+      --c-danger: #F04452;
+      --c-danger-bg: #FFEBEC;
+
+      --r-sm: 10px; --r-md: 14px; --r-lg: 20px; --r-xl: 28px; --r-pill: 999px;
+      --sh-1: 0 2px 6px rgba(15,19,36,0.04);
+      --sh-2: 0 8px 24px rgba(15,19,36,0.08);
+      --sh-3: 0 16px 48px rgba(15,19,36,0.12);
+      --nav-h: 64px;
+      --tx-mono: "tnum" on, "lnum" on;
+      --c-primary-rgb: 49,130,246;
+      --c-hero-tint: #F5F9FF;
+    }
+
+    /* 2025년 모드 — 핑크 테마 */
+    body.year-2025 {
+      --c-primary: #F04C7A;
+      --c-primary-hover: #DC3D6A;
+      --c-primary-bg: #FFE9F0;
+      --c-primary-deep: #B12C58;
+      --c-primary-rgb: 240,76,122;
+      --c-hero-tint: #FFF5F8;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: var(--nav-h); }
+    body {
+      font-family: 'Pretendard', -apple-system, sans-serif;
+      background: var(--c-bg); color: var(--c-text);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.5;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+
+    /* ────────────────────────────────────────────────
+       Top Nav
+    ──────────────────────────────────────────────── */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: var(--nav-h);
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 1px solid var(--c-border);
+    }
+    .nav-inner {
+      max-width: 1200px; margin: 0 auto; padding: 0 32px;
+      height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 32px;
+    }
+    .nav-brand {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 16px; font-weight: 800; color: var(--c-text); letter-spacing: -0.01em;
+      flex-shrink: 0;
+    }
+    .nav-brand .logo {
+      width: 28px; height: 28px; border-radius: 8px;
+      background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-primary-deep) 100%);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 900; font-size: 13px;
+    }
+    .year-wrap {
+      position: relative; margin-left: 4px;
+    }
+    .year-wrap .year {
+      font-size: 11px; font-weight: 700; color: var(--c-text-3);
+      background: var(--c-surface-deep); padding: 3px 8px; border-radius: 6px;
+      cursor: pointer; border: none; font-family: inherit;
+      display: inline-flex; align-items: center; gap: 2px;
+      transition: background 0.12s, color 0.12s;
+    }
+    .year-wrap .year:hover { background: var(--c-primary-bg); color: var(--c-primary); }
+    .year-wrap .year-arrow {
+      font-size: 10px; transition: transform 0.18s;
+    }
+    .year-wrap.open .year-arrow { transform: rotate(180deg); }
+    .year-dropdown {
+      position: absolute; top: calc(100% + 4px); left: 0;
+      background: #fff; border: 1px solid var(--c-line);
+      border-radius: 8px; padding: 4px; min-width: 80px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+      z-index: 1000;
+    }
+    .year-dropdown[hidden] { display: none; }
+    .year-option {
+      display: block; width: 100%;
+      padding: 8px 12px; background: none; border: none;
+      font-family: inherit; font-size: 13px; font-weight: 600;
+      color: var(--c-text-2); text-align: left; cursor: pointer;
+      border-radius: 6px;
+      transition: background 0.12s, color 0.12s;
+    }
+    .year-option:hover { background: var(--c-surface-deep); color: var(--c-text); }
+    .year-option.is-active { color: var(--c-primary); background: var(--c-primary-bg); }
+    .nav-menu { display: flex; gap: 2px; align-items: center; list-style: none; flex: 1; }
+    .nav-menu a {
+      font-size: 14px; font-weight: 600; color: var(--c-text-2);
+      padding: 8px 14px; border-radius: 8px;
+      transition: color 0.12s, background 0.12s;
+    }
+    .nav-menu a:hover { color: var(--c-text); background: var(--c-surface-deep); }
+    .nav-menu a.is-active { color: var(--c-primary); background: var(--c-primary-bg); }
+    .nav-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; position: relative; }
+
+    /* search */
+    .nav-search-wrap { position: relative; }
+    .nav-search-icon {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      font-size: 13px; color: var(--c-text-3); pointer-events: none;
+    }
+    .nav-search-input {
+      background: var(--c-surface-deep); border: 1px solid transparent;
+      padding: 9px 12px 9px 34px; border-radius: 10px;
+      font-size: 13px; color: var(--c-text); width: 220px;
+      font-family: inherit; outline: none;
+      transition: border-color 0.12s, background 0.12s, width 0.18s, box-shadow 0.12s;
+    }
+    .nav-search-input::placeholder { color: var(--c-text-3); }
+    .nav-search-input:focus {
+      border-color: var(--c-primary); background: #fff; width: 320px;
+      box-shadow: 0 0 0 3px rgba(var(--c-primary-rgb),0.12);
+    }
+    .search-pop {
+      position: absolute; top: calc(100% + 8px); right: 0; width: 360px;
+      background: #fff; border: 1px solid var(--c-border-strong); border-radius: var(--r-md);
+      box-shadow: var(--sh-3); z-index: 200;
+      max-height: 480px; overflow-y: auto; display: none;
+    }
+    .search-pop.is-open { display: block; }
+    .search-pop-empty { padding: 32px 20px; text-align: center; color: var(--c-text-3); font-size: 13px; }
+    .search-pop-empty .e { font-size: 24px; margin-bottom: 10px; }
+    .search-pop-head {
+      padding: 10px 16px; font-size: 11px; font-weight: 700;
+      color: var(--c-text-3); letter-spacing: 0.06em; text-transform: uppercase;
+      border-bottom: 1px solid var(--c-border);
+    }
+    .search-item {
+      display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+      border-bottom: 1px solid var(--c-border); transition: background 0.1s;
+      cursor: pointer;
+    }
+    .search-item:last-child { border-bottom: none; }
+    .search-item:hover, .search-item.is-focus { background: var(--c-surface-deep); }
+    .search-item .ic {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+      background: var(--c-surface-alt);
+    }
+    .search-item .body { flex: 1; min-width: 0; }
+    .search-item .t { font-size: 14px; font-weight: 700; color: var(--c-text); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .search-item .s { font-size: 12px; color: var(--c-text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+    .search-item mark { background: var(--c-warning-bg); color: var(--c-text); padding: 0 2px; border-radius: 3px; font-weight: 700; }
+
+    .nav-add {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: var(--c-text); color: #fff;
+      padding: 9px 14px; border-radius: 10px;
+      font-size: 13px; font-weight: 700;
+      border: none; transition: background 0.12s, transform 0.1s;
+    }
+    .nav-add:hover { background: var(--c-navy); }
+    .nav-add:active { transform: scale(0.97); }
+
+    /* ────────────────────────────────────────────────
+       Hero
+    ──────────────────────────────────────────────── */
+    .hero {
+      padding: calc(var(--nav-h) + 72px) 0 56px;
+      background: linear-gradient(180deg, var(--c-hero-tint) 0%, #FFFFFF 100%);
+    }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 700; color: var(--c-primary);
+      background: var(--c-primary-bg); padding: 6px 14px; border-radius: var(--r-pill);
+      margin-bottom: 20px; letter-spacing: 0.02em;
+    }
+    .hero h1 {
+      font-size: 56px; font-weight: 900; letter-spacing: -0.035em; line-height: 1.1;
+      color: var(--c-text); margin-bottom: 16px;
+      max-width: 720px;
+    }
+    .hero h1 .accent { color: var(--c-primary); }
+    .hero p.hero-sub {
+      font-size: 17px; color: var(--c-text-2); font-weight: 500;
+      margin-bottom: 36px; line-height: 1.55;
+      max-width: 600px;
+    }
+    .hero-stats {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0;
+      background: var(--c-surface); border: 1px solid var(--c-border);
+      border-radius: var(--r-lg);
+      box-shadow: var(--sh-1);
+      overflow: hidden;
+    }
+    .hero-stat {
+      padding: 18px 20px;
+      border-right: 1px solid var(--c-border);
+      min-width: 0;
+    }
+    .hero-stat:nth-child(n+1):nth-child(-n+5):not(:last-child) { border-right: 1px solid var(--c-border); }
+    .hero-stat:last-child { border-right: none; }
+    .hero-stat-label {
+      font-size: 12px; color: var(--c-text-3); font-weight: 600;
+      margin-bottom: 8px; letter-spacing: 0.02em;
+    }
+    .hero-stat-num {
+      font-size: 22px; font-weight: 800; letter-spacing: -0.025em;
+      color: var(--c-text); font-feature-settings: var(--tx-mono);
+      line-height: 1.1; white-space: nowrap;
+    }
+    .hero-stat-sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hero-stat-sub {
+      font-size: 11px; color: var(--c-text-4); font-weight: 500;
+      margin-top: 4px;
+    }
+
+    /* ────────────────────────────────────────────────
+       Filters
+    ──────────────────────────────────────────────── */
+    .filters {
+      position: sticky; top: var(--nav-h); z-index: 50;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: saturate(180%) blur(16px);
+      border-bottom: 1px solid var(--c-border);
+      padding: 16px 0;
+    }
+    .filters-row {
+      display: flex; align-items: center; gap: 12px; overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .filters-row::-webkit-scrollbar { display: none; }
+    .filters-row + .filters-row { margin-top: 10px; }
+
+    .m-chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px 6px 6px; border-radius: var(--r-pill);
+      background: var(--c-surface); border: 1px solid var(--c-border-strong);
+      font-size: 13px; font-weight: 700; color: var(--c-text-2);
+      cursor: pointer; flex-shrink: 0;
+      transition: border-color 0.12s, background 0.12s, color 0.12s;
+    }
+    .m-chip .av {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800; color: #fff;
+    }
+    .m-chip:hover { border-color: var(--c-text); color: var(--c-text); }
+    .m-chip.is-active { background: var(--c-text); color: #fff; border-color: var(--c-text); }
+    .m-chip.is-all { padding: 6px 16px; background: var(--c-primary-bg); color: var(--c-primary); border-color: var(--c-primary-bg); }
+    .m-chip.is-all.is-active { background: var(--c-primary); color: #fff; border-color: var(--c-primary); }
+    .m-chip.is-add {
+      background: transparent; color: var(--c-text-3);
+      border: 1px dashed var(--c-border-strong); padding: 6px 14px;
+    }
+    .m-chip.is-add:hover { color: var(--c-text); border-color: var(--c-text-3); }
+
+    .c-chip {
+      padding: 7px 14px; border-radius: var(--r-pill);
+      background: transparent; border: 1px solid var(--c-border-strong);
+      font-size: 13px; font-weight: 600; color: var(--c-text-2);
+      cursor: pointer; flex-shrink: 0;
+      transition: all 0.12s;
+    }
+    .c-chip:hover { border-color: var(--c-text-2); color: var(--c-text); }
+    .c-chip.is-active { background: var(--c-text); color: #fff; border-color: var(--c-text); }
+
+    /* ────────────────────────────────────────────────
+       Feed
+    ──────────────────────────────────────────────── */
+    .feed { padding: 40px 0 80px; }
+    .feed-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px; gap: 16px; flex-wrap: wrap;
+    }
+    .feed-head h2 {
+      font-size: 22px; font-weight: 800; letter-spacing: -0.02em;
+      color: var(--c-text);
+    }
+    .feed-head h2 .count {
+      font-size: 14px; color: var(--c-text-3); font-weight: 600; margin-left: 6px;
+      font-feature-settings: var(--tx-mono);
+    }
+    .feed-sort {
+      display: inline-flex; gap: 4px; padding: 4px;
+      background: var(--c-surface-deep); border-radius: 10px;
+    }
+    .feed-sort button {
+      padding: 6px 12px; border-radius: 7px; border: none; background: transparent;
+      font-size: 12px; font-weight: 700; color: var(--c-text-3);
+      transition: background 0.12s, color 0.12s;
+    }
+    .feed-sort button.is-active { background: var(--c-surface); color: var(--c-text); box-shadow: var(--sh-1); }
+    .feed-sort .btn-export {
+      margin-left: 4px; background: var(--c-surface); color: var(--c-text);
+      border: 1px solid var(--c-border-strong); cursor: pointer;
+    }
+    .feed-sort .btn-export:hover { border-color: var(--c-primary); color: var(--c-primary); }
+
+    /* ────────────────────────────────────────────────
+       Cards
+    ──────────────────────────────────────────────── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--c-surface); border: 1px solid var(--c-border);
+      border-radius: var(--r-lg); overflow: hidden;
+      display: flex; flex-direction: column;
+      transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+      cursor: pointer; position: relative;
+    }
+    .card:hover { transform: translateY(-3px); box-shadow: var(--sh-3); border-color: transparent; }
+
+    .card-cover {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      display: flex; align-items: flex-end; justify-content: flex-start;
+      padding: 16px;
+    }
+    .card-cover-emoji {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      font-size: 64px; opacity: 0.95;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.18));
+    }
+    .card-cover-tag {
+      position: relative; z-index: 2;
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11px; font-weight: 700; padding: 5px 10px; border-radius: var(--r-pill);
+      letter-spacing: 0.04em;
+      background: rgba(255,255,255,0.95); color: var(--c-text);
+      backdrop-filter: blur(8px);
+    }
+    .card-cover-tag.live { color: var(--c-danger); }
+    .card-cover-tag.live .pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--c-danger); animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.7); } }
+
+    .card-body { padding: 18px 20px 20px; flex: 1; display: flex; flex-direction: column; }
+
+    .card-cat { font-size: 11px; font-weight: 700; color: var(--c-text-3); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px; }
+    .card-title { font-size: 17px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.3; color: var(--c-text); margin-bottom: 8px; }
+    .card-desc {
+      font-size: 13px; color: var(--c-text-3); font-weight: 500;
+      line-height: 1.5; margin-bottom: 16px;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+
+    .card-kpi {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+      padding: 14px 0; margin-top: auto;
+      border-top: 1px solid var(--c-border);
+      border-bottom: 1px solid var(--c-border);
+      margin-bottom: 14px;
+    }
+    .card-kpi-label { font-size: 10px; color: var(--c-text-4); font-weight: 600; margin-bottom: 3px; letter-spacing: 0.02em; }
+    .card-kpi-num { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; color: var(--c-text); font-feature-settings: var(--tx-mono); }
+    .card-kpi-num.success { color: var(--c-success); }
+    .card-kpi-num.warning { color: var(--c-warning); }
+    .card-kpi-num.danger { color: var(--c-danger); }
+
+    .card-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .card-author { display: inline-flex; align-items: center; gap: 8px; }
+    .card-author .av {
+      width: 26px; height: 26px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800; color: #fff;
+    }
+    .card-author .name { font-size: 13px; font-weight: 700; color: var(--c-text); }
+    .card-meta { font-size: 12px; color: var(--c-text-3); font-weight: 500; font-feature-settings: var(--tx-mono); }
+
+    /* card actions (edit / delete) - 모든 카드에 hover 시 표시 */
+    .card-actions {
+      position: absolute; top: 10px; right: 10px; z-index: 5;
+      display: flex; gap: 6px;
+      opacity: 0; transition: opacity 0.15s, transform 0.15s;
+      transform: translateY(-4px);
+    }
+    .card:hover .card-actions { opacity: 1; transform: translateY(0); }
+    .card-act-btn {
+      width: 30px; height: 30px; border-radius: 9px;
+      background: rgba(255,255,255,0.96); color: var(--c-text-2);
+      border: 1px solid rgba(255,255,255,0.5);
+      font-size: 13px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(8px);
+      cursor: pointer; transition: background 0.12s, color 0.12s, transform 0.1s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .card-act-btn:hover { background: #fff; color: var(--c-text); }
+    .card-act-btn:active { transform: scale(0.92); }
+    .card-act-btn.del:hover { background: var(--c-danger); color: #fff; border-color: var(--c-danger); }
+    /* 사용자 추가 카드 표시 (왼쪽 위 작은 점) */
+    .card[data-user="1"]::before {
+      content: ''; position: absolute; top: 14px; left: 14px; z-index: 4;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--c-primary); box-shadow: 0 0 0 3px rgba(var(--c-primary-rgb),0.25);
+    }
+
+    /* "방금 추가됨" highlight */
+    .card.is-new { animation: newPulse 0.8s ease-out; }
+    @keyframes newPulse {
+      0%   { transform: scale(0.96); box-shadow: 0 0 0 0 rgba(var(--c-primary-rgb),0.4); }
+      50%  { transform: scale(1.02); box-shadow: 0 0 0 12px rgba(var(--c-primary-rgb),0); }
+      100% { transform: scale(1); }
+    }
+
+    /* member colors */
+    .av-hanna   { background: linear-gradient(135deg, #5A9BFF 0%, #3182F6 100%); }
+    .av-minji   { background: linear-gradient(135deg, #2DDDB0 0%, #00C896 100%); }
+    .av-jihoon  { background: linear-gradient(135deg, #FFA89E 0%, #FF7B72 100%); }
+    .av-red     { background: linear-gradient(135deg, #FF7676 0%, #E83A3A 100%); }
+    .av-orange  { background: linear-gradient(135deg, #FFB876 0%, #FF8A2B 100%); }
+    .av-yellow  { background: linear-gradient(135deg, #FFD96E 0%, #F5A623 100%); color: #6A4500; }
+    .av-green   { background: linear-gradient(135deg, #6FE08D 0%, #2BB958 100%); }
+    .av-blue    { background: linear-gradient(135deg, #5A9BFF 0%, #3182F6 100%); }
+    .av-purple  { background: linear-gradient(135deg, #C29CFF 0%, #8C5BFF 100%); }
+    .av-pink    { background: linear-gradient(135deg, #FFB3CF 0%, #FF6FA1 100%); }
+    .av-gray    { background: linear-gradient(135deg, #BCC4CC 0%, #6B7684 100%); }
+    .av-suyoung { background: linear-gradient(135deg, #D2A8FF 0%, #B981F5 100%); }
+    .av-taeho   { background: linear-gradient(135deg, #FFD566 0%, #FFB700 100%); }
+
+    .cv-hanna   { background: linear-gradient(135deg, #DCEBFF 0%, #ADCDFF 60%, #5A9BFF 100%); }
+    .cv-minji   { background: linear-gradient(135deg, #D5F7EC 0%, #9FE9D0 60%, #2DDDB0 100%); }
+    .cv-jihoon  { background: linear-gradient(135deg, #FFE0DC 0%, #FFB8B0 60%, #FF7B72 100%); }
+    .cv-suyoung { background: linear-gradient(135deg, #EFE0FF 0%, #D9B8FF 60%, #B981F5 100%); }
+    .cv-taeho   { background: linear-gradient(135deg, #FFF0CC 0%, #FFDF8A 60%, #FFB700 100%); }
+
+    /* empty state */
+    .empty {
+      grid-column: 1 / -1;
+      background: var(--c-surface-alt); border: 1px dashed var(--c-border-strong);
+      border-radius: var(--r-xl); padding: 60px 32px; text-align: center;
+    }
+    .empty .em { font-size: 32px; margin-bottom: 12px; }
+    .empty .et { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
+    .empty .es { font-size: 13px; color: var(--c-text-3); }
+
+    /* ────────────────────────────────────────────────
+       Members section
+    ──────────────────────────────────────────────── */
+    .members-sec { background: var(--c-surface-alt); padding: 80px 0; }
+    .members-head { margin-bottom: 36px; }
+    .members-eyebrow { font-size: 12px; font-weight: 700; color: var(--c-primary); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
+    .members-head h2 { font-size: 32px; font-weight: 900; letter-spacing: -0.025em; color: var(--c-text); margin-bottom: 8px; }
+    .members-head p { font-size: 15px; color: var(--c-text-2); font-weight: 500; }
+
+    .members-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+    .mem-card {
+      position: relative;
+      background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-lg);
+      padding: 22px; text-align: center;
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+      cursor: pointer;
+    }
+    .mem-card .mem-edit {
+      position: absolute; top: 8px; right: 8px;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--c-surface-deep); border: none; cursor: pointer;
+      font-size: 13px; line-height: 1; padding: 0;
+      opacity: 0; transition: opacity 0.12s, background 0.12s;
+    }
+    .mem-card:hover .mem-edit { opacity: 1; }
+    .mem-card .mem-edit:hover { background: var(--c-primary-bg); }
+    .mem-card:hover { transform: translateY(-2px); box-shadow: var(--sh-2); border-color: transparent; }
+    .mem-card .av {
+      width: 56px; height: 56px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 800; color: #fff;
+      margin: 0 auto 12px;
+    }
+    .mem-card .name { font-size: 15px; font-weight: 800; color: var(--c-text); margin-bottom: 2px; }
+    .mem-card .role { font-size: 11px; color: var(--c-text-3); font-weight: 600; margin-bottom: 14px; }
+    .mem-card-stats { display: flex; justify-content: space-around; padding-top: 14px; border-top: 1px solid var(--c-border); }
+    .mem-card-stat .num { font-size: 17px; font-weight: 800; color: var(--c-text); font-feature-settings: var(--tx-mono); }
+    .mem-card-stat .lbl { font-size: 10px; color: var(--c-text-4); font-weight: 600; margin-top: 2px; }
+
+    /* ────────────────────────────────────────────────
+       Modal
+    ──────────────────────────────────────────────── */
+    .modal-bg {
+      position: fixed; inset: 0; background: rgba(15,19,36,0.5); backdrop-filter: blur(4px);
+      z-index: 200; display: none; align-items: center; justify-content: center;
+      padding: 40px 20px; overflow-y: auto;
+      animation: bgFade 0.2s ease;
+    }
+    @keyframes bgFade { from { opacity: 0; } to { opacity: 1; } }
+    .modal-bg.is-open { display: flex; }
+    .modal {
+      background: #fff; width: 100%; max-width: 600px;
+      max-height: calc(100vh - 80px); overflow-y: auto;
+      border-radius: var(--r-xl); padding: 32px;
+      box-shadow: var(--sh-3);
+      animation: modalIn 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+    }
+    @keyframes modalIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .modal-head {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+      margin-bottom: 24px;
+    }
+    .modal-head h3 { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+    .modal-head p { font-size: 13px; color: var(--c-text-3); margin-top: 4px; font-weight: 500; }
+    .modal-head .close {
+      background: transparent; border: none; width: 32px; height: 32px;
+      border-radius: 8px; font-size: 18px; color: var(--c-text-3); cursor: pointer;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .modal-head .close:hover { background: var(--c-surface-deep); color: var(--c-text); }
+
+    .field { display: block; }
+    .field + .field { margin-top: 14px; }
+    .field label {
+      display: block; font-size: 12px; font-weight: 700; color: var(--c-text-2);
+      margin-bottom: 6px;
+    }
+    .field label .opt { color: var(--c-text-4); font-weight: 500; margin-left: 4px; }
+    .field-label-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+    .field-label-row label { margin-bottom: 0; }
+    .field-actions { display: inline-flex; gap: 4px; }
+    .field-action {
+      font-size: 11px; font-weight: 600;
+      color: var(--c-primary); cursor: pointer; font-family: inherit;
+      padding: 2px 8px; border: none; border-radius: 6px;
+      background: transparent; transition: background 0.12s;
+    }
+    .field-action:hover { background: var(--c-primary-bg); }
+
+    /* Export modal */
+    .export-fmt { display: flex; gap: 8px; }
+    #exportModal .ef-opt {
+      flex: 1; padding: 12px 14px; border: 1px solid var(--c-border-strong);
+      border-radius: var(--r-sm); font-size: 13px; font-weight: 700; color: var(--c-text-2);
+      cursor: pointer; transition: all 0.12s;
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 0;
+    }
+    #exportModal .ef-opt:has(input:checked) {
+      border-color: var(--c-primary); background: var(--c-primary-bg); color: var(--c-primary);
+    }
+    #exportModal .ef-opt input[type="radio"],
+    #exportModal .export-cols input[type="checkbox"] {
+      width: auto; padding: 0; margin: 0; accent-color: var(--c-primary);
+    }
+    #exportModal .export-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; }
+    #exportModal .export-cols label {
+      display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;
+      color: var(--c-text-2); cursor: pointer; padding: 4px 0; margin-bottom: 0;
+    }
+    .field input, .field select, .field textarea {
+      width: 100%; padding: 11px 12px; font-family: inherit;
+      border: 1px solid var(--c-border-strong); border-radius: 10px;
+      font-size: 13px; color: var(--c-text); outline: none;
+      background: var(--c-surface);
+      transition: border-color 0.12s, box-shadow 0.12s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      border-color: var(--c-primary); box-shadow: 0 0 0 3px rgba(var(--c-primary-rgb),0.12);
+    }
+    .field textarea { resize: vertical; min-height: 60px; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+    .field-row.three { grid-template-columns: 1fr 1fr 1fr; }
+    .kpi-block {
+      margin-top: 14px; padding: 14px; border: 1px solid var(--c-border);
+      border-radius: var(--r-md); background: var(--c-surface-alt);
+    }
+    .kpi-block label.title { font-size: 12px; font-weight: 700; color: var(--c-text-2); margin-bottom: 10px; display: block; }
+    .kpi-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .kpi-row + .kpi-row { margin-top: 8px; }
+    .kpi-row .lbl-i { background: #fff; }
+
+    .modal-foot { display: flex; gap: 10px; justify-content: flex-end; align-items: center; margin-top: 28px; }
+    .modal-foot .btn-danger {
+      margin-right: auto; padding: 9px 16px; border-radius: 10px; border: 1px solid var(--c-danger);
+      background: #fff; color: var(--c-danger); font-weight: 700; font-size: 13px;
+      cursor: pointer; font-family: inherit; transition: all 0.12s;
+    }
+    .modal-foot .btn-danger:hover { background: var(--c-danger); color: #fff; }
+    .btn-text {
+      padding: 11px 16px; border-radius: 10px; border: none; background: transparent;
+      font-size: 13px; font-weight: 700; color: var(--c-text-2); cursor: pointer;
+    }
+    .btn-text:hover { background: var(--c-surface-deep); color: var(--c-text); }
+    .btn-fill {
+      padding: 11px 22px; border-radius: 10px; border: none; background: var(--c-primary);
+      color: #fff; font-size: 13px; font-weight: 700; cursor: pointer;
+      transition: background 0.12s, transform 0.1s;
+    }
+    .btn-fill:hover { background: var(--c-primary-hover); }
+    .btn-fill:active { transform: scale(0.97); }
+
+    /* toast */
+    .toast {
+      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--c-text); color: #fff; padding: 12px 20px; border-radius: var(--r-md);
+      font-size: 13px; font-weight: 600; z-index: 300; opacity: 0; pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+      box-shadow: var(--sh-2);
+    }
+    .toast.is-open { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast .ok { color: var(--c-success); margin-right: 6px; font-weight: 800; }
+
+    /* modal overlay (휴지통, 멤버 추가) */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(15, 20, 25, 0.45);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 250; padding: 20px;
+      animation: modalFadeIn 0.18s ease-out;
+    }
+    /* 프로젝트 모달 위에 띄울 sub 모달 */
+    #memberModal, #exportModal { z-index: 400; }
+    .modal-overlay[hidden] { display: none; }
+    .modal-overlay .modal {
+      width: 100%; max-width: 520px;
+      max-height: calc(100vh - 80px); overflow-y: auto;
+      background: #fff; border-radius: 16px;
+      padding: 28px 24px 20px; position: relative;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+      animation: modalSlideUp 0.2s ease-out;
+    }
+    .modal-overlay .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      width: 32px; height: 32px;
+      border: none; background: var(--c-surface-deep);
+      cursor: pointer; color: var(--c-text-3);
+      font-size: 22px; line-height: 1;
+      border-radius: 50%; padding: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.12s, color 0.12s;
+    }
+    .modal-overlay .modal-close:hover { background: var(--c-surface-deeper); color: var(--c-text); }
+    .modal-overlay .modal-title { font-size: 20px; font-weight: 800; margin: 0 0 8px; color: var(--c-text); }
+    .modal-overlay .modal-sub { font-size: 13px; color: var(--c-text-3); margin: 0 0 20px; line-height: 1.5; }
+    @keyframes modalFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes modalSlideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* link rows in form */
+    .link-row {
+      display: flex; align-items: center; gap: 8px;
+      margin-top: 8px; padding: 8px 12px;
+      background: var(--c-surface-deep); border: 1px solid transparent;
+      border-radius: 8px;
+      transition: border-color 0.12s;
+    }
+    .link-row:focus-within { border-color: var(--c-primary); background: #fff; }
+    .link-row .link-ic { font-size: 16px; flex-shrink: 0; line-height: 1; }
+    .link-row input {
+      flex: 1; border: none; background: transparent;
+      font-size: 13px; font-family: inherit;
+      color: var(--c-text); outline: none;
+    }
+    .link-row input::placeholder { color: var(--c-text-3); }
+    .link-row .resource-remove {
+      background: none; border: none; color: var(--c-text-3); cursor: pointer;
+      font-size: 16px; padding: 0 4px; line-height: 1;
+    }
+    .link-row .resource-remove:hover { color: var(--c-danger); }
+    .resource-add-btn {
+      margin-top: 10px; padding: 10px 16px;
+      background: var(--c-surface-deep); border: 1px dashed var(--c-border-strong);
+      border-radius: 8px; color: var(--c-primary);
+      font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
+      width: 100%; transition: all 0.12s;
+    }
+    .resource-add-btn:hover { border-color: var(--c-primary); background: var(--c-primary-bg); }
+
+    /* tag chip input */
+    .tag-input-wrap {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+      width: 100%; padding: 8px 10px; min-height: 42px;
+      border: 1px solid var(--c-border-strong); border-radius: var(--r-sm);
+      background: var(--c-surface);
+      transition: border-color 0.12s, box-shadow 0.12s;
+    }
+    .tag-input-wrap:focus-within {
+      border-color: var(--c-primary);
+      box-shadow: 0 0 0 3px rgba(var(--c-primary-rgb),0.12);
+    }
+    .tag-chips { display: contents; }
+    .tag-chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 6px 4px 10px; border-radius: var(--r-pill);
+      background: var(--c-primary-bg); color: var(--c-primary);
+      font-size: 12px; font-weight: 700; line-height: 1; white-space: nowrap;
+    }
+    .tag-chip .x {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 16px; height: 16px; border-radius: 50%; border: none; cursor: pointer;
+      background: transparent; color: var(--c-primary); font-size: 14px; line-height: 1;
+      padding: 0; transition: background 0.12s;
+    }
+    .tag-chip .x:hover { background: rgba(var(--c-primary-rgb),0.18); }
+    .tag-typer {
+      flex: 1; min-width: 100px; border: none; outline: none;
+      background: transparent; padding: 4px 2px;
+      font-size: 13px; color: var(--c-text); font-family: inherit;
+    }
+    .tag-typer::placeholder { color: var(--c-text-3); font-size: 12px; }
+
+    /* emoji picker — trigger + popup */
+    .emoji-trigger-wrap { position: relative; }
+    .emoji-trigger {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%; padding: 10px 14px;
+      background: var(--c-surface-deep); border: 1px solid var(--c-border);
+      border-radius: 8px; cursor: pointer; font-family: inherit;
+      transition: border-color 0.12s, background 0.12s;
+    }
+    .emoji-trigger:hover { border-color: var(--c-primary); background: var(--c-primary-bg); }
+    .emoji-preview { font-size: 22px; line-height: 1; }
+    .emoji-trigger-text { flex: 1; text-align: left; font-size: 13px; font-weight: 600; color: var(--c-text-2); }
+    .emoji-trigger-arrow { font-size: 12px; color: var(--c-text-3); transition: transform 0.18s; }
+    .emoji-trigger-wrap.open .emoji-trigger-arrow { transform: rotate(180deg); }
+    .emoji-popup {
+      position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+      background: #fff; border: 1px solid var(--c-line);
+      border-radius: 12px; padding: 12px;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+      z-index: 100;
+      max-height: 360px; overflow-y: auto;
+    }
+    .emoji-popup[hidden] { display: none; }
+    .emoji-popup-search { margin-bottom: 10px; }
+    .emoji-popup-search input {
+      width: 100%; padding: 8px 12px;
+      background: var(--c-surface-deep); border: 1px solid transparent;
+      border-radius: 8px; font-size: 12px; outline: none; font-family: inherit;
+    }
+    .emoji-popup-search input:focus { border-color: var(--c-primary); background: #fff; }
+    .emoji-cat-title {
+      font-size: 11px; font-weight: 800; color: var(--c-text-3);
+      letter-spacing: 0.06em; text-transform: uppercase;
+      margin: 14px 4px 6px; padding-top: 4px;
+    }
+    .emoji-cat-title:first-child { margin-top: 0; padding-top: 0; }
+    .emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; }
+    .emoji-opt {
+      background: transparent; border: 1px solid transparent;
+      border-radius: 6px; padding: 6px; font-size: 20px; cursor: pointer;
+      transition: all .1s; line-height: 1; text-align: center;
+    }
+    .emoji-opt:hover { background: var(--c-primary-bg); transform: scale(1.15); }
+    .emoji-opt.is-selected { background: var(--c-primary-bg); border-color: var(--c-primary); }
+
+    /* done card — finished look */
+    .card[data-status="done"] {
+      opacity: 0.55;
+      filter: grayscale(0.7);
+      background: linear-gradient(180deg, #FAFBFC 0%, #F4F4F4 100%) !important;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    .card[data-status="done"]:hover {
+      opacity: 1;
+      filter: none;
+      background: var(--c-surface) !important;
+    }
+    .card[data-status="done"]::before {
+      content: '✓ 완료됨';
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: rgba(106, 106, 106, 0.92);
+      color: #fff;
+      padding: 4px 9px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      z-index: 5;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+      pointer-events: none;
+    }
+    .card[data-status="done"]:hover::before {
+      background: var(--c-primary);
+    }
+    .card[data-status="done"] .card-title,
+    .card[data-status="done"] .card-desc,
+    .card[data-status="done"] .card-kpi-num {
+      color: #6A6A6A;
+    }
+    .card[data-status="done"]:hover .card-title,
+    .card[data-status="done"]:hover .card-desc,
+    .card[data-status="done"]:hover .card-kpi-num {
+      color: var(--c-text);
+    }
+
+    /* trash modal */
+    .trash-list { max-height: 400px; overflow-y: auto; margin: 16px 0; }
+    .trash-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px; border: 1px solid var(--c-line); border-radius: 8px;
+      margin-bottom: 8px;
+    }
+    .trash-item .ic { font-size: 24px; line-height: 1; }
+    .trash-item .info { flex: 1; min-width: 0; }
+    .trash-item .info .t { font-weight: 700; font-size: 14px; color: var(--c-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .trash-item .info .s { font-size: 12px; color: var(--c-text-3); margin-top: 2px; }
+    .trash-item .actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .trash-item .btn-restore, .trash-item .btn-delete-forever {
+      padding: 6px 12px; border-radius: 6px; border: 1px solid var(--c-line);
+      background: #fff; font-size: 12px; font-weight: 600; cursor: pointer;
+      font-family: inherit;
+    }
+    .trash-item .btn-restore { color: var(--c-primary); border-color: var(--c-primary); }
+    .trash-item .btn-restore:hover { background: var(--c-primary); color: #fff; }
+    .trash-item .btn-delete-forever { color: #F04452; border-color: #F04452; }
+    .trash-item .btn-delete-forever:hover { background: #F04452; color: #fff; }
+    .trash-empty { text-align: center; padding: 40px 20px; color: var(--c-text-3); font-size: 14px; }
+    .trash-foot { text-align: right; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--c-line); }
+    .btn-ghost {
+      padding: 8px 16px; border-radius: 8px; border: 1px solid var(--c-line);
+      background: #fff; font-size: 13px; font-weight: 600; color: var(--c-text-2);
+      cursor: pointer; font-family: inherit;
+    }
+    .btn-ghost:hover { background: var(--c-surface-deep); color: var(--c-text); }
+
+    /* footer */
+    footer { padding: 40px 0; border-top: 1px solid var(--c-border); font-size: 12px; color: var(--c-text-3); font-weight: 500; }
+    footer .container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+    footer a { color: var(--c-primary); font-weight: 600; }
+    footer a.ico { font-size: 20px; line-height: 1; margin-left: 10px; vertical-align: middle; }
+
+    @media (max-width: 1024px) {
+      .hero h1 { font-size: 44px; }
+      /* hero-stats는 auto-fit으로 자동 반응형 */
+      .hero-stat:nth-child(2) { border-right: none; }
+      .hero-stat:nth-child(1), .hero-stat:nth-child(2) { border-bottom: 1px solid var(--c-border); }
+      .card-grid { grid-template-columns: repeat(2, 1fr); }
+      .card-grid .feat { grid-column: span 2; }
+      .members-grid { grid-template-columns: repeat(3, 1fr); }
+      .nav-menu { display: none; }
+      .nav-search-input { width: 160px; }
+      .nav-search-input:focus { width: 220px; }
+    }
+    @media (max-width: 640px) {
+      .container { padding: 0 20px; }
+      .hero { padding: calc(var(--nav-h) + 36px) 0 36px; }
+      .hero h1 { font-size: 32px; }
+      .hero-stats { grid-template-columns: 1fr; }
+      .hero-stat { border-right: none !important; border-bottom: 1px solid var(--c-border); }
+      .hero-stat:last-child { border-bottom: none; }
+      .card-grid { grid-template-columns: 1fr; }
+      .card-grid .feat { grid-column: span 1; }
+      .members-grid { grid-template-columns: repeat(2, 1fr); }
+      .nav-search-wrap { display: none; }
+      .modal { padding: 24px 20px; }
+      .field-row, .field-row.three, .kpi-row { grid-template-columns: 1fr; }
+      /* 띠배너 — 모바일에서 폰트 줄이고 줄바꿈 */
+      #updateBanner { font-size: 12px !important; padding: 10px 32px 10px 16px !important; line-height: 1.4 !important; }
+      #updateBanner span { display: block; }
+    }
+    @media (max-width: 480px) {
+      .hero h1 { font-size: 26px; }
+      .hero p { font-size: 13px; }
+      .members-grid { grid-template-columns: 1fr; }
+      .modal { max-width: calc(100vw - 16px); padding: 18px 16px; max-height: 92vh; overflow-y: auto; }
+      .nav-inner { padding: 0 16px; gap: 12px; }
+      .nav-brand span:not(.logo):not(.year) { display: none; }
+      footer { padding: 24px 16px; font-size: 12px; }
+      footer a.ico { font-size: 18px; margin-left: 6px; }
+    }
+    @media (max-width: 380px) {
+      .container { padding: 0 14px; }
+      .hero h1 { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- ① 카드 자동 복원 (sync-client 의존성 없이 inline 강제 PULL) -->
+  <script>
+  (function autoRestore() {
+    try {
+      // localStorage에 카드 있으면 skip — 단 빈 배열 '[]'이면 PULL 시도
+      const cur = localStorage.getItem('b2c_user_projects');
+      if (cur && cur !== '[]' && cur !== 'null') return;
+      if (sessionStorage.getItem('_b2c_inline_restored')) return; // 무한루프 방지
+
+      fetch('/api/sync?t=' + Date.now(), { cache: 'no-store' })
+        .then(r => r.json())
+        .then(j => {
+          if (!j || !j.data) return;
+          const o = typeof j.data === 'string' ? JSON.parse(j.data) : j.data;
+          let restored = 0;
+          for (const k in o) {
+            if (typeof o[k] === 'string' && !localStorage.getItem(k)) {
+              localStorage.setItem(k, o[k]);
+              restored++;
+            }
+          }
+          if (restored > 0) {
+            sessionStorage.setItem('_b2c_inline_restored', '1');
+            location.reload();
+          }
+        })
+        .catch(() => {});
+    } catch (e) {}
+  })();
+  </script>
+  <!-- 디바이스 간 동기화 (Vercel KV) -->
+  <script src="sync-client.js?v=20260508c"></script>
+  <!-- 업데이트 띠 배너 (fixed, nav 위) -->
+  <div id="updateBanner" style="position:fixed;top:0;left:0;right:0;background:#191F28;color:#fff;padding:12px 20px;text-align:center;font-size:13px;font-weight:600;letter-spacing:-0.01em;display:none;z-index:200;line-height:1.4">
+    <span>✨ <strong>ver2로 업데이트되었어요</strong> · 2026.05.08 — 카드 시스템 전면 개편 / KPI 신호등 / 예산·광고 효율 / 웨비나 메트릭 추가</span>
+    <button onclick="document.getElementById('updateBanner').style.display='none';document.body.style.paddingTop='';document.querySelector('.nav').style.top='0';localStorage.setItem('b2c_banner_v2_dismissed','1')" style="position:absolute;top:50%;right:16px;transform:translateY(-50%);background:transparent;color:#fff;border:none;font-size:18px;font-weight:700;cursor:pointer;padding:4px 10px;opacity:0.7" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'" aria-label="닫기">×</button>
+  </div>
+  <script>
+    if (!localStorage.getItem('b2c_banner_v2_dismissed')) {
+      const b = document.getElementById('updateBanner');
+      b.style.display = 'block';
+      // 배너 높이만큼 nav와 body 내림
+      requestAnimationFrame(() => {
+        const h = b.offsetHeight + 'px';
+        document.body.style.paddingTop = h;
+        const nav = document.querySelector('.nav');
+        if (nav) nav.style.top = h;
+      });
+    }
+  </script>
+  <!-- Top Nav -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="#top">
+        <span class="logo">IS</span>
+        <span>인사이트전략팀</span>
+      </a>
+      <div class="year-wrap">
+        <button type="button" class="year" id="yearToggle">2026 <span class="year-arrow">▾</span></button>
+        <div class="year-dropdown" id="yearDropdown" hidden>
+          <button type="button" class="year-option is-active" data-year="2026">2026</button>
+          <button type="button" class="year-option" data-year="2025">2025</button>
+        </div>
+      </div>
+      <ul class="nav-menu">
+        <li><a href="#feed" data-nav class="is-active">프로젝트</a></li>
+        <li><a href="compare.html">📊 비교하기</a></li>
+        <li><a href="#members" data-nav>멤버</a></li>
+      </ul>
+      <div class="nav-actions">
+        <div class="nav-search-wrap">
+          <span class="nav-search-icon">🔍</span>
+          <input class="nav-search-input" id="searchInput" placeholder="이벤트, 멤버, 카테고리 검색…" autocomplete="off">
+          <div class="search-pop" id="searchPop"></div>
+        </div>
+        <button class="nav-add" id="openDownloadBtn" type="button"
+          style="background:#fff;color:var(--c-text-2);border:1px solid var(--c-border);margin-right:6px"
+          onclick="openCardDownloadModal()">📥 다운로드</button>
+        <button class="nav-add" id="openAddBtn">+ 프로젝트 추가</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero" id="top">
+    <div class="container">
+      <span class="hero-tag">2026 · 인사이트전략팀 프로젝트 보드</span>
+      <h1>2026년, 인사이트전략팀이<br>만들 <span class="accent" id="totalCount">0가지</span> 이야기.</h1>
+      <p class="hero-sub">팀원이 올해 진행한 모든 프로젝트를 한곳에서 모아보세요.<br>+ 프로젝트 추가 버튼으로 시작하세요.</p>
+
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-label">진행 프로젝트</div>
+          <div class="hero-stat-num" id="heroProjects">0건</div>
+          <div class="hero-stat-sub">아직 등록된 프로젝트가 없어요</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-label">누적 참여자</div>
+          <div class="hero-stat-num">—</div>
+          <div class="hero-stat-sub">프로젝트 등록 후 자동 집계</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-label">이력서 업데이트</div>
+          <div class="hero-stat-num">—</div>
+          <div class="hero-stat-sub">프로젝트 등록 후 자동 집계</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-label">📸 인스타 팔로우</div>
+          <div class="hero-stat-num">—</div>
+          <div class="hero-stat-sub">↓ 카드 등록 시 자동 채워져요</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-label">💬 오카방 참여자</div>
+          <div class="hero-stat-num">—</div>
+          <div class="hero-stat-sub">↓ 카드 등록 시 자동 채워져요</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filters -->
+  <div class="filters" id="filters">
+    <div class="container">
+      <div class="filters-row" data-filter="member">
+        <button class="m-chip is-all is-active" data-member="all">전체</button>
+        <button class="m-chip is-add" id="addMemberBtn">+ 멤버 추가</button>
+      </div>
+      <div class="filters-row" data-filter="category" id="categoryFilters">
+        <button class="c-chip is-active" data-category="all">전체</button>
+        <button class="c-chip is-add" id="addCategoryBtn">+ 카테고리</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feed -->
+  <section class="feed" id="feed">
+    <div class="container">
+      <div class="feed-head">
+        <h2>프로젝트<span class="count" id="cardCount">14건</span></h2>
+        <div class="feed-sort">
+          <button class="is-active" data-sort="recent">최신순</button>
+          <button data-sort="deadline">마감순</button>
+          <button type="button" class="btn-export" onclick="exportProjectsExcel()" title="다운로드">📥 다운받기</button>
+        </div>
+      </div>
+
+      <div class="card-grid" id="cardGrid">
+        <!-- 카드는 JS에서 렌더링 (projects-data.js 참조) -->
+      </div>
+
+      <div class="empty" id="emptyState" style="display:none">
+        <div class="em">🔍</div>
+        <div class="et">조건에 맞는 프로젝트가 없어요</div>
+        <div class="es">필터를 다시 선택해 보세요.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Members section -->
+  <section class="members-sec" id="members">
+    <div class="container">
+      <div class="members-head">
+        <div class="members-eyebrow">Team Members</div>
+        <h2>내 프로젝트 보기</h2>
+        <p>각자 어떤 일을 얼마나 진행했는지 한눈에.</p>
+      </div>
+      <div class="members-grid" id="membersGrid">
+        <div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--c-text-3);font-size:14px;border:1px dashed var(--c-border-strong);border-radius:12px">
+          👤 아직 멤버가 없어요. 위에 + 멤버 추가 버튼으로 시작해 보세요!
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <div>© 웍스피어 · 인사이트전략팀 · 2026</div>
+      <div>
+        <a href="javascript:void(0)" onclick="openTrash()">🗑 휴지통</a> ·
+        <a href="javascript:void(0)" onclick="exportAllData()">📤 내 데이터 export</a> ·
+        <a href="javascript:void(0)" onclick="importAllData()">📥 데이터 import</a> ·
+        <a href="./index-v1-backup.html" target="_blank">📊 기존 대시보드 (v1)</a> ·
+        <a href="javascript:void(0)" onclick="shareDashboard()" title="대시보드 공유" class="ico">🔗</a>
+        <a href="#top" title="맨 위로" class="ico">⬆</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Modal: 멤버 추가/편집 -->
+  <div class="modal-overlay" id="memberModal" hidden>
+    <div class="modal" style="max-width: 460px;">
+      <button class="modal-close" onclick="closeMemberModal()" aria-label="닫기">×</button>
+      <h2 class="modal-title" id="memberModalTitle">+ 새 멤버 추가</h2>
+      <p class="modal-sub" id="memberModalSub">팀원을 추가해 보세요. 이름·역할·색상 입력!</p>
+      <form id="memberForm" class="member-form" onsubmit="return submitMember(event)">
+        <input type="hidden" id="memEditId" value="">
+        <div class="field">
+          <label>이름</label>
+          <input type="text" id="memName" placeholder="예: 김한나" required maxlength="10">
+        </div>
+        <div class="field">
+          <label>역할</label>
+          <input type="text" id="memRole" placeholder="예: 이벤트 · 캠페인" required maxlength="20">
+        </div>
+        <div class="field">
+          <label>색상</label>
+          <select id="memCls" required>
+            <option value="red">❤️ 빨강</option>
+            <option value="orange">🧡 주황</option>
+            <option value="yellow">💛 노랑</option>
+            <option value="green">💚 초록</option>
+            <option value="blue">💙 파랑</option>
+            <option value="purple">💜 보라</option>
+            <option value="pink">🩷 핑크</option>
+            <option value="gray">🤍 화이트</option>
+          </select>
+        </div>
+        <div class="modal-foot">
+          <button type="button" class="btn-danger" id="memDeleteBtn" onclick="deleteMember()" style="display:none">🗑 삭제</button>
+          <button type="button" class="btn-text" onclick="closeMemberModal()">취소</button>
+          <button type="submit" class="btn-fill" id="memSubmitBtn">멤버 추가</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: 내보내기 -->
+  <div class="modal-overlay" id="exportModal" hidden>
+    <div class="modal" style="max-width: 480px;">
+      <button class="modal-close" onclick="closeExportModal()" aria-label="닫기">×</button>
+      <h2 class="modal-title">📥 프로젝트 내보내기</h2>
+      <p class="modal-sub">받고 싶은 컬럼과 형식을 선택해 주세요.</p>
+
+      <div class="field" style="margin-top:14px">
+        <label>형식</label>
+        <div class="export-fmt">
+          <label class="ef-opt"><input type="radio" name="exportFmt" value="csv" checked><span>📊 Excel (.csv)</span></label>
+          <label class="ef-opt"><input type="radio" name="exportFmt" value="md"><span>📝 Notion (.md 표)</span></label>
+          <label class="ef-opt"><input type="radio" name="exportFmt" value="slack"><span>💬 슬랙 복사</span></label>
+        </div>
+        <p id="slackHint" style="display:none;margin:8px 0 0;font-size:11px;color:var(--c-text-3);line-height:1.5">
+          슬랙용 메시지로 클립보드에 복사돼요. <strong>슬랙 열어서 원하는 채널/DM에 붙여넣기 (Ctrl+V)</strong> 해주세요.
+        </p>
+      </div>
+
+      <div class="field" style="margin-top:14px">
+        <div class="field-label-row">
+          <label>포함할 컬럼</label>
+          <span class="field-actions">
+            <button type="button" class="field-action" onclick="exportToggleAll(true)">전체 선택</button>
+            <button type="button" class="field-action" onclick="exportToggleAll(false)">해제</button>
+          </span>
+        </div>
+        <div class="export-cols" id="exportCols">
+          <label><input type="checkbox" data-col="title" checked> 제목</label>
+          <label><input type="checkbox" data-col="member" checked> 담당자</label>
+          <label><input type="checkbox" data-col="category" checked> 카테고리</label>
+          <label><input type="checkbox" data-col="status" checked> 상태</label>
+          <label><input type="checkbox" data-col="date" checked> 대표 날짜</label>
+          <label><input type="checkbox" data-col="period"> 기간</label>
+          <label><input type="checkbox" data-col="kpi1" checked> KPI1 (라벨·값)</label>
+          <label><input type="checkbox" data-col="kpi2" checked> KPI2 (라벨·값)</label>
+          <label><input type="checkbox" data-col="tags"> 태그</label>
+          <label><input type="checkbox" data-col="retro"> 회고 메모</label>
+          <label><input type="checkbox" data-col="resources"> 외부 자료</label>
+        </div>
+      </div>
+
+      <div class="modal-foot">
+        <button type="button" class="btn-text" onclick="closeExportModal()">취소</button>
+        <button type="button" class="btn-fill" onclick="runExport()">다운로드</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: 휴지통 -->
+  <div class="modal-overlay" id="trashModal" hidden>
+    <div class="modal" style="max-width: 520px;">
+      <button class="modal-close" onclick="closeTrash()" aria-label="닫기">×</button>
+      <h2 class="modal-title">🗑 휴지통</h2>
+      <p class="modal-sub">삭제한 프로젝트를 다시 살릴 수 있어요.</p>
+      <div id="trashList" class="trash-list"></div>
+    </div>
+  </div>
+
+  <!-- Modal: + 새 프로젝트 -->
+  <div class="modal-bg" id="addModal">
+    <div class="modal" role="dialog" aria-labelledby="modalTitle">
+      <div class="modal-head">
+        <div>
+          <h3 id="modalTitle">프로젝트 추가</h3>
+          <p id="modalSub">우리 팀이 진행한 프로젝트를 기록해요.</p>
+        </div>
+        <button class="close" id="closeModal">✕</button>
+      </div>
+
+      <form id="addForm">
+        <input type="hidden" name="editingId" id="editingId" value="">
+        <div class="field-row">
+          <div class="field">
+            <div class="field-label-row">
+              <label>담당자</label>
+              <span class="field-actions">
+                <button type="button" class="field-action" onclick="editSelectedMember()" title="선택한 담당자 편집/삭제">✏️ 편집</button>
+                <button type="button" class="field-action" onclick="openMemberModal()" title="새 멤버 추가">+ 추가</button>
+              </span>
+            </div>
+            <select name="member" required>
+              <option value="">담당자 선택...</option>
+            </select>
+          </div>
+          <div class="field">
+            <div class="field-label-row">
+              <label>카테고리</label>
+              <span class="field-actions">
+                <button type="button" class="field-action" onclick="editSelectedCategory()" title="선택한 카테고리 수정/삭제">✏️ 편집</button>
+              </span>
+            </div>
+            <select name="category" required onchange="onCategoryChange(this)">
+              <option value="">카테고리 선택...</option>
+              <option value="__new__">＋ 새 카테고리 추가</option>
+            </select>
+          </div>
+        </div>
+
+        <input type="hidden" name="status" value="ongoing">
+        <div class="field" style="margin-top:14px">
+          <label>대표 날짜 <span class="opt">(본행사일 — 상태는 모집기간 따라 자동)</span></label>
+          <input type="date" name="date" required>
+        </div>
+
+        <div class="field-row" style="margin-top:14px">
+          <div class="field">
+            <label>모집 시작일 <span class="opt">(생략 가능)</span></label>
+            <input type="date" name="periodStart">
+          </div>
+          <div class="field">
+            <label>모집 종료일 <span class="opt">(생략 가능)</span></label>
+            <input type="date" name="periodEnd">
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:14px">
+          <label>프로젝트 이름</label>
+          <input type="text" name="title" placeholder="예: 5월 인사이트 트렌드 리포트" required maxlength="40">
+        </div>
+
+        <input type="hidden" name="desc">
+
+        <div class="field-row">
+          <div class="field">
+            <label>이모지 <span class="opt">(썸네일용)</span></label>
+            <div class="emoji-trigger-wrap">
+              <button type="button" class="emoji-trigger" id="emojiTrigger" onclick="toggleEmojiPopup()">
+                <span class="emoji-preview" id="emojiPreview">📌</span>
+                <span class="emoji-trigger-text">이모지 선택</span>
+                <span class="emoji-trigger-arrow">▾</span>
+              </button>
+              <input type="hidden" name="emoji" id="emojiInput" value="📌">
+              <div class="emoji-popup" id="emojiPopup" hidden>
+                <div class="emoji-popup-search">
+                  <input type="text" id="emojiSearch" placeholder="🔍 검색 (예: 이벤트, 차트, 페스티벌)">
+                </div>
+                <div class="emoji-popup-content" id="emojiPopupContent"></div>
+              </div>
+            </div>
+          </div>
+          <input type="hidden" name="statusLabel">
+        </div>
+
+        <div class="field" style="margin-top:14px">
+          <label>📎 외부 자료 링크 <span class="opt">(URL 넣으면 노션·시트·유튜브 등 자동 분류)</span></label>
+          <div id="resourcesList"></div>
+          <button type="button" class="resource-add-btn" onclick="addResourceRow()">+ 링크 추가</button>
+        </div>
+
+        <div class="kpi-block">
+          <div class="field-label-row">
+            <label class="title">핵심 KPI <span class="opt">(최소 1개 필수, 최대 2개)</span></label>
+            <span class="field-actions">
+              <button type="button" class="field-action" onclick="editSelectedKpiLabel(1)" title="KPI1 라벨 수정/삭제">✏️ 편집</button>
+            </span>
+          </div>
+          <div class="kpi-row">
+            <select class="kpi-label-sel" name="kpi1Label" data-kpi="1" onchange="onKpiLabelChange(this)">
+              <option value="">라벨 선택...</option>
+              <option value="__new__">＋ 새 KPI 라벨 추가</option>
+            </select>
+            <input type="text" class="lbl-i" name="kpi1Value" placeholder="값 (예: 1,500)" maxlength="14">
+            <select name="kpi1Flavor"><option value="">기본</option><option value="success">성공</option><option value="warning">주의</option><option value="danger">미달</option></select>
+          </div>
+          <div class="field-label-row" style="margin-top:8px">
+            <span style="font-size:11px;color:var(--c-text-3)">KPI2 (선택)</span>
+            <span class="field-actions">
+              <button type="button" class="field-action" onclick="editSelectedKpiLabel(2)" title="KPI2 라벨 수정/삭제">✏️ 편집</button>
+            </span>
+          </div>
+          <div class="kpi-row">
+            <select class="kpi-label-sel" name="kpi2Label" data-kpi="2" onchange="onKpiLabelChange(this)">
+              <option value="">라벨 선택...</option>
+              <option value="__new__">＋ 새 KPI 라벨 추가</option>
+            </select>
+            <input type="text" class="lbl-i" name="kpi2Value" placeholder="값" maxlength="14">
+            <select name="kpi2Flavor"><option value="">기본</option><option value="success">성공</option><option value="warning">주의</option><option value="danger">미달</option></select>
+          </div>
+          <input type="hidden" name="kpi3Label">
+          <input type="hidden" name="kpi3Value">
+          <input type="hidden" name="kpi3Flavor">
+        </div>
+
+        <div class="field" style="margin-top:14px">
+          <label>🏷 태그 <span class="opt">(엔터로 추가, 검색용)</span></label>
+          <div class="tag-input-wrap" id="tagInputWrap">
+            <span class="tag-chips" id="tagChips"></span>
+            <input type="text" id="tagTyper" class="tag-typer" placeholder="태그 입력 후 엔터" autocomplete="off">
+          </div>
+          <input type="hidden" name="tags">
+        </div>
+
+        <div class="field" style="margin-top:14px">
+          <label>📓 회고 메모 <span class="opt">(랩업·인사이트, 추후 인라인 편집 가능)</span></label>
+          <textarea name="retroNote" placeholder="이번 프로젝트에서 잘 된 점, 아쉬운 점, 다음에 개선할 것 등을 자유롭게 적어주세요" rows="4" style="width:100%;padding:12px;border:1px solid var(--c-border);border-radius:8px;font-family:inherit;font-size:13px;resize:vertical;"></textarea>
+        </div>
+
+        <div class="modal-foot">
+          <button type="button" class="btn-text" id="cancelBtn">취소</button>
+          <button type="submit" class="btn-fill" id="submitBtn">등록하기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="projects-data.js"></script>
+  <script>
+    // 마이그레이션: 커리어 컨퍼런스 날짜 강제 (매번 실행)
+    (function migrateCareerConfDate() {
+      try {
+        const id = 'user-1778136263589';
+        function fixCard(p) {
+          if (!p) return false;
+          let changed = false;
+          if (p.date !== '2026-03-26') { p.date = '2026-03-26'; changed = true; }
+          if (p.period !== '2026.03.04 — 2026.03.26') { p.period = '2026.03.04 — 2026.03.26'; changed = true; }
+          if (p.desc && /5월\s*0?7|05\.07/.test(p.desc)) {
+            p.desc = p.desc.replace(/5월\s*0?7일/g, '3월 26일').replace(/05\.07/g, '03.26');
+            changed = true;
+          }
+          if (p.categoryLabel && /5월\s*0?7|05\.07/.test(p.categoryLabel)) {
+            p.categoryLabel = p.categoryLabel.replace(/5월\s*0?7일/g, '3월 26일').replace(/05\.07/g, '03.26');
+            changed = true;
+          }
+          if (Array.isArray(p.timeline)) {
+            const end = p.timeline.find(t => /모집\s*마감/.test(t.label || ''));
+            if (end && end.date !== '2026.03.26') { end.date = '2026.03.26'; changed = true; }
+            const start = p.timeline.find(t => /모집\s*시작/.test(t.label || ''));
+            if (start && start.date !== '2026.03.04') { start.date = '2026.03.04'; changed = true; }
+          }
+          return changed;
+        }
+        const list = JSON.parse(localStorage.getItem('b2c_user_projects') || '[]');
+        const p = list.find(x => x.id === id);
+        if (p && fixCard(p)) {
+          localStorage.setItem('b2c_user_projects', JSON.stringify(list));
+        }
+        const ov = JSON.parse(localStorage.getItem('b2c_overrides') || '{}');
+        if (ov[id] && fixCard(ov[id])) {
+          localStorage.setItem('b2c_overrides', JSON.stringify(ov));
+        }
+      } catch(e) {}
+    })();
+  </script>
+  <script>
+    // ════════════════════════════════════════════════
+    //  Render cards from data
+    // ════════════════════════════════════════════════
+    const grid = document.getElementById('cardGrid');
+    const emptyEl = document.getElementById('emptyState');
+    const cardCount = document.getElementById('cardCount');
+    const totalCount = document.getElementById('totalCount');
+    const heroProjects = document.getElementById('heroProjects');
+
+    // 인스타/오카방 hero 통계 제거됨 (옛날 데이터)
+
+    // Order of demo projects (initialized — empty)
+    const DEMO_ORDER = [];
+
+    function impactScore(p) {
+      // crude score for sort: prefer high % values, then big numbers
+      const k = p.kpis && p.kpis[0] ? p.kpis[0].value : '0';
+      const num = parseFloat((k+'').replace(/[^0-9.]/g, '')) || 0;
+      return num;
+    }
+
+    function statusOrder(s) {
+      return { live: 0, ongoing: 1, soon: 2, done: 3 }[s] ?? 9;
+    }
+
+    // 기간이 지나면 자동 'done' 처리 (데이터는 그대로, 렌더링 시점 override)
+    function getEffectiveStatus(p) {
+      const today = new Date().toISOString().slice(0, 10);
+      // period 끝 날짜 우선 (예: "2026.04.01 — 2026.04.23")
+      const periodEnd = (p.period || '').match(/[—–-]\s*(\d{4})\.(\d{2})\.(\d{2})/);
+      if (periodEnd) {
+        const endStr = `${periodEnd[1]}-${periodEnd[2]}-${periodEnd[3]}`;
+        if (endStr < today) return 'done';
+      } else if (p.date && p.date < today) {
+        return 'done';
+      }
+      return p.status;
+    }
+
+    function escapeHtml(s) {
+      return (s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+    }
+
+    function getDetailHref(p) {
+      return p.detailHref || ('project-detail.html?id=' + encodeURIComponent(p.id));
+    }
+
+    function cardHtml(p, opts = {}) {
+      const m = window.MEMBERS[p.member] || { name: p.memberName || '게스트', avatar: '?', cls: 'hanna' };
+      const isUser = opts.user ? '1' : '';
+      const tagCls = p.status === 'live' ? ' live' : '';
+      const tagInner = p.status === 'live'
+        ? '<span class="pulse"></span>' + escapeHtml(p.statusLabel || 'LIVE')
+        : escapeHtml(p.statusLabel || ({ ongoing:'진행중', soon:'예정', done:'완료', live:'LIVE' }[p.status] || '—'));
+
+      const k = (p.kpis || []).slice(0, 3);
+      while (k.length < 3) k.push({ label: '—', value: '—' });
+
+      const dateStr = p.date ? p.date.replace(/-/g, '.') : '';
+      const meta = (p.period || dateStr).split('—')[0].trim() || dateStr;
+
+      const target = (p.detailHref && p.detailHref.indexOf('http') === 0) ? ' target="_blank"' : '';
+      const idEsc = escapeHtml(p.id);
+
+      return `
+      <a class="card" data-id="${idEsc}" data-user="${isUser}"
+         data-member="${escapeHtml(p.member)}" data-category="${escapeHtml(p.category)}"
+         data-status="${escapeHtml(p.status)}" data-date="${escapeHtml(p.date)}"
+         data-year="${(p.date || p.period || '').match(/\d{4}/)?.[0] || ''}"
+         data-impact="${impactScore(p)}" href="${escapeHtml(getDetailHref(p))}"${target}>
+        <div class="card-actions">
+          <button class="card-act-btn" title="다운로드"
+            onclick="event.preventDefault();event.stopPropagation();openCardDownloadModal('${idEsc}')">📥</button>
+          <button class="card-act-btn" title="편집"
+            onclick="event.preventDefault();event.stopPropagation();openEditModal('${idEsc}')">✏️</button>
+          <button class="card-act-btn del" title="삭제"
+            onclick="event.preventDefault();event.stopPropagation();deleteCard('${idEsc}')">✕</button>
+        </div>
+        <div class="card-cover cv-${m.cls}">
+          <span class="card-cover-emoji">${escapeHtml(p.emoji || '📌')}</span>
+          <span class="card-cover-tag${tagCls}">${tagInner}</span>
+        </div>
+        <div class="card-body">
+          <div class="card-cat">${escapeHtml(p.categoryLabel || p.category)}</div>
+          <div class="card-title">${escapeHtml(p.title)}</div>
+          <div class="card-desc">${escapeHtml(p.desc || '')}</div>
+          <div class="card-kpi">
+            ${k.map(x => `
+              <div>
+                <div class="card-kpi-label">${escapeHtml(x.label)}</div>
+                <div class="card-kpi-num ${escapeHtml(x.flavor || '')}">${escapeHtml(x.value)}</div>
+              </div>
+            `).join('')}
+          </div>
+          <div class="card-foot">
+            <div class="card-author">
+              <span class="av av-${m.cls}">${escapeHtml(m.avatar)}</span>
+              <span class="name">${escapeHtml(m.name)}</span>
+            </div>
+            <span class="card-meta">${escapeHtml(meta)}</span>
+          </div>
+        </div>
+      </a>`;
+    }
+
+    function renderGrid() {
+      const userCards = window.getUserProjects();
+      const deletedIds = window.getDeletedIds();
+      const overrides = window.getOverrides();
+
+      const demoCards = DEMO_ORDER
+        .filter(id => !deletedIds.includes(id))
+        .map(id => overrides[id] || window.PROJECTS[id])
+        .filter(Boolean);
+
+      // user-added first (가장 최근), then demo
+      const all = [...userCards, ...demoCards];
+      // 정렬: 진행중 먼저 + 행사일(period 끝 또는 date) 최신순 (오래된 게 맨 뒤)
+      function endDateOf(p) {
+        const m = (p.period || '').match(/[—–\-~]\s*(\d{4})[.\-/](\d{1,2})[.\-/](\d{1,2})/);
+        if (m) return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
+        return p.date || '';
+      }
+      all.sort((a, b) => {
+        const aDone = getEffectiveStatus(a) === 'done' ? 1 : 0;
+        const bDone = getEffectiveStatus(b) === 'done' ? 1 : 0;
+        if (aDone !== bDone) return aDone - bDone;
+        // 같은 상태면 행사일 최신순 (큰 게 먼저)
+        return endDateOf(b).localeCompare(endDateOf(a));
+      });
+      const html = all.map(p => {
+        const isUser = userCards.some(u => u.id === p.id);
+        return cardHtml(p, { user: isUser });
+      }).join('');
+      grid.innerHTML = html;
+
+      const total = all.length;
+      cardCount.textContent = total + '건';
+      totalCount.textContent = total + '가지';
+      heroProjects.textContent = total + '건';
+      // 누적 참여자 / 이력서 / 인스타 / 오카방 자동 집계 (모든 카드의 KPI 합산)
+      try {
+        const allProjects = [...window.getUserProjects(), ...Object.values(window.getOverrides())];
+        let totalApp = 0, totalResume = 0, totalInsta = 0, totalOka = 0;
+        let cntApp = 0, cntResume = 0, cntInsta = 0, cntOka = 0;
+        const parseNum = v => parseInt(String(v || '').replace(/[^0-9]/g, '')) || 0;
+        allProjects.forEach(p => {
+          (p.kpis || []).forEach(k => {
+            const lbl = (k.label || '').toLowerCase();
+            const val = parseNum(k.value);
+            if (!val) return;
+            if (/인스타|instagram|팔로우|follower/i.test(lbl)) { totalInsta += val; cntInsta++; }
+            else if (/오카방|오픈채팅|kakao\s*open|opentalk/i.test(lbl)) { totalOka += val; cntOka++; }
+            else if (/이력서|업데이트|resume/i.test(lbl)) { totalResume += val; cntResume++; }
+            else if (/신청|응모|참여|참가|register/i.test(lbl)) { totalApp += val; cntApp++; }
+          });
+        });
+        function updateStat(idx, val, cnt, suffix, defaultSub) {
+          const el = document.querySelector(`.hero-stat:nth-child(${idx}) .hero-stat-num`);
+          const sub = document.querySelector(`.hero-stat:nth-child(${idx}) .hero-stat-sub`);
+          if (el) el.textContent = val ? val.toLocaleString() + suffix : '—';
+          if (sub) sub.textContent = val ? `${cnt}개 카드 합산` : defaultSub;
+        }
+        updateStat(2, totalApp, cntApp, '명', '↓ 카드 등록 시 자동 채워져요');
+        updateStat(3, totalResume, cntResume, '명', '↓ 카드 등록 시 자동 채워져요');
+        updateStat(4, totalInsta, cntInsta, '명', '↓ 카드 등록 시 자동 채워져요');
+        updateStat(5, totalOka, cntOka, '명', '↓ 카드 등록 시 자동 채워져요');
+      } catch(e) {}
+    }
+
+    // ════════════════════════════════════════════════
+    //  Filter logic
+    // ════════════════════════════════════════════════
+    // 기본 = 전체 (한나님이 직접 연도 선택)
+    let activeMember = 'all', activeCategory = 'all', activeYear = 'all';
+
+    function applyFilter() {
+      const cards = grid.querySelectorAll('.card');
+      let visible = 0;
+      const memberCounts = {};
+      cards.forEach(c => {
+        const m = c.getAttribute('data-member');
+        const cat = c.getAttribute('data-category');
+        const yr = c.getAttribute('data-year');
+        const ok = (activeMember === 'all' || m === activeMember) &&
+                   (activeCategory === 'all' || cat === activeCategory) &&
+                   (activeYear === 'all' || yr === activeYear);
+        c.style.display = ok ? '' : 'none';
+        if (ok) {
+          visible++;
+          memberCounts[m] = (memberCounts[m] || 0) + 1;
+        }
+      });
+      cardCount.textContent = visible + '건';
+      emptyEl.style.display = visible === 0 ? '' : 'none';
+      // hero 타이틀 + 진행 프로젝트 visible 카드 수로 갱신 (매번 재조회 — innerHTML 재할당으로 stale 방지)
+      const tcEl = document.getElementById('totalCount');
+      if (tcEl) tcEl.textContent = visible + '가지';
+      const hpEl = document.getElementById('heroProjects');
+      if (hpEl) hpEl.textContent = visible + '건';
+      // 멤버 카드 프로젝트 수 갱신
+      document.querySelectorAll('.mem-card[data-member-go]').forEach(card => {
+        const mid = card.dataset.memberGo;
+        const cnt = memberCounts[mid] || 0;
+        const numEl = card.querySelector('.mem-card-stat .num');
+        if (numEl) numEl.textContent = cnt;
+      });
+
+      // hero 통계 visible 카드만 합산 (필터 적용)
+      try {
+        const visibleIds = new Set();
+        cards.forEach(c => { if (c.style.display !== 'none') visibleIds.add(c.getAttribute('data-id')); });
+        const filteredProjects = [...window.getUserProjects(), ...Object.values(window.getOverrides())]
+          .filter(p => visibleIds.has(p.id));
+        let totalApp = 0, totalResume = 0, totalInsta = 0, totalOka = 0;
+        let cntApp = 0, cntResume = 0, cntInsta = 0, cntOka = 0;
+        const parseNum = v => parseInt(String(v || '').replace(/[^0-9]/g, '')) || 0;
+        filteredProjects.forEach(p => {
+          (p.kpis || []).forEach(k => {
+            const lbl = (k.label || '').toLowerCase();
+            const val = parseNum(k.value);
+            if (!val) return;
+            if (/인스타|instagram|팔로우|follower/i.test(lbl)) { totalInsta += val; cntInsta++; }
+            else if (/오카방|오픈채팅|kakao\s*open|opentalk/i.test(lbl)) { totalOka += val; cntOka++; }
+            else if (/이력서|업데이트|resume/i.test(lbl)) { totalResume += val; cntResume++; }
+            else if (/신청|응모|참여|참가|register/i.test(lbl)) { totalApp += val; cntApp++; }
+          });
+        });
+        function updateStat(idx, val, cnt, suffix, defaultSub) {
+          const el = document.querySelector(`.hero-stat:nth-child(${idx}) .hero-stat-num`);
+          const sub = document.querySelector(`.hero-stat:nth-child(${idx}) .hero-stat-sub`);
+          if (el) el.textContent = val ? val.toLocaleString() + suffix : '—';
+          if (sub) sub.textContent = val ? `${cnt}개 카드 합산` : defaultSub;
+        }
+        updateStat(2, totalApp, cntApp, '명', '↓ 카드 등록 시 자동 채워져요');
+        updateStat(3, totalResume, cntResume, '명', '↓ 카드 등록 시 자동 채워져요');
+        updateStat(4, totalInsta, cntInsta, '명', '↓ 카드 등록 시 자동 채워져요');
+        updateStat(5, totalOka, cntOka, '명', '↓ 카드 등록 시 자동 채워져요');
+      } catch(e) {}
+    }
+
+    // 최상단 yearToggle에서 호출 가능하도록 외부 노출
+    window.setActiveYear = function(year) {
+      activeYear = year;
+      applyFilter();
+    };
+
+    // 연도 필터 동적 생성 (카드 data-year 수집, 기본 '전체')
+    function renderYearFilters() {
+      const yearRow = document.getElementById('yearFilters');
+      if (!yearRow) return;
+      const yearCount = {};
+      let totalWithYear = 0;
+      grid.querySelectorAll('.card').forEach(c => {
+        const y = c.getAttribute('data-year');
+        if (y && /^\d{4}$/.test(y)) { yearCount[y] = (yearCount[y] || 0) + 1; totalWithYear++; }
+      });
+      const sorted = Object.keys(yearCount).sort().reverse();
+      const totalCards = grid.querySelectorAll('.card').length;
+      yearRow.innerHTML = `<button class="c-chip" data-year="all">전체 (${totalCards})</button>`
+        + sorted.map(y => `<button class="c-chip" data-year="${y}">${y}년 (${yearCount[y]})</button>`).join('');
+      const activeBtn = yearRow.querySelector(`[data-year="${activeYear}"]`) || yearRow.querySelector('[data-year="all"]');
+      activeBtn.classList.add('is-active');
+    }
+
+    function bindFilters() {
+      // 연도 필터 (delegation)
+      const yearRow = document.getElementById('yearFilters');
+      if (yearRow) {
+        yearRow.addEventListener('click', (e) => {
+          const btn = e.target.closest('.c-chip');
+          if (!btn) return;
+          activeYear = btn.getAttribute('data-year');
+          yearRow.querySelectorAll('.c-chip').forEach(b => b.classList.remove('is-active'));
+          btn.classList.add('is-active');
+          applyFilter();
+        });
+      }
+      document.querySelectorAll('[data-filter="member"] .m-chip[data-member]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeMember = btn.getAttribute('data-member');
+          document.querySelectorAll('[data-filter="member"] .m-chip').forEach(b => b.classList.remove('is-active'));
+          btn.classList.add('is-active');
+          applyFilter();
+        });
+      });
+      // 카테고리 필터: 동적 chip 지원을 위해 delegation
+      const catFilters = document.getElementById('categoryFilters');
+      if (catFilters) {
+        catFilters.addEventListener('click', (e) => {
+          const btn = e.target.closest('.c-chip');
+          if (!btn) return;
+          if (btn.id === 'addCategoryBtn') {
+            const name = (prompt('새 카테고리 이름을 입력해 주세요') || '').trim();
+            if (!name) return;
+            if (window.addCategory(name)) {
+              renderCategoryChips();
+              showToast(`<span class="ok">✓</span>"${name}" 추가했어요.`);
+            } else {
+              showToast(`<span class="ok">!</span>이미 있는 카테고리예요.`);
+            }
+            return;
+          }
+          activeCategory = btn.getAttribute('data-category');
+          catFilters.querySelectorAll('.c-chip').forEach(b => b.classList.remove('is-active'));
+          btn.classList.add('is-active');
+          applyFilter();
+        });
+      }
+      function renderCategoryChips() {
+        if (!catFilters) return;
+        const cats = (window.getCategories && window.getCategories()) || [];
+        const chips = ['<button class="c-chip" data-category="all">전체</button>']
+          .concat(cats.map(c => `<button class="c-chip" data-category="${escapeHtml(c)}">${escapeHtml(c)}</button>`))
+          .concat(['<button class="c-chip is-add" id="addCategoryBtn">+ 카테고리</button>']);
+        catFilters.innerHTML = chips.join('');
+        // 활성 chip 복원
+        const active = catFilters.querySelector(`[data-category="${activeCategory || 'all'}"]`);
+        if (active) active.classList.add('is-active');
+        else {
+          const fallback = catFilters.querySelector('[data-category="all"]');
+          if (fallback) fallback.classList.add('is-active');
+          activeCategory = 'all';
+        }
+      }
+      renderCategoryChips();
+      window._renderCategoryChips = renderCategoryChips;
+      document.querySelectorAll('[data-member-go]').forEach(el => {
+        el.addEventListener('click', () => {
+          const m = el.getAttribute('data-member-go');
+          const chip = document.querySelector(`[data-filter="member"] .m-chip[data-member="${m}"]`);
+          if (chip) chip.click();
+        });
+      });
+      document.querySelectorAll('[data-cat-link]').forEach(a => {
+        a.addEventListener('click', () => {
+          const cat = a.getAttribute('data-cat-link');
+          const chip = document.querySelector(`[data-filter="category"] .c-chip[data-category="${cat}"]`);
+          if (chip) chip.click();
+        });
+      });
+      document.getElementById('addMemberBtn').addEventListener('click', () => {
+        window.openMemberModal();
+      });
+      document.getElementById('memberModal')?.addEventListener('click', e => {
+        if (e.target.id === 'memberModal') window.closeMemberModal();
+      });
+    }
+
+    // === Emoji Picker (popup) ===
+    const EMOJI_DATA = {
+      '이벤트·페스티벌': ['🎪','🎉','🎊','🎈','🎁','🎀','🎂','🪅','🎆','🎇','✨','🌟','⭐','💫','🔥'],
+      '커리어·일': ['💼','📋','📊','📈','📉','🗂','📁','📅','🗓','📌','📎','✏️','📝','💻','🖥','⌨️','🖱'],
+      '콘퍼런스·미팅': ['🎤','🎙','📢','📣','🔊','💬','💭','🗣','👥','👤','🤝','🎯','🎬'],
+      '교육·학습': ['📚','📖','🎓','🏫','✍️','📐','📏','🧮','💡','🧠','📓','📔','📒'],
+      '데이터·분석': ['📊','📈','📉','🔢','🧮','💹','🪙','💰','💴','💵','📐','🔬','🔭','🧪'],
+      '소통·미디어': ['📱','📺','📻','🎥','🎞','📷','📸','🖼','🎨','🖌','🖊','📰','📑'],
+      '감정·반응': ['❤️','💗','💝','💖','💓','💞','😊','😎','🤩','🥳','💪','🙌','👏','🫶','✌️'],
+      '기타': ['🚀','✈️','🌈','☕','🍰','🎵','🎶','🌸','🍀','🌟','🎭','🎮','🏆','🥇','🎖','💎','🔑','🔓','🔔','📍']
+    };
+    function buildEmojiPopupContent(filter = '') {
+      const f = filter.toLowerCase().trim();
+      let html = '';
+      Object.entries(EMOJI_DATA).forEach(([cat, emojis]) => {
+        const matched = f ? emojis.filter(() => cat.toLowerCase().includes(f)) : emojis;
+        if (matched.length === 0) return;
+        html += `<div class="emoji-cat-title">${cat}</div><div class="emoji-grid">`;
+        html += matched.map(e => `<button type="button" class="emoji-opt" data-emoji="${e}" onclick="selectEmoji('${e}')">${e}</button>`).join('');
+        html += '</div>';
+      });
+      document.getElementById('emojiPopupContent').innerHTML = html;
+    }
+    window.toggleEmojiPopup = function() {
+      const popup = document.getElementById('emojiPopup');
+      const wrap = popup?.parentElement;
+      if (!popup) return;
+      popup.hidden = !popup.hidden;
+      wrap?.classList.toggle('open', !popup.hidden);
+      if (!popup.hidden) buildEmojiPopupContent();
+    };
+    window.selectEmoji = function(emoji) {
+      document.getElementById('emojiInput').value = emoji;
+      document.getElementById('emojiPreview').textContent = emoji;
+      document.getElementById('emojiPopup').hidden = true;
+      document.getElementById('emojiTrigger')?.parentElement?.classList.remove('open');
+    };
+    document.addEventListener('click', (e) => {
+      const wrap = document.querySelector('.emoji-trigger-wrap');
+      if (wrap && !wrap.contains(e.target)) {
+        document.getElementById('emojiPopup').hidden = true;
+        wrap.classList.remove('open');
+      }
+    });
+    document.getElementById('emojiSearch')?.addEventListener('input', (e) => {
+      buildEmojiPopupContent(e.target.value);
+    });
+
+    // === 데이터 export/import (다른 origin 간 데이터 이전) ===
+    window.exportAllData = function() {
+      const data = {};
+      Object.keys(localStorage).forEach(k => {
+        if (k.startsWith('b2c_') || k.startsWith('cc_')) data[k] = localStorage.getItem(k);
+      });
+      const json = JSON.stringify(data);
+      // 클립보드 복사 + 모달로 표시 (파일 다운로드는 회사 정책상 막힐 수 있음)
+      const bg = document.createElement('div');
+      bg.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:24px';
+      bg.innerHTML = `
+        <div style="background:#fff;border-radius:14px;max-width:680px;width:100%;max-height:80vh;display:flex;flex-direction:column;overflow:hidden">
+          <div style="padding:20px 24px;border-bottom:1px solid #eee">
+            <div style="font-size:18px;font-weight:800">📤 데이터 export (${Object.keys(data).length}개 키)</div>
+            <div style="font-size:12px;color:#888;margin-top:4px">아래 텍스트 전체 복사 → vercel 페이지 "📥 데이터 import"에 붙여넣기</div>
+          </div>
+          <div style="padding:16px 24px;overflow:auto;flex:1">
+            <textarea readonly style="width:100%;height:300px;padding:12px;border:1px solid #ddd;border-radius:8px;font-family:monospace;font-size:11px;line-height:1.5;resize:none">${json.replace(/</g,'&lt;')}</textarea>
+          </div>
+          <div style="padding:16px 24px;border-top:1px solid #eee;display:flex;gap:8px;justify-content:flex-end">
+            <button id="exCopy" style="padding:10px 18px;background:#3182F6;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit">📋 클립보드 복사</button>
+            <button id="exClose" style="padding:10px 18px;background:#eee;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit">닫기</button>
+          </div>
+        </div>`;
+      document.body.appendChild(bg);
+      bg.querySelector('#exClose').onclick = () => bg.remove();
+      bg.querySelector('#exCopy').onclick = () => {
+        const ta = bg.querySelector('textarea');
+        ta.select();
+        try { document.execCommand('copy'); } catch(e) {}
+        if (navigator.clipboard) navigator.clipboard.writeText(json).catch(()=>{});
+        bg.querySelector('#exCopy').textContent = '✅ 복사됨!';
+      };
+    };
+    window.importAllData = function() {
+      const bg = document.createElement('div');
+      bg.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:24px';
+      bg.innerHTML = `
+        <div style="background:#fff;border-radius:14px;max-width:680px;width:100%;max-height:80vh;display:flex;flex-direction:column;overflow:hidden">
+          <div style="padding:20px 24px;border-bottom:1px solid #eee">
+            <div style="font-size:18px;font-weight:800">📥 데이터 import</div>
+            <div style="font-size:12px;color:#888;margin-top:4px">file:// 페이지에서 "📤 export" 후 클립보드 복사한 JSON을 여기에 붙여넣기</div>
+          </div>
+          <div style="padding:16px 24px;overflow:auto;flex:1">
+            <textarea id="impText" placeholder='{"b2c_user_projects":"...", "b2c_budget_user-XXX":"..."}' style="width:100%;height:300px;padding:12px;border:1px solid #ddd;border-radius:8px;font-family:monospace;font-size:11px;line-height:1.5;resize:none"></textarea>
+          </div>
+          <div style="padding:16px 24px;border-top:1px solid #eee;display:flex;gap:8px;justify-content:flex-end">
+            <button id="impClose" style="padding:10px 18px;background:#eee;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit">취소</button>
+            <button id="impDo" style="padding:10px 18px;background:#3182F6;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit">📥 import 실행</button>
+          </div>
+        </div>`;
+      document.body.appendChild(bg);
+      bg.querySelector('#impClose').onclick = () => bg.remove();
+      bg.querySelector('#impDo').onclick = () => {
+        const text = bg.querySelector('#impText').value.trim();
+        if (!text) { alert('JSON을 붙여넣어 주세요'); return; }
+        try {
+          const data = JSON.parse(text);
+          if (typeof data !== 'object' || !data) throw new Error('잘못된 형식');
+          if (!confirm(`📥 ${Object.keys(data).length}개 키 import 할까요?\n기존 데이터에 덮어씁니다 (같은 키만).`)) return;
+          let count = 0;
+          Object.entries(data).forEach(([k, v]) => {
+            if (typeof v === 'string') { localStorage.setItem(k, v); count++; }
+          });
+          alert(`✅ ${count}개 키 import 완료!`);
+          location.reload();
+        } catch (err) {
+          alert(`⚠️ JSON 파싱 실패: ${err.message}`);
+        }
+      };
+      setTimeout(() => bg.querySelector('#impText').focus(), 100);
+    };
+
+    // === Resources (URL list, dynamic) ===
+    window.LINK_CATEGORIES_FORM = [
+      { ic: '🎉', label: '이벤트 페이지' },
+      { ic: '📝', label: '기획안 (노션)' },
+      { ic: '📊', label: '신청자 시트' },
+      { ic: '📈', label: '광고 리포트' },
+      { ic: '🎨', label: '디자인 시안 (피그마)' },
+      { ic: '📋', label: '결과 보고서' },
+      { ic: '📺', label: '영상 / 라이브' },
+      { ic: '📰', label: '보도자료' },
+      { ic: '💼', label: '거래처 자료' },
+      { ic: '✉️', label: '뉴스레터 / 메일' },
+      { ic: '📂', label: '드라이브 폴더' },
+      { ic: '🔗', label: '기타 링크' }
+    ];
+    function getResourceCategoryOptions() {
+      let custom = [];
+      try { custom = JSON.parse(localStorage.getItem('b2c_link_categories') || '[]'); } catch(e) {}
+      return [...window.LINK_CATEGORIES_FORM, ...custom];
+    }
+    window.addResourceRow = function(value, savedLabel) {
+      const list = document.getElementById('resourcesList');
+      if (!list) return;
+      const row = document.createElement('div');
+      row.className = 'link-row';
+      const opts = getResourceCategoryOptions();
+      const selectedKey = savedLabel ? `${savedLabel.icon}|${savedLabel.label}` : '';
+      row.innerHTML = `
+        <span class="link-ic">🔗</span>
+        <input type="url" class="resource-input" placeholder="URL 입력" value="${value || ''}" style="flex:1;min-width:0">
+        <select class="resource-category" style="padding:8px 10px;border:1px solid var(--c-border);border-radius:8px;font-size:12px;font-family:inherit;background:#fff;cursor:pointer;flex-shrink:0;max-width:170px">
+          <option value="">카테고리 선택...</option>
+          ${opts.map(o => `<option value="${o.ic}|${o.label}" ${selectedKey === `${o.ic}|${o.label}` ? 'selected' : ''}>${o.ic} ${o.label}</option>`).join('')}
+        </select>
+        <button type="button" class="resource-remove" onclick="this.parentElement.remove()" aria-label="제거">×</button>
+      `;
+      list.appendChild(row);
+    };
+
+    // === 전체 멤버 재렌더 (초기 로드/리셋 후) ===
+    function renderAllMembers() {
+      const members = window.MEMBERS || {};
+      const ids = Object.keys(members);
+      // 1. 필터 칩
+      const filterRow = document.querySelector('[data-filter="member"]');
+      const addBtn = document.getElementById('addMemberBtn');
+      if (filterRow && addBtn) {
+        filterRow.querySelectorAll('.m-chip:not(#addMemberBtn):not([data-member="all"])').forEach(c => c.remove());
+        ids.forEach(id => rerenderMemberFilterChip(members[id]));
+      }
+      // 2. 멤버 카드
+      const grid = document.querySelector('.members-grid');
+      if (grid) {
+        grid.innerHTML = ids.length === 0
+          ? `<div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--c-text-3);font-size:14px;border:1px dashed var(--c-border-strong);border-radius:12px">👤 아직 멤버가 없어요. 위에 + 멤버 추가 버튼으로 시작해 보세요!</div>`
+          : '';
+        ids.forEach(id => rerenderMemberCard(members[id]));
+      }
+    }
+
+    // === Member Modal (global) ===
+    window.openMemberModal = function(editId) {
+      const modal = document.getElementById('memberModal');
+      if (!modal) return;
+      const isEdit = !!(editId && window.MEMBERS && window.MEMBERS[editId]);
+      document.getElementById('memEditId').value = isEdit ? editId : '';
+      document.getElementById('memberModalTitle').textContent = isEdit ? '✏️ 멤버 편집' : '+ 새 멤버 추가';
+      document.getElementById('memberModalSub').textContent = isEdit ? '이름·역할·색상을 수정할 수 있어요.' : '팀원을 추가해 보세요. 이름·역할·색상 입력!';
+      document.getElementById('memSubmitBtn').textContent = isEdit ? '저장' : '멤버 추가';
+      document.getElementById('memDeleteBtn').style.display = isEdit ? '' : 'none';
+      const form = document.getElementById('memberForm');
+      form.reset();
+      if (isEdit) {
+        const m = window.MEMBERS[editId];
+        document.getElementById('memName').value = m.name || '';
+        document.getElementById('memRole').value = m.role || '';
+        document.getElementById('memCls').value = m.cls || 'blue';
+        document.getElementById('memEditId').value = editId;
+      }
+      modal.hidden = false;
+      document.body.style.overflow = 'hidden';
+      document.getElementById('memName')?.focus();
+    };
+    window.closeMemberModal = function() {
+      const modal = document.getElementById('memberModal');
+      if (!modal) return;
+      modal.hidden = true;
+      document.body.style.overflow = '';
+      document.getElementById('memberForm')?.reset();
+      document.getElementById('memEditId').value = '';
+    };
+    function rerenderMemberFilterChip(member) {
+      const filterRow = document.querySelector('[data-filter="member"]');
+      if (!filterRow) return;
+      const existing = filterRow.querySelector(`.m-chip[data-member="${member.id}"]`);
+      const html = `<span class="av av-${member.cls}">${escapeHtml(member.avatar)}</span>${escapeHtml(member.name)}`;
+      if (existing) {
+        existing.innerHTML = html;
+      } else {
+        const addBtn = document.getElementById('addMemberBtn');
+        const chip = document.createElement('button');
+        chip.className = 'm-chip';
+        chip.dataset.member = member.id;
+        chip.innerHTML = html;
+        filterRow.insertBefore(chip, addBtn);
+      }
+    }
+    function rerenderMemberCard(member) {
+      const grid = document.querySelector('.members-grid');
+      if (!grid) return;
+      const existing = grid.querySelector(`.mem-card[data-member-go="${member.id}"]`);
+      const inner = `
+        <div class="av av-${member.cls}">${escapeHtml(member.avatar)}</div>
+        <div class="name">${escapeHtml(member.name)}</div>
+        <div class="role">${escapeHtml(member.role || '')}</div>
+        <div class="mem-card-stats">
+          <div class="mem-card-stat"><div class="num">0</div><div class="lbl">프로젝트</div></div>
+          <div class="mem-card-stat"><div class="num">0</div><div class="lbl">참여자</div></div>
+        </div>
+        <button class="mem-edit" onclick="event.preventDefault();event.stopPropagation();openMemberModal('${member.id}')" aria-label="편집">✏️</button>
+      `;
+      if (existing) {
+        existing.innerHTML = inner;
+      } else {
+        const placeholder = grid.querySelector('div[style*="grid-column"]');
+        if (placeholder) placeholder.remove();
+        const card = document.createElement('a');
+        card.className = 'mem-card';
+        card.href = '#feed';
+        card.dataset.memberGo = member.id;
+        card.innerHTML = inner;
+        grid.appendChild(card);
+      }
+    }
+    window.deleteMember = function() {
+      const id = document.getElementById('memEditId').value;
+      if (!id || !window.MEMBERS[id]) return;
+      const m = window.MEMBERS[id];
+      if (!confirm(`"${m.name}" 멤버를 삭제할까요?\n(이 멤버가 담당한 프로젝트는 그대로 남아요)`)) return;
+      // localStorage에서 제거
+      const saved = JSON.parse(localStorage.getItem('b2c_members') || '[]').filter(x => x.id !== id);
+      localStorage.setItem('b2c_members', JSON.stringify(saved));
+      delete window.MEMBERS[id];
+      // UI에서 제거
+      document.querySelector(`.m-chip[data-member="${id}"]`)?.remove();
+      document.querySelector(`.mem-card[data-member-go="${id}"]`)?.remove();
+      showToast(`<span class="ok">✓</span>${m.name} 님을 삭제했어요.`);
+      window.closeMemberModal();
+    };
+    window.submitMember = function(e) {
+      if (e) e.preventDefault();
+      const trimmedName = (document.getElementById('memName').value || '').trim();
+      const role = (document.getElementById('memRole').value || '').trim();
+      const cls = document.getElementById('memCls').value;
+      const editId = (document.getElementById('memEditId').value || '').trim();
+      if (!trimmedName || !role) { showToast('이름·역할을 입력해 주세요'); return false; }
+      const isEdit = !!editId && window.MEMBERS[editId];
+      const id = isEdit ? editId : ('mem_' + Date.now());
+      const member = { id, name: trimmedName, role, avatar: trimmedName.charAt(0) || '?', cls };
+      // LocalStorage 저장
+      let saved = JSON.parse(localStorage.getItem('b2c_members') || '[]');
+      if (isEdit) {
+        saved = saved.map(x => x.id === id ? member : x);
+      } else {
+        saved.push(member);
+      }
+      localStorage.setItem('b2c_members', JSON.stringify(saved));
+      window.MEMBERS[id] = member;
+      // chip + 카드 갱신
+      rerenderMemberFilterChip(member);
+      rerenderMemberCard(member);
+      showToast(`<span class="ok">✓</span>${trimmedName} 님 ${isEdit ? '수정' : '추가'}했어요!`);
+      window.closeMemberModal();
+      return false;
+    };
+
+    // ════════════════════════════════════════════════
+    //  Sort
+    // ════════════════════════════════════════════════
+    document.querySelectorAll('.feed-sort button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.feed-sort button').forEach(b => b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+        const mode = btn.getAttribute('data-sort');
+        const cards = Array.from(grid.querySelectorAll('.card'));
+        const sorted = cards.slice().sort((a, b) => {
+          if (mode === 'recent') return new Date(b.dataset.date) - new Date(a.dataset.date);
+          if (mode === 'deadline') return new Date(a.dataset.date) - new Date(b.dataset.date);
+          return statusOrder(a.dataset.status) - statusOrder(b.dataset.status);
+        });
+        sorted.forEach(c => grid.appendChild(c));
+      });
+    });
+
+    // ════════════════════════════════════════════════
+    //  Search
+    // ════════════════════════════════════════════════
+    const searchInput = document.getElementById('searchInput');
+    const searchPop = document.getElementById('searchPop');
+
+    function search(q) {
+      q = (q || '').trim().toLowerCase();
+      if (!q) { searchPop.classList.remove('is-open'); searchPop.innerHTML = ''; return; }
+
+      const all = [...window.getUserProjects(), ...DEMO_ORDER.map(id => window.PROJECTS[id]).filter(Boolean)];
+      // 태그 # 검색 지원 (예: "#이력서" 입력 시 태그 매칭)
+      const isTagSearch = q.startsWith('#');
+      const tagQ = isTagSearch ? q.slice(1) : q;
+      const matches = all.filter(p => {
+        const m = window.MEMBERS[p.member];
+        const tags = (p.tags || []).join(' ').toLowerCase();
+        if (isTagSearch) return tags.includes(tagQ);
+        const hay = [
+          p.title, p.desc, p.category, p.categoryLabel, p.statusLabel,
+          tags, p.retroNote,
+          m && m.name, m && m.role
+        ].filter(Boolean).join(' ').toLowerCase();
+        return hay.includes(q);
+      }).slice(0, 8);
+
+      if (matches.length === 0) {
+        searchPop.innerHTML = `
+          <div class="search-pop-empty">
+            <div class="e">🔍</div>
+            <strong>"${escapeHtml(q)}"</strong>에 해당하는 결과가 없어요.<br>
+            <span style="font-size:12px">다른 검색어로 시도해 보세요.</span>
+          </div>`;
+      } else {
+        const head = `<div class="search-pop-head">${matches.length}건 검색됨</div>`;
+        const items = matches.map(p => {
+          const m = window.MEMBERS[p.member] || { name: '?' };
+          const title = highlight(p.title, q);
+          const tagBadges = (p.tags || []).slice(0, 3).map(t => `<span style="display:inline-block;padding:1px 6px;background:var(--c-primary-bg);color:var(--c-primary);border-radius:8px;font-size:10px;font-weight:700;margin-right:3px">#${escapeHtml(t)}</span>`).join('');
+          const sub = `${escapeHtml(m.name)} · ${escapeHtml(p.categoryLabel || p.category)} ${tagBadges}`;
+          return `
+            <div class="search-item" onclick="location.href='${escapeHtml(getDetailHref(p))}'">
+              <div class="ic">${escapeHtml(p.emoji || '📌')}</div>
+              <div class="body">
+                <div class="t">${title}</div>
+                <div class="s">${sub}</div>
+              </div>
+            </div>`;
+        }).join('');
+        searchPop.innerHTML = head + items;
+      }
+      searchPop.classList.add('is-open');
+    }
+
+    function highlight(text, q) {
+      const t = escapeHtml(text || '');
+      if (!q) return t;
+      const re = new RegExp('(' + q.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&') + ')', 'gi');
+      return t.replace(re, '<mark>$1</mark>');
+    }
+
+    searchInput.addEventListener('input', e => search(e.target.value));
+    searchInput.addEventListener('focus', e => { if (e.target.value) search(e.target.value); });
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.nav-search-wrap')) searchPop.classList.remove('is-open');
+    });
+    searchInput.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { searchInput.value = ''; searchPop.classList.remove('is-open'); searchInput.blur(); }
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const q = e.target.value.trim();
+        if (!q) return;
+        // 결과 첫 항목 클릭 (있으면)
+        const firstLink = searchPop.querySelector('a[href]');
+        if (firstLink) {
+          firstLink.click();
+        } else {
+          showToast('🔍 "' + q + '" 검색 결과가 없어용 ㅠ');
+        }
+      }
+    });
+
+    // ════════════════════════════════════════════════
+    //  Modal: add / edit
+    // ════════════════════════════════════════════════
+    const modal = document.getElementById('addModal');
+    const openBtn = document.getElementById('openAddBtn');
+    const closeBtn = document.getElementById('closeModal');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const form = document.getElementById('addForm');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalSub = document.getElementById('modalSub');
+    const submitBtn = document.getElementById('submitBtn');
+    const editingIdField = document.getElementById('editingId');
+
+    const STATUS_LABELS = { ongoing: '진행중', soon: '예정', done: '완료', live: 'LIVE' };
+
+    function setEditMode(editing) {
+      if (editing) {
+        modalTitle.textContent = '프로젝트 편집';
+        modalSub.textContent = '내용을 수정하면 곧바로 카드에 반영돼요.';
+        submitBtn.textContent = '수정하기';
+      } else {
+        modalTitle.textContent = '프로젝트 추가';
+        modalSub.textContent = '우리 팀이 진행한 프로젝트를 기록해요.';
+        submitBtn.textContent = '등록하기';
+      }
+    }
+
+    function refreshCategorySelect(preferred) {
+      const sel = form.querySelector('[name="category"]');
+      if (!sel) return;
+      const cats = (window.getCategories && window.getCategories()) || [];
+      const prev = preferred || sel.value;
+      sel.innerHTML = '<option value="">카테고리 선택...</option>'
+        + cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('')
+        + '<option value="__new__">＋ 새 카테고리 추가</option>';
+      if (prev && cats.includes(prev)) sel.value = prev;
+    }
+    window.onCategoryChange = function(sel) {
+      if (sel.value !== '__new__') return;
+      const name = (prompt('새 카테고리 이름을 입력해 주세요') || '').trim();
+      if (!name) { sel.value = ''; return; }
+      const ok = window.addCategory(name);
+      refreshCategorySelect(name);
+      if (window._renderCategoryChips) window._renderCategoryChips();
+      if (!ok) showToast(`<span class="ok">!</span>이미 있는 카테고리예요.`);
+    };
+
+    // 폼 안에서 선택된 담당자 편집
+    window.editSelectedMember = function() {
+      const sel = form.querySelector('[name="member"]');
+      const id = sel?.value;
+      if (!id) { showToast('편집할 담당자를 먼저 선택해 주세요'); return; }
+      window.openMemberModal(id);
+    };
+    // === KPI 라벨 동적 채우기 ===
+    function refreshKpiLabelSelects(preferred1, preferred2) {
+      const labels = (window.getKpiLabels && window.getKpiLabels()) || [];
+      [1, 2].forEach(n => {
+        const sel = form.querySelector(`[name="kpi${n}Label"]`);
+        if (!sel) return;
+        const prev = (n === 1 ? preferred1 : preferred2) ?? sel.value;
+        sel.innerHTML = '<option value="">라벨 선택...</option>'
+          + labels.map(l => `<option value="${escapeHtml(l)}">${escapeHtml(l)}</option>`).join('')
+          + '<option value="__new__">＋ 새 KPI 라벨 추가</option>';
+        if (prev && labels.includes(prev)) sel.value = prev;
+      });
+    }
+    window.onKpiLabelChange = function(sel) {
+      if (sel.value !== '__new__') return;
+      const name = (prompt('새 KPI 라벨 이름을 입력해 주세요 (예: 신청자 수)') || '').trim();
+      if (!name) { sel.value = ''; return; }
+      const ok = window.addKpiLabel(name);
+      // 양쪽 select 모두 갱신, 방금 입력한 select에 새 값 반영
+      const which = sel.dataset.kpi === '1' ? 1 : 2;
+      refreshKpiLabelSelects(
+        which === 1 ? name : undefined,
+        which === 2 ? name : undefined
+      );
+      if (!ok) showToast(`<span class="ok">!</span>이미 있는 라벨이에요.`);
+    };
+    window.editSelectedKpiLabel = function(which) {
+      const sel = form.querySelector(`[name="kpi${which}Label"]`);
+      const cur = sel?.value;
+      if (!cur || cur === '__new__') { showToast('편집할 KPI 라벨을 먼저 선택해 주세요'); return; }
+      const action = prompt(`"${cur}" — 새 이름을 입력하면 수정, 빈 칸으로 두고 확인하면 삭제합니다.`, cur);
+      if (action === null) return;
+      const newName = action.trim();
+      if (!newName) {
+        if (!confirm(`"${cur}" KPI 라벨을 삭제할까요?\n(이 라벨을 쓴 프로젝트는 그대로 남아요)`)) return;
+        window.removeKpiLabel(cur);
+        refreshKpiLabelSelects('', '');
+        showToast(`<span class="ok">✓</span>"${cur}" 삭제했어요.`);
+        return;
+      }
+      if (newName === cur) return;
+      const ok = window.renameKpiLabel(cur, newName);
+      if (!ok) { showToast(`<span class="ok">!</span>이미 있는 이름이에요.`); return; }
+      refreshKpiLabelSelects(
+        which === 1 ? newName : undefined,
+        which === 2 ? newName : undefined
+      );
+      showToast(`<span class="ok">✓</span>"${newName}"(으)로 수정했어요.`);
+    };
+
+    // 폼 안에서 선택된 카테고리 편집(이름 수정/삭제)
+    window.editSelectedCategory = function() {
+      const sel = form.querySelector('[name="category"]');
+      const cur = sel?.value;
+      if (!cur || cur === '__new__') { showToast('편집할 카테고리를 먼저 선택해 주세요'); return; }
+      const action = prompt(`"${cur}" — 새 이름을 입력하면 수정, 빈 칸으로 두고 확인하면 삭제합니다.`, cur);
+      if (action === null) return;
+      const newName = action.trim();
+      if (!newName) {
+        if (!confirm(`"${cur}" 카테고리를 삭제할까요?\n(이 카테고리를 쓴 프로젝트는 그대로 남아요)`)) return;
+        window.removeCategory(cur);
+        refreshCategorySelect('');
+        if (window._renderCategoryChips) window._renderCategoryChips();
+        showToast(`<span class="ok">✓</span>"${cur}" 삭제했어요.`);
+        return;
+      }
+      if (newName === cur) return;
+      const list = window.getCategories();
+      if (list.includes(newName)) { showToast(`<span class="ok">!</span>이미 있는 이름이에요.`); return; }
+      const idx = list.indexOf(cur);
+      if (idx >= 0) list[idx] = newName;
+      localStorage.setItem('b2c_categories', JSON.stringify(list));
+      refreshCategorySelect(newName);
+      if (window._renderCategoryChips) window._renderCategoryChips();
+      showToast(`<span class="ok">✓</span>"${newName}"(으)로 수정했어요.`);
+    };
+
+    function refreshMemberSelect() {
+      const sel = form.querySelector('[name="member"]');
+      if (!sel) return;
+      const prev = sel.value;
+      const members = window.MEMBERS || {};
+      const ids = Object.keys(members);
+      sel.innerHTML = ids.length === 0
+        ? '<option value="">먼저 멤버를 추가해 주세요</option>'
+        : '<option value="">담당자 선택...</option>' + ids.map(id =>
+            `<option value="${escapeHtml(id)}">${escapeHtml(members[id].name || id)}</option>`
+          ).join('');
+      if (prev && members[prev]) sel.value = prev;
+    }
+
+    // ── 태그 chip 입력 ──
+    let _tagList = [];
+    function renderTagChips() {
+      const wrap = document.getElementById('tagChips');
+      if (!wrap) return;
+      wrap.innerHTML = _tagList.map((t, i) =>
+        `<span class="tag-chip">#${escapeHtml(t)}<button type="button" class="x" data-i="${i}" aria-label="삭제">×</button></span>`
+      ).join('');
+      const hidden = form.querySelector('[name="tags"]');
+      if (hidden) hidden.value = _tagList.join(', ');
+    }
+    function addTag(raw) {
+      const t = String(raw || '').replace(/^#/, '').trim();
+      if (!t) return;
+      if (_tagList.includes(t)) return;
+      _tagList.push(t);
+      renderTagChips();
+    }
+    function setTags(arr) {
+      _tagList = (arr || []).map(s => String(s).trim()).filter(Boolean);
+      renderTagChips();
+    }
+    function bindTagInput() {
+      const typer = document.getElementById('tagTyper');
+      const chipsEl = document.getElementById('tagChips');
+      const wrap = document.getElementById('tagInputWrap');
+      if (!typer || !chipsEl || !wrap || typer.dataset.bound) return;
+      typer.dataset.bound = '1';
+      typer.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ',') {
+          e.preventDefault();
+          addTag(typer.value);
+          typer.value = '';
+        } else if (e.key === 'Backspace' && !typer.value && _tagList.length > 0) {
+          _tagList.pop();
+          renderTagChips();
+        }
+      });
+      typer.addEventListener('blur', () => {
+        if (typer.value.trim()) {
+          addTag(typer.value);
+          typer.value = '';
+        }
+      });
+      chipsEl.addEventListener('click', e => {
+        const btn = e.target.closest('.x');
+        if (!btn) return;
+        const i = parseInt(btn.dataset.i, 10);
+        if (!isNaN(i)) {
+          _tagList.splice(i, 1);
+          renderTagChips();
+        }
+      });
+      wrap.addEventListener('click', e => {
+        if (e.target === wrap) typer.focus();
+      });
+    }
+
+    function openAddModal() {
+      form.reset();
+      editingIdField.value = '';
+      setEditMode(false);
+      refreshMemberSelect();
+      refreshCategorySelect();
+      refreshKpiLabelSelects();
+      bindTagInput();
+      setTags([]);
+      modal.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+      const dateField = form.querySelector('[name="date"]');
+      if (!dateField.value) dateField.value = new Date().toISOString().slice(0, 10);
+    }
+
+    window.openEditModal = function(id) {
+      const p = window.getProject(id);
+      if (!p) return;
+      form.reset();
+      editingIdField.value = id;
+      refreshMemberSelect();
+      // 편집 시: 기존 카테고리가 목록에 없으면 자동 추가
+      if (p.category && window.getCategories && !window.getCategories().includes(p.category)) {
+        window.addCategory(p.category);
+      }
+      refreshCategorySelect(p.category || '');
+      // 편집 시: 기존 KPI 라벨이 목록에 없으면 자동 추가
+      const k1lab = p.kpis?.[0]?.label;
+      const k2lab = p.kpis?.[1]?.label;
+      if (k1lab && !window.getKpiLabels().includes(k1lab)) window.addKpiLabel(k1lab);
+      if (k2lab && !window.getKpiLabels().includes(k2lab)) window.addKpiLabel(k2lab);
+      refreshKpiLabelSelects(k1lab || '', k2lab || '');
+      bindTagInput();
+      // 폼 채우기
+      form.querySelector('[name="member"]').value = p.member || '';
+      form.querySelector('[name="category"]').value = p.category || '';
+      form.querySelector('[name="status"]').value = p.status || 'ongoing';
+      form.querySelector('[name="date"]').value = p.date || new Date().toISOString().slice(0, 10);
+      // period 기존값 복원 (1자리/2자리 숫자 모두 지원)
+      if (p.period) {
+        const m = p.period.match(/(\d{4})[.\-/]\s*(\d{1,2})[.\-/]\s*(\d{1,2})\s*[—–\-~]\s*(\d{4})[.\-/]\s*(\d{1,2})[.\-/]\s*(\d{1,2})/);
+        if (m) {
+          const psEl = form.querySelector('[name="periodStart"]');
+          const peEl = form.querySelector('[name="periodEnd"]');
+          if (psEl) psEl.value = `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
+          if (peEl) peEl.value = `${m[4]}-${m[5].padStart(2,'0')}-${m[6].padStart(2,'0')}`;
+        }
+      }
+      form.querySelector('[name="title"]').value = p.title || '';
+      form.querySelector('[name="desc"]').value = p.desc || '';  // hidden, 자동 생성용
+      form.querySelector('[name="emoji"]').value = p.emoji || '📌';
+      form.querySelector('[name="statusLabel"]').value = p.statusLabel || '';
+      // 태그 + 회고 복원
+      setTags(p.tags || []);
+      form.querySelector('[name="retroNote"]').value = p.retroNote || '';
+
+      // 외부 자료 링크 복원 (resources + 카테고리 라벨)
+      const resourcesList = document.getElementById('resourcesList');
+      if (resourcesList) {
+        resourcesList.innerHTML = '';
+        const existing = p.resources && p.resources.length ? p.resources : [
+          p.links?.notion, p.links?.sheet, p.links?.pdf, p.links?.event
+        ].filter(Boolean);
+        let savedLabels = {};
+        try { savedLabels = JSON.parse(localStorage.getItem('b2c_link_labels_' + p.id) || '{}'); } catch(e) {}
+        if (existing.length === 0) {
+          window.addResourceRow();
+        } else {
+          existing.forEach(url => window.addResourceRow(url, savedLabels[url]));
+        }
+      }
+      const k = p.kpis || [];
+      [1,2,3].forEach((n, i) => {
+        const kk = k[i] || { label: '', value: '', flavor: '' };
+        form.querySelector(`[name="kpi${n}Label"]`).value = kk.label || '';
+        form.querySelector(`[name="kpi${n}Value"]`).value = kk.value || '';
+        form.querySelector(`[name="kpi${n}Flavor"]`).value = kk.flavor || '';
+      });
+      setEditMode(true);
+      modal.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+    };
+
+    function closeModalFnAndBack() {
+      // detail에서 들어온 경우 detail로 돌아가기
+      const params = new URLSearchParams(location.search);
+      const editId = params.get('edit');
+      if (editId) {
+        location.href = 'project-detail.html?id=' + encodeURIComponent(editId);
+        return;
+      }
+      closeModalFn();
+    }
+    function closeModalFn() {
+      modal.classList.remove('is-open');
+      document.body.style.overflow = '';
+    }
+    openBtn.addEventListener('click', openAddModal);
+    closeBtn.addEventListener('click', closeModalFnAndBack);
+    cancelBtn.addEventListener('click', closeModalFnAndBack);
+    modal.addEventListener('click', e => { if (e.target === modal) closeModalFnAndBack(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModalFnAndBack(); });
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      // 태그 typer에 입력만 하고 엔터 안 친 텍스트도 살리기
+      const typer = document.getElementById('tagTyper');
+      if (typer && typer.value.trim()) {
+        addTag(typer.value);
+        typer.value = '';
+      }
+      const fd = new FormData(form);
+      const o = Object.fromEntries(fd.entries());
+      // periodStart 있으면 date 자동 동기화 (desc/카드그리드/타임라인 일관성)
+      if (o.periodStart) o.date = o.periodStart;
+      const editingId = (o.editingId || '').trim();
+      const isEdit = !!editingId;
+
+      // 편집 모드: 기존 데이터 + 변경분 머지 (story/timeline/related 등 보존)
+      const base = isEdit ? (window.getProject(editingId) || {}) : {};
+      const id = isEdit ? editingId : ('user-' + Date.now());
+      const m = window.MEMBERS[o.member] || {};
+
+      // 수정 기록 (KPI 값·제목 등 변경 감지)
+      let history = base.history ? [...base.history] : [];
+      if (isEdit) {
+        const changes = [];
+        if (base.title !== o.title.trim()) changes.push({ field: '제목', from: base.title, to: o.title.trim() });
+        if (base.kpis?.[0]?.value !== o.kpi1Value) changes.push({ field: `KPI1 (${o.kpi1Label})`, from: base.kpis?.[0]?.value, to: o.kpi1Value });
+        if (base.kpis?.[1]?.value !== o.kpi2Value && o.kpi2Value) changes.push({ field: `KPI2 (${o.kpi2Label})`, from: base.kpis?.[1]?.value, to: o.kpi2Value });
+        if (changes.length > 0) {
+          const now = new Date();
+          history.push({
+            date: now.toISOString().slice(0, 10),
+            time: now.toTimeString().slice(0, 5),
+            user: window.MEMBERS[o.member]?.name || '?',
+            changes
+          });
+        }
+      }
+
+      // KPI 1개 이상 필수 검증
+      if (!o.kpi1Label || !o.kpi1Value) {
+        showToast('⚠️ KPI 1개 이상은 꼭 입력해 주세요!');
+        return;
+      }
+
+      // 자동 상태 (모집 시작/종료일 기준)
+      const today = new Date().toISOString().slice(0, 10);
+      let autoStatus = 'ongoing';
+      if (o.periodStart && o.periodEnd) {
+        if (today < o.periodStart) autoStatus = 'soon';
+        else if (today >= o.periodStart && today <= o.periodEnd) autoStatus = 'ongoing';
+        else autoStatus = 'done';
+      } else if (o.date) {
+        if (today < o.date) autoStatus = 'soon';
+        else if (today === o.date) autoStatus = 'ongoing';
+        else autoStatus = 'done';
+      }
+      o.status = autoStatus;
+
+      // 자동 상태 라벨
+      let autoLabel = '';
+      if (autoStatus === 'soon' && o.periodStart) {
+        const diff = Math.ceil((new Date(o.periodStart) - new Date(today)) / (1000 * 60 * 60 * 24));
+        autoLabel = `D-${diff}`;
+      } else if (autoStatus === 'soon' && o.date) {
+        const diff = Math.ceil((new Date(o.date) - new Date(today)) / (1000 * 60 * 60 * 24));
+        autoLabel = `D-${diff}`;
+      } else if (autoStatus === 'ongoing') autoLabel = '진행중';
+      else if (autoStatus === 'done') autoLabel = '종료';
+      o.statusLabel = autoLabel;
+
+      // 자동 한 줄 설명 생성 (수정한 경우 base.desc 우선, 없으면 자동 생성)
+      const memName = window.MEMBERS[o.member]?.name || '';
+      const k1Label = o.kpi1Label || '';
+      const k1Value = o.kpi1Value || '';
+      const autoDesc = (k1Label && k1Value)
+        ? `${o.category} · ${memName}님이 진행한 프로젝트. ${k1Label} ${k1Value} 달성.`
+        : `${o.category} · ${memName}님 프로젝트`;
+      const finalDesc = (o.desc && o.desc.trim()) ? o.desc.trim() : autoDesc;
+
+      const project = {
+        ...base,
+        id,
+        title: o.title.trim(),
+        member: o.member,
+        category: o.category,
+        categoryLabel: base.categoryLabel && isEdit && base.category === o.category
+          ? base.categoryLabel
+          : (o.category.toUpperCase() + ' · ' + (o.date ? o.date.slice(5).replace('-','월 ').replace(/^0/,'') + '일' : '')),
+        status: o.status,
+        statusLabel: (o.statusLabel || '').trim() || STATUS_LABELS[o.status] || '',
+        date: o.date,
+        // period: 폼 입력값 우선 (사용자가 변경하면 무조건 반영) — 비어있을 때만 기존 유지
+        period: (o.periodStart && o.periodEnd)
+          ? `${o.periodStart.replace(/-/g, '.')} — ${o.periodEnd.replace(/-/g, '.')}`
+          : (base.period || o.date.replace(/-/g, '.')),
+        // date도 periodStart로 동기화 (카드 그리드 표시 일관성)
+        ...(o.periodStart ? { date: o.periodStart } : {}),
+        resources: (function() {
+          const out = [];
+          const labels = {};
+          document.querySelectorAll('.link-row').forEach(row => {
+            const url = row.querySelector('.resource-input')?.value.trim();
+            if (!url) return;
+            out.push(url);
+            const cat = row.querySelector('.resource-category')?.value;
+            if (cat) {
+              const [icon, label] = cat.split('|');
+              labels[url] = { icon, label };
+            }
+          });
+          // 라벨 저장은 후처리 (project.id 알아야 하므로)
+          window._pendingLinkLabels = labels;
+          return out;
+        })(),
+        tags: (o.tags || '').split(',').map(t => t.trim()).filter(Boolean),
+        retroNote: (o.retroNote || '').trim(),
+        history,
+        emoji: (o.emoji || '📌').trim(),
+        desc: finalDesc,
+        kpis: [
+          { label: o.kpi1Label || '—', value: o.kpi1Value || '—', flavor: o.kpi1Flavor || '' },
+          { label: o.kpi2Label || '—', value: o.kpi2Value || '—', flavor: o.kpi2Flavor || '' },
+          { label: o.kpi3Label || '—', value: o.kpi3Value || '—', flavor: o.kpi3Flavor || '' }
+        ],
+        extKpis: base.extKpis && isEdit ? base.extKpis : [
+          { label: o.kpi1Label || '—', value: o.kpi1Value || '—' },
+          { label: o.kpi2Label || '—', value: o.kpi2Value || '—' },
+          { label: o.kpi3Label || '—', value: o.kpi3Value || '—' }
+        ],
+        story: base.story || '',
+        timeline: base.timeline || [
+          ...(o.periodStart ? [{ date: o.periodStart.replace(/-/g, '.'), label: '모집 시작' }] : []),
+          ...(o.periodEnd ? [{ date: o.periodEnd.replace(/-/g, '.'), label: '모집 마감' }] : [])
+        ],
+        related: base.related || DEMO_ORDER.slice(0, 3)
+      };
+
+      window.upsertProject(project);
+
+      // 링크 카테고리 라벨 저장 (project ID 결정 후)
+      if (window._pendingLinkLabels && Object.keys(window._pendingLinkLabels).length) {
+        const labelKey = 'b2c_link_labels_' + project.id;
+        let existing = {};
+        try { existing = JSON.parse(localStorage.getItem(labelKey) || '{}'); } catch(e) {}
+        const merged = { ...existing, ...window._pendingLinkLabels };
+        localStorage.setItem(labelKey, JSON.stringify(merged));
+        window._pendingLinkLabels = null;
+      }
+
+      // detail 페이지에서 편집 들어온 경우 → 그 detail 페이지로 돌아가기
+      const params = new URLSearchParams(location.search);
+      if (params.get('edit')) {
+        showToast(`<span class="ok">✓</span>저장됐어요! 상세 페이지로 돌아갑니다.`);
+        setTimeout(() => {
+          location.href = 'project-detail.html?id=' + encodeURIComponent(project.id);
+        }, 600);
+        return;
+      }
+
+      closeModalFn();
+      form.reset();
+      renderGrid();
+
+      requestAnimationFrame(() => {
+        const card = grid.querySelector(`[data-id="${project.id}"]`);
+        if (card) {
+          card.classList.add('is-new');
+          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      });
+
+      showToast(`<span class="ok">✓</span>"${escapeHtml(project.title)}" ${isEdit ? '수정' : '등록'} 완료!`);
+    });
+
+    // delete (called from inline onclick)
+    window.deleteCard = function(id) {
+      const p = window.getProject(id);
+      const name = p ? p.title : '이 프로젝트';
+      if (!confirm(`"${name}"\n정말 삭제할까요?\n(휴지통에서 다시 살릴 수 있어요)`)) return;
+      window.deleteProject(id);
+      renderGrid();
+      showToast(`<span class="ok">✓</span>삭제했어요.`);
+    };
+
+    // === 카드 다운로드 (엑셀/노션/텍스트) — 전체 또는 단일 카드 ===
+    function buildCardRows(scopeProjects) {
+      const headers = ['제목','카테고리','상태','기간','담당자','이력서 업데이트','신청자','광고비','태그','회고'];
+      const rows = scopeProjects.map(p => {
+        const stats = (function() {
+          try { return JSON.parse(localStorage.getItem('b2c_resume_stats_' + p.id) || 'null') || {}; }
+          catch(e) { return {}; }
+        })();
+        const ad = (function() {
+          try { return JSON.parse(localStorage.getItem('b2c_ad_report_' + p.id) || 'null') || {}; }
+          catch(e) { return {}; }
+        })();
+        // KPI 라벨로 신청자/이력서 추출 (raw 우선)
+        const findKpi = re => (p.kpis || []).find(k => re.test(k.label || ''));
+        const applicantKpi = findKpi(/신청|응모|register|참여|참가/i);
+        const resumeKpi = findKpi(/이력서|업데이트|resume/i);
+        return [
+          p.title || '',
+          p.categoryLabel || p.category || '',
+          ({ongoing:'진행중',soon:'예정',done:'완료',live:'LIVE'})[p.status] || p.status || '',
+          p.period || p.date || '',
+          (window.MEMBERS[p.member]?.name) || p.memberName || '',
+          (stats.resumeUpdated ?? stats.updated ?? resumeKpi?.value ?? ''),
+          (stats.applicants ?? stats.totalIds ?? applicantKpi?.value ?? ''),
+          (ad.totalCost ?? ad.totalSpent ?? ''),
+          (p.tags || []).map(t => '#' + t).join(' '),
+          (p.retroNote || '').replace(/\n/g, ' ')
+        ];
+      });
+      return { headers, rows };
+    }
+
+    function runCardDownload(format, scopeProjects, filenameBase) {
+      const { headers, rows } = buildCardRows(scopeProjects);
+      const today = new Date().toISOString().slice(0, 10);
+      const fname = (filenameBase || '카드') + '_' + today;
+      const downloadBlob = (filename, content, mime) => {
+        const blob = new Blob(['﻿' + content], { type: mime + ';charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click();
+        setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100);
+      };
+
+      if (format === 'excel') {
+        const esc = v => {
+          const s = String(v == null ? '' : v);
+          return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+        };
+        const csv = [headers.map(esc).join(','), ...rows.map(r => r.map(esc).join(','))].join('\r\n');
+        downloadBlob(fname + '.csv', csv, 'text/csv');
+        showToast('<span class="ok">✓</span>엑셀(CSV) 다운로드 완료');
+      } else if (format === 'notion') {
+        const esc = v => String(v == null ? '' : v).replace(/\|/g, '\\|').replace(/\n/g, ' ');
+        let md = `# 📥 카드 리포트 (${today})\n\n총 ${rows.length}건\n\n`;
+        md += '| ' + headers.map(esc).join(' | ') + ' |\n';
+        md += '|' + headers.map(() => '---').join('|') + '|\n';
+        rows.forEach(r => md += '| ' + r.map(esc).join(' | ') + ' |\n');
+        if (navigator.clipboard?.writeText) {
+          navigator.clipboard.writeText(md).then(
+            () => showToast('<span class="ok">✓</span>노션 마크다운 클립보드 복사 — 노션에 Ctrl+V'),
+            () => { downloadBlob(fname + '.md', md, 'text/markdown'); showToast('<span class="ok">✓</span>마크다운 파일 다운로드'); }
+          );
+        } else {
+          downloadBlob(fname + '.md', md, 'text/markdown');
+          showToast('<span class="ok">✓</span>마크다운 파일 다운로드');
+        }
+      } else {
+        const BAR = '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━';
+        let txt = BAR + '\n  📥 카드 리포트\n  생성일: ' + today + '\n  총 ' + rows.length + '건\n' + BAR + '\n\n';
+        rows.forEach(r => {
+          txt += `▣ ${r[0]}\n`;
+          headers.slice(1).forEach((h, i) => {
+            const v = r[i + 1];
+            if (v !== '' && v != null) txt += `  · ${h.padEnd(14)} ${v}\n`;
+          });
+          txt += '\n';
+        });
+        txt += BAR + '\n';
+        downloadBlob(fname + '.txt', txt, 'text/plain');
+        showToast('<span class="ok">✓</span>텍스트 다운로드 (메모장으로 열림)');
+      }
+    }
+
+    window.openCardDownloadModal = function(cardId) {
+      // 기존 인라인 모달 제거
+      document.getElementById('cardDlBg')?.remove();
+      const scopeProjects = cardId
+        ? [window.getProject(cardId)].filter(Boolean)
+        : (function() {
+            const ids = new Set();
+            Object.keys(window.PROJECTS || {}).forEach(id => { if (!window.getDeletedIds().includes(id)) ids.add(id); });
+            window.getUserProjects().forEach(p => ids.add(p.id));
+            Object.keys(window.getOverrides()).forEach(id => ids.add(id));
+            return [...ids].map(id => window.getProject(id)).filter(Boolean);
+          })();
+      if (!scopeProjects.length) { showToast('<span class="ok">⚠️</span>다운로드할 카드가 없어요'); return; }
+      const title = cardId ? `"${scopeProjects[0].title}" 다운로드` : `전체 카드 다운로드 (${scopeProjects.length}건)`;
+      const filenameBase = cardId ? scopeProjects[0].title.replace(/[\\/:*?"<>|]/g, '_') : '전체카드';
+
+      const bg = document.createElement('div');
+      bg.id = 'cardDlBg';
+      bg.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;display:grid;place-items:center;padding:20px';
+      bg.innerHTML = `
+        <div style="background:#fff;border-radius:14px;padding:24px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.25)" onclick="event.stopPropagation()">
+          <div style="font-size:18px;font-weight:800;margin-bottom:4px">📥 ${escapeHtml(title)}</div>
+          <div style="font-size:12px;color:#8B95A1;margin-bottom:18px">원하는 포맷을 선택하세요</div>
+          <div style="display:grid;gap:8px">
+            <button class="dl-fmt-btn" data-fmt="excel" style="padding:14px 16px;background:#E5F8EE;color:#00C471;border:1px solid #00C471;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;text-align:left">📊 엑셀 (CSV) <span style="font-weight:500;color:#4E5968;margin-left:6px">— 더블클릭으로 엑셀에서 열림</span></button>
+            <button class="dl-fmt-btn" data-fmt="notion" style="padding:14px 16px;background:#FFF4DB;color:#8B5A00;border:1px solid #C2A445;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;text-align:left">📝 노션 (Markdown) <span style="font-weight:500;color:#4E5968;margin-left:6px">— 클립보드 복사, Ctrl+V로 표 붙여넣기</span></button>
+            <button class="dl-fmt-btn" data-fmt="text" style="padding:14px 16px;background:#F2F4F6;color:#191F28;border:1px solid #E5E8EB;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;text-align:left">📄 텍스트 (TXT) <span style="font-weight:500;color:#4E5968;margin-left:6px">— 메모장으로 열림</span></button>
+          </div>
+          <div style="display:flex;justify-content:flex-end;margin-top:18px">
+            <button onclick="document.getElementById('cardDlBg').remove()" style="padding:10px 16px;background:transparent;color:#4E5968;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">취소</button>
+          </div>
+        </div>`;
+      bg.addEventListener('click', () => bg.remove());
+      bg.querySelectorAll('.dl-fmt-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const fmt = btn.dataset.fmt;
+          runCardDownload(fmt, scopeProjects, filenameBase);
+          bg.remove();
+        });
+      });
+      document.body.appendChild(bg);
+    };
+
+    // === 프로젝트 내보내기 (모달 + 컬럼 선택 + CSV/Markdown) ===
+    window.exportProjectsExcel = function() {
+      const modal = document.getElementById('exportModal');
+      if (!modal) return;
+      modal.hidden = false;
+      document.body.style.overflow = 'hidden';
+    };
+    window.closeExportModal = function() {
+      const modal = document.getElementById('exportModal');
+      if (!modal) return;
+      modal.hidden = true;
+      document.body.style.overflow = '';
+    };
+    window.exportToggleAll = function(checked) {
+      document.querySelectorAll('#exportCols input[type=checkbox]').forEach(c => { c.checked = checked; });
+    };
+    document.getElementById('exportModal')?.addEventListener('click', e => {
+      if (e.target.id === 'exportModal') window.closeExportModal();
+    });
+    // 슬랙 선택 시 안내문구 토글
+    document.querySelectorAll('#exportModal input[name="exportFmt"]').forEach(r => {
+      r.addEventListener('change', () => {
+        const fmt = document.querySelector('#exportModal input[name="exportFmt"]:checked')?.value;
+        const hint = document.getElementById('slackHint');
+        if (hint) hint.style.display = fmt === 'slack' ? '' : 'none';
+      });
+    });
+
+    function gatherProjects() {
+      const allIds = new Set();
+      Object.keys(window.PROJECTS || {}).forEach(id => {
+        if (!window.getDeletedIds().includes(id)) allIds.add(id);
+      });
+      window.getUserProjects().forEach(p => allIds.add(p.id));
+      Object.keys(window.getOverrides()).forEach(id => allIds.add(id));
+      const rows = [];
+      allIds.forEach(id => {
+        const p = window.getProject(id);
+        if (p) rows.push(p);
+      });
+      rows.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+      return rows;
+    }
+
+    const COL_DEFS = {
+      title:     { label: '제목',       get: p => p.title || '' },
+      member:    { label: '담당자',     get: p => window.MEMBERS[p.member]?.name || p.memberName || '' },
+      category:  { label: '카테고리',   get: p => p.category || '' },
+      status:    { label: '상태',       get: p => ({ongoing:'진행중',soon:'예정',done:'완료',live:'LIVE'})[p.status] || p.status || '' },
+      date:      { label: '대표 날짜',  get: p => p.date || '' },
+      period:    { label: '기간',       get: p => p.period || '' },
+      kpi1:      { label: ['KPI1 라벨','KPI1 값'], get: p => [p.kpis?.[0]?.label || '', p.kpis?.[0]?.value || ''] },
+      kpi2:      { label: ['KPI2 라벨','KPI2 값'], get: p => [p.kpis?.[1]?.label || '', p.kpis?.[1]?.value || ''] },
+      tags:      { label: '태그',       get: p => (p.tags || []).map(t => '#' + t).join(' ') },
+      retro:     { label: '회고 메모',   get: p => (p.retroNote || '').replace(/\n/g, ' ') },
+      resources: { label: '외부 자료',   get: p => (p.resources || []).join(' | ') },
+    };
+
+    window.runExport = function() {
+      const fmt = document.querySelector('#exportModal input[name="exportFmt"]:checked')?.value || 'csv';
+      const cols = Array.from(document.querySelectorAll('#exportCols input:checked')).map(c => c.dataset.col);
+      if (cols.length === 0) { showToast('컬럼을 1개 이상 선택해 주세요'); return; }
+      const rows = gatherProjects();
+      if (rows.length === 0) { showToast('내보낼 프로젝트가 없어요'); return; }
+
+      // 헤더 + 행 생성 (kpi1/kpi2는 2열로 펼침)
+      const headers = [];
+      cols.forEach(k => {
+        const d = COL_DEFS[k];
+        if (Array.isArray(d.label)) headers.push(...d.label);
+        else headers.push(d.label);
+      });
+      const matrix = rows.map(p => {
+        const out = [];
+        cols.forEach(k => {
+          const v = COL_DEFS[k].get(p);
+          if (Array.isArray(v)) out.push(...v.map(x => x == null ? '' : String(x)));
+          else out.push(v == null ? '' : String(v));
+        });
+        return out;
+      });
+
+      const today = new Date().toISOString().slice(0, 10);
+
+      // ── 슬랙 복사 (클립보드) ──
+      if (fmt === 'slack') {
+        const headerLine = `📥 *프로젝트 리포트* (${today}) — 총 ${rows.length}건`;
+        const tableLines = [];
+        tableLines.push(headers.join(' | '));
+        tableLines.push(headers.map(() => '---').join(' | '));
+        matrix.forEach(r => tableLines.push(r.map(s => String(s).replace(/\|/g, '\\|').replace(/\n/g, ' ')).join(' | ')));
+        const body = headerLine + '\n```\n' + tableLines.join('\n') + '\n```';
+        const finish = (ok) => {
+          if (ok) {
+            showToast(`<span class="ok">✓</span>슬랙용으로 복사됐어요! 원하는 채널/DM에 붙여넣기 해주세용`);
+            // 슬랙 데스크톱 자동 오픈 시도 (실패해도 무해)
+            try { window.open('slack://open', '_blank'); } catch (e) {}
+            window.closeExportModal();
+          } else {
+            showToast(`<span class="ok">!</span>복사 실패. 직접 복사해 주세요.`);
+          }
+        };
+        if (navigator.clipboard?.writeText) {
+          navigator.clipboard.writeText(body).then(() => finish(true)).catch(() => finish(false));
+        } else {
+          // 폴백: textarea + execCommand
+          const ta = document.createElement('textarea');
+          ta.value = body; ta.style.position = 'fixed'; ta.style.opacity = '0';
+          document.body.appendChild(ta); ta.select();
+          try { document.execCommand('copy'); finish(true); }
+          catch (e) { finish(false); }
+          document.body.removeChild(ta);
+        }
+        return;
+      }
+
+      let filename, blob;
+      if (fmt === 'md') {
+        // Markdown 표
+        const esc = s => String(s).replace(/\|/g, '\\|').replace(/\n/g, ' ');
+        const lines = [];
+        lines.push('| ' + headers.map(esc).join(' | ') + ' |');
+        lines.push('| ' + headers.map(() => '---').join(' | ') + ' |');
+        matrix.forEach(r => lines.push('| ' + r.map(esc).join(' | ') + ' |'));
+        filename = `프로젝트_${today}.md`;
+        blob = new Blob([lines.join('\n')], { type: 'text/markdown;charset=utf-8' });
+      } else {
+        // CSV
+        const csvEscape = v => {
+          const s = String(v == null ? '' : v);
+          return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+        };
+        const lines = [headers.map(csvEscape).join(',')];
+        matrix.forEach(r => lines.push(r.map(csvEscape).join(',')));
+        const csv = '﻿' + lines.join('\r\n');
+        filename = `프로젝트_${today}.csv`;
+        blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+      }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      window.closeExportModal();
+      showToast(`<span class="ok">✓</span>${rows.length}건 ${fmt === 'md' ? 'Notion(.md)' : 'Excel(.csv)'} 다운로드 완료!`);
+    };
+
+    // share dashboard URL
+    window.shareDashboard = function() {
+      const url = location.href.split('#')[0];
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(() => {
+          showToast(`<span class="ok">✓</span>대시보드 링크를 복사했어요!`);
+        }).catch(() => {
+          showToast(`<span class="ok">!</span>복사 실패. 수동으로 복사해 주세요.`);
+        });
+      } else {
+        showToast(`<span class="ok">!</span>이 브라우저는 자동 복사를 지원하지 않아요.`);
+      }
+    };
+
+    // reset (called from footer link)
+    window.resetDemo = function() {
+      if (!confirm('프로젝트·멤버·카테고리 등 지금까지 추가·수정·삭제한 모든 데이터가 사라져요. 진행할까요?')) return;
+      window.resetAll();
+      renderGrid();
+      if (typeof renderMembers === 'function') renderMembers();
+      if (window._renderCategoryChips) window._renderCategoryChips();
+      showToast(`<span class="ok">✓</span>전체 초기화했어요.`);
+    };
+
+    // URL ?edit=xxx 파라미터로 편집 모달 자동 오픈 (디테일 페이지에서 진입 시)
+    (function() {
+      const params = new URLSearchParams(location.search);
+      const editId = params.get('edit');
+      if (editId) {
+        setTimeout(() => window.openEditModal(editId), 100);
+        history.replaceState({}, '', location.pathname + location.hash);
+      }
+    })();
+
+    // ════════════════════════════════════════════════
+    //  Toast
+    // ════════════════════════════════════════════════
+    let toastTimer = null;
+    function showToast(html) {
+      const t = document.getElementById('toast');
+      t.innerHTML = html;
+      t.classList.add('is-open');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('is-open'), 2400);
+    }
+
+    // ════════════════════════════════════════════════
+    //  Nav active highlight on scroll
+    // ════════════════════════════════════════════════
+    (function() {
+      const links = document.querySelectorAll('.nav-menu a[data-nav]');
+      const sections = Array.from(links).map(l => document.querySelector(l.getAttribute('href')));
+      function onScroll() {
+        const y = window.scrollY + 120;
+        let active = 0;
+        sections.forEach((s, i) => { if (s && s.offsetTop <= y) active = i; });
+        links.forEach((l, i) => l.classList.toggle('is-active', i === active));
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    })();
+
+    // ════════════════════════════════════════════════
+    //  Init
+    // ════════════════════════════════════════════════
+    // ?reset=1 URL 파라미터로 진입 시 1회 초기화
+    (function() {
+      const params = new URLSearchParams(location.search);
+      if (params.get('reset') === '1') {
+        if (confirm('내가 만든 프로젝트·멤버·카테고리·KPI 라벨을 모두 삭제하고 빈 대시보드로 초기화할까요?')) {
+          window.resetAll();
+        }
+        // URL에서 ?reset=1 제거 (재초기화 방지)
+        history.replaceState(null, '', location.pathname);
+      }
+    })();
+    renderGrid();
+    renderAllMembers();
+    bindFilters();
+    applyFilter();
+
+    // === Year Dropdown ===
+    (function () {
+      const yearToggle = document.getElementById('yearToggle');
+      const yearDropdown = document.getElementById('yearDropdown');
+      if (!yearToggle || !yearDropdown) return;
+      const yearWrap = yearToggle.closest('.year-wrap');
+      yearToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        yearDropdown.hidden = !yearDropdown.hidden;
+        yearWrap.classList.toggle('open', !yearDropdown.hidden);
+      });
+      document.querySelectorAll('.year-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+          const year = opt.dataset.year;
+          document.querySelectorAll('.year-option').forEach(o => o.classList.remove('is-active'));
+          opt.classList.add('is-active');
+          // 년도 토글 라벨 업데이트
+          const trigger = document.getElementById('yearToggle');
+          if (trigger) {
+            trigger.firstChild.textContent = year + ' ';
+          }
+          // hero 타이틀·태그도 년도 반영
+          const heroH1 = document.querySelector('.hero h1');
+          if (heroH1) heroH1.innerHTML = heroH1.innerHTML.replace(/\d{4}년/, year + '년');
+          const heroTag = document.querySelector('.hero-tag');
+          if (heroTag) heroTag.textContent = year + ' · 인사이트전략팀 프로젝트 보드';
+          // 2025 = 핑크 모드, 2026 = 기본 블루
+          document.body.classList.toggle('year-2025', year === '2025');
+          yearDropdown.hidden = true;
+          yearWrap.classList.remove('open');
+          // 🔗 카드 필터링 연결 — 선택한 연도로 활성 + 카드 필터 적용
+          if (window.setActiveYear) window.setActiveYear(year);
+        });
+      });
+      document.addEventListener('click', (e) => {
+        if (!yearWrap.contains(e.target)) {
+          yearDropdown.hidden = true;
+          yearWrap.classList.remove('open');
+        }
+      });
+    })();
+
+    // === KPI Label Custom Input ===
+    document.querySelectorAll('.kpi-label-sel').forEach(sel => {
+      sel.addEventListener('change', () => {
+        if (sel.value === '__custom__') {
+          const custom = prompt('KPI 라벨을 직접 입력해 주세요 (최대 14자)', '');
+          if (custom && custom.trim()) {
+            const value = custom.trim().slice(0, 14);
+            // 이미 옵션에 있으면 그것 선택, 아니면 새 옵션 추가
+            const existing = sel.querySelector(`option[value="${value}"]`);
+            if (existing) {
+              sel.value = value;
+            } else {
+              const opt = document.createElement('option');
+              opt.value = value;
+              opt.textContent = value + ' (직접 입력)';
+              sel.insertBefore(opt, sel.querySelector('[value="__custom__"]'));
+              sel.value = value;
+            }
+          } else {
+            sel.value = '';
+          }
+        }
+      });
+    });
+
+    // === Emoji Picker ===
+    document.querySelectorAll('.emoji-opt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const emoji = btn.dataset.emoji;
+        const input = document.getElementById('emojiInput');
+        if (input) input.value = emoji;
+        document.querySelectorAll('.emoji-opt').forEach(b => b.classList.remove('is-selected'));
+        btn.classList.add('is-selected');
+      });
+    });
+
+    // === Trash Modal ===
+    window.openTrash = function () {
+      const modal = document.getElementById('trashModal');
+      if (!modal) return;
+      modal.hidden = false;
+      document.body.style.overflow = 'hidden';
+      renderTrash();
+    };
+    window.closeTrash = function () {
+      const modal = document.getElementById('trashModal');
+      if (!modal) return;
+      modal.hidden = true;
+      document.body.style.overflow = '';
+    };
+    function renderTrash() {
+      const list = document.getElementById('trashList');
+      if (!list) return;
+      const deletedIds = window.getDeletedIds() || [];
+      if (deletedIds.length === 0) {
+        list.innerHTML = '<div class="trash-empty">🗑 휴지통이 비어있어요</div>';
+        return;
+      }
+      list.innerHTML = deletedIds.map(id => {
+        const p = (window.PROJECTS && window.PROJECTS[id]) || null;
+        if (!p) return '';
+        return `
+          <div class="trash-item">
+            <span class="ic">${escapeHtml(p.emoji || '📌')}</span>
+            <div class="info">
+              <div class="t">${escapeHtml(p.title)}</div>
+              <div class="s">${escapeHtml(p.period || p.date || '')}</div>
+            </div>
+            <div class="actions">
+              <button class="btn-restore" onclick="restoreCard('${id}')">복원</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    window.restoreCard = function (id) {
+      window.restoreProject(id);
+      renderGrid();
+      renderTrash();
+      showToast(`<span class="ok">✓</span>복원했어요.`);
+    };
+    document.getElementById('trashModal')?.addEventListener('click', (e) => {
+      if (e.target.id === 'trashModal') closeTrash();
+    });
+  </script>
+</body>
+</html>
