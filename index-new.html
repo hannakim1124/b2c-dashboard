@@ -196,7 +196,10 @@
 <body>
 
 <nav class="nav">
-  <div class="brand">인사이트전략팀 <span class="muted">· B2C 대시보드</span></div>
+  <div class="brand">
+    인사이트전략팀 <span class="muted">· B2C 대시보드</span>
+    <span id="userBadge" style="margin-left:10px;font-size:11px;padding:3px 10px;background:#e8f3ff;color:#3182f6;border-radius:99px;cursor:pointer;font-weight:700;" onclick="switchUser()" title="사용자 전환">👤 ...</span>
+  </div>
   <div class="nav-actions">
     <button class="nav-btn primary" onclick="openAddModal()">＋ 카드 추가</button>
   </div>
@@ -273,6 +276,30 @@
 //  B2C Dashboard v3 — Single-page Memo-style
 //  2026-05-12
 // ════════════════════════════════════════════════════════════
+
+// ─── 사용자 분리 (URL ?u=xxx) ───
+const USER = (() => {
+  const raw = new URLSearchParams(location.search).get('u') || '';
+  const clean = raw.toLowerCase().replace(/[^a-z0-9_]/g, '');
+  return clean || 'default';
+})();
+const KEY_CARDS = 'b2c_v3_cards_' + USER;
+
+window.switchUser = function() {
+  const u = prompt('사용자명을 입력하세요 (영문/숫자만, 예: hanna):', USER);
+  if (!u) return;
+  const clean = u.toLowerCase().replace(/[^a-z0-9_]/g, '');
+  if (!clean) { alert('영문/숫자만 가능합니다.'); return; }
+  location.search = '?u=' + clean;
+};
+
+function loadMyCards() {
+  try { return JSON.parse(localStorage.getItem(KEY_CARDS) || '[]'); }
+  catch(e) { return []; }
+}
+function saveMyCards(list) {
+  localStorage.setItem(KEY_CARDS, JSON.stringify(list));
+}
 
 // ─── 유틸 ───
 const $ = (id) => document.getElementById(id);
@@ -457,26 +484,33 @@ window.refreshCard = async function(id) {
   if (el) el.classList.add('open');
 };
 
-// ─── 카드 데이터 수집 ───
+// ─── 카드 데이터 수집 (사용자별 격리) ───
 function getAllCards() {
-  const cards = [];
+  return loadMyCards();
+}
+
+// 첫 진입 시 옛 데이터 마이그레이션 (사용자별 키가 비어있을 때만)
+function migrateLegacyIfNeeded() {
+  if (localStorage.getItem(KEY_CARDS) !== null) return; // 이미 한 번 처리됨 (빈 배열도 처리된 것으로 간주)
+  const legacy = [];
   const seen = new Set();
-  // 1) 사용자 추가 카드
   try {
     const users = JSON.parse(localStorage.getItem('b2c_user_projects') || '[]');
-    users.forEach(p => { if (p && p.id && !seen.has(p.id)) { cards.push(p); seen.add(p.id); } });
+    users.forEach(p => { if (p && p.id && !seen.has(p.id)) { legacy.push(p); seen.add(p.id); } });
   } catch(e) {}
-  // 2) 데모 카드 (override 반영, deleted 제외)
   if (window.PROJECTS) {
     const overrides = (window.getOverrides && window.getOverrides()) || {};
     const deleted = (window.getDeletedIds && window.getDeletedIds()) || [];
     Object.keys(window.PROJECTS).forEach(id => {
       if (deleted.includes(id) || seen.has(id)) return;
-      cards.push(overrides[id] || window.PROJECTS[id]);
+      legacy.push(overrides[id] || window.PROJECTS[id]);
       seen.add(id);
     });
   }
-  return cards;
+  saveMyCards(legacy);
+  if (legacy.length) {
+    setTimeout(() => showToast(`✅ 기존 카드 ${legacy.length}개 마이그레이션 완료`), 500);
+  }
 }
 
 // ─── 상태 자동 보정 (기간 지나면 done) ───
@@ -875,11 +909,15 @@ window.saveCard = function() {
     note: $('f_note').value
   };
 
+  const list = loadMyCards();
   if (editingId) {
-    if (window.upsertProject) window.upsertProject(card);
+    const idx = list.findIndex(c => c.id === editingId);
+    if (idx >= 0) list[idx] = { ...list[idx], ...card, id: editingId };
+    else list.unshift(card);
   } else {
-    if (window.saveUserProject) window.saveUserProject(card);
+    list.unshift(card);
   }
+  saveMyCards(list);
   closeModal();
   render();
 
@@ -902,8 +940,9 @@ window.saveCard = function() {
 };
 
 window.deleteCard = function(id) {
-  if (!confirm('삭제하시겠어요? (복구는 v1 백업에서 가능합니다)')) return;
-  if (window.deleteProject) window.deleteProject(id);
+  if (!confirm('삭제하시겠어요?')) return;
+  const list = loadMyCards().filter(c => c.id !== id);
+  saveMyCards(list);
   render();
 };
 
@@ -917,10 +956,18 @@ document.querySelectorAll('.chip').forEach(chip => {
   });
 });
 
-// 첫 렌더 — PROJECTS 로드 대기
+// 사용자 뱃지 표시
+document.getElementById('userBadge').textContent = '👤 ' + USER;
+document.title = `📊 B2C 대시보드 (${USER})`;
+
+// 첫 렌더 — projects-data.js 로드 대기 + 마이그레이션
 function tryRender() {
-  if (typeof window.getProject === 'function') render();
-  else setTimeout(tryRender, 50);
+  if (typeof window.getProject === 'function') {
+    migrateLegacyIfNeeded();
+    render();
+  } else {
+    setTimeout(tryRender, 50);
+  }
 }
 tryRender();
 </script>
