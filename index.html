@@ -476,6 +476,14 @@ window.requestMatch = async function(id) {
     hideToast();
     if (r.ok && data.ok) {
       showToast(`✅ 매칭 신청 접수됨 — 1일 내 결과 자동 반영 (대기: ${data.pendingCount || 1}건)`);
+      // 슬랙으로 한나님께 알림 발송 (fire-and-forget)
+      fetch('/api/notify-slack', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: `🔔 *새 매칭 요청* <@U09UQNGH6DC>\n\n• 프로젝트: *${p.title || p.name || p.id}*\n• 시트: ${sheetUrl}\n• 기간: ${p.period || '(미정)'}\n• 큐 대기: ${data.pendingCount || 1}건\n\n👉 한나 님이 사내망에서 claude에게 *"큐 비워줘"* 한 마디 → 자동 처리됩니다.`
+        })
+      }).catch(() => { /* 알림 실패해도 큐 등록은 성공이라 무시 */ });
     } else {
       showToast('⚠️ 신청 실패: ' + (data.error || r.status));
     }
