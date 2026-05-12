@@ -451,6 +451,40 @@ async function fetchSheetAuto(url, opts) {
   }
 }
 
+window.requestMatch = async function(id) {
+  const p = getAllCards().find(c => c.id === id);
+  if (!p) return;
+  const urls = [...(p.resources || []), p.links?.sheet].filter(Boolean);
+  const sheetUrl = urls.find(u => /spreadsheets\/d\//.test(u || ''));
+  if (!sheetUrl) { alert('시트 URL이 없습니다. 편집에서 추가해주세요.'); return; }
+  if (!confirm('이력서 매칭을 요청하시겠어요?\n결과는 운영자가 처리 후 1일 내 자동 반영됩니다.')) return;
+  showToast('🔄 매칭 신청 중...', true);
+  try {
+    const r = await fetch('/api/match-queue', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        projectId: p.id,
+        sheetUrl,
+        period: p.period || '',
+        kpiLabel: '이력서 업데이트',
+        title: p.title || p.name || p.id,
+        requestedBy: 'dashboard-user'
+      })
+    });
+    const data = await r.json();
+    hideToast();
+    if (r.ok && data.ok) {
+      showToast(`✅ 매칭 신청 접수됨 — 1일 내 결과 자동 반영 (대기: ${data.pendingCount || 1}건)`);
+    } else {
+      showToast('⚠️ 신청 실패: ' + (data.error || r.status));
+    }
+  } catch(e) {
+    hideToast();
+    showToast('⚠️ 신청 실패: ' + e.message);
+  }
+};
+
 window.refreshCard = async function(id) {
   const p = getAllCards().find(c => c.id === id);
   if (!p) return;
@@ -634,10 +668,10 @@ function cardBody(p) {
   }
   lines.push('');
 
-  // 이력서 매칭
+  // 이력서 매칭 — 항상 섹션 표시. 결과 없으면 안내.
+  lines.push(`<span class="sec">[ 이력서 매칭 ]</span>`);
+  lines.push(`<span class="bar">${'─'.repeat(W)}</span>`);
   if (resumeStats) {
-    lines.push(`<span class="sec">[ 이력서 매칭 ]</span>`);
-    lines.push(`<span class="bar">${'─'.repeat(W)}</span>`);
     const r = resumeStats;
     lines.push(`  ${pad('시트 ID 입력', 18)}${pad(fmt(r.totalIds), 10, true)}`);
     lines.push(`  ${pad('DB 매칭', 18)}${pad(fmt(r.matched), 10, true)}   <span class="muted">(${r.matchRate ?? '—'}%)</span>`);
@@ -659,6 +693,14 @@ function cardBody(p) {
         lines.push('');
       }
     }
+  } else {
+    lines.push(`  <span class="muted">데이터를 입력해 주세요</span>`);
+    if (sheetUrl) {
+      lines.push(`  <span class="muted">└ 카드 헤더의 [📊 매칭 요청] 버튼을 눌러주세요</span>`);
+    } else {
+      lines.push(`  <span class="muted">└ 카드 편집에서 시트 URL을 입력해 주세요</span>`);
+    }
+    lines.push('');
   }
 
   // 신청자 자동 분석 (풍부 분석)
@@ -797,6 +839,7 @@ function render() {
         </div>
         <div class="head-right">
           <button class="icon-btn" data-act="refresh" onclick="event.stopPropagation(); refreshCard('${esc(p.id)}')" title="시트 새로고침">🔄</button>
+          ${p.links?.sheet || (p.resources || []).some(u => /spreadsheets\/d\//.test(u || '')) ? `<button class="icon-btn" data-act="match" onclick="event.stopPropagation(); requestMatch('${esc(p.id)}')" title="이력서 매칭 요청">📊</button>` : ''}
           <button class="icon-btn" onclick="event.stopPropagation(); editCard('${esc(p.id)}')" title="편집">📝</button>
           <button class="icon-btn" onclick="event.stopPropagation(); deleteCard('${esc(p.id)}')" title="삭제">🗑</button>
           <span class="toggle">▼</span>
