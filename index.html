@@ -592,7 +592,14 @@ function cardBody(p) {
       }
     }
   }
-  const resumeStats = getJSON('b2c_resume_stats_' + p.id);
+  // 이력서 매칭 결과: 카드 ID 기준 → 시트 ID 기준 fallback (카드 ID 신경 X)
+  let resumeStats = getJSON('b2c_resume_stats_' + p.id);
+  if (!resumeStats && sheetUrl) {
+    const sidMatch = sheetUrl.match(/spreadsheets\/d\/([\w-]+)/);
+    if (sidMatch) {
+      resumeStats = getJSON('b2c_resume_stats_by_sheet_' + sidMatch[1]);
+    }
+  }
   const liveResume = resumeStats?.resumeUpdated ?? null;
 
   function matchCurrent(label) {
