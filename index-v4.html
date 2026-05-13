@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>인사이트전략팀 B2C 이벤트 카탈로그</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;700;900&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root {
+    /* 종이 톤 (warm paper) */
+    --paper: #F8F5EE;
+    --paper-2: #F2EDE2;
+    --paper-3: #E8E2D5;
+    --surface: #FDFCF8;
+    --surface-2: #F5F0E5;
+    --line: #D9D0BD;
+    --line-soft: #E8E2D5;
+
+    /* 잉크 텍스트 */
+    --ink: #2A2724;
+    --ink-2: #5C544A;
+    --ink-3: #8A7F70;
+
+    /* 강조 (잉크 컬러) */
+    --green: #3F7D5C;
+    --green-dim: #E5EFE7;
+    --red: #B84F3F;
+    --red-dim: #F5E5E0;
+    --gold: #B68B3A;
+    --gold-dim: #F5EBD3;
+    --indigo: #4A5A8B;
+    --indigo-dim: #E5E8F2;
+
+    --serif: 'Noto Serif KR', 'Gowun Batang', serif;
+    --sans: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+
+    --r-lg: 14px;
+    --r-md: 10px;
+    --r-sm: 6px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.7;
+    letter-spacing: -0.01em;
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      radial-gradient(rgba(180, 160, 130, 0.06) 1px, transparent 1px),
+      radial-gradient(rgba(180, 160, 130, 0.04) 1px, transparent 1px);
+    background-size: 28px 28px, 56px 56px;
+    background-position: 0 0, 14px 14px;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  /* ─── Nav ─── */
+  .nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--line-soft);
+    padding: 18px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+  .brand {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .brand .seal {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--red);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 900;
+    font-family: var(--serif);
+    transform: rotate(-6deg);
+    box-shadow: 0 1px 2px rgba(184, 79, 63, 0.3);
+  }
+  .brand .muted {
+    font-family: var(--sans);
+    color: var(--ink-3);
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: -0.01em;
+  }
+  .nav-actions { display: flex; gap: 8px; }
+  .nav-btn {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-2);
+    background: transparent;
+    border: 1px solid var(--line-soft);
+    padding: 8px 14px;
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    transition: 0.18s;
+  }
+  .nav-btn:hover { background: var(--paper-2); color: var(--ink); border-color: var(--line); }
+  .nav-btn.primary {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+  .nav-btn.primary:hover { background: #000; color: #fff; }
+
+  /* ─── Container ─── */
+  .container { max-width: 1180px; margin: 0 auto; padding: 36px 28px 100px; }
+
+  /* ─── Hero ─── */
+  .hero { margin-bottom: 36px; }
+  .hero .kicker {
+    font-family: var(--serif);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--red);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--ink);
+    margin: 0 0 10px 0;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+  }
+  .hero p {
+    font-size: 15px;
+    color: var(--ink-2);
+    margin: 0;
+    max-width: 640px;
+    line-height: 1.7;
+  }
+
+  /* Hero summary band — 큼지막 4개 수치 */
+  .summary-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 28px;
+  }
+  .sum-card {
+    background: var(--surface);
+    border: 1px solid var(--line-soft);
+    border-radius: var(--r-lg);
+    padding: 22px 22px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .sum-card .ic {
+    position: absolute;
+    top: 16px; right: 18px;
+    font-size: 22px;
+    opacity: 0.35;
+  }
+  .sum-card .lab {
+    font-size: 13px;
+    color: var(--ink-3);
+    font-weight: 600;
+    margin-bottom: 12px;
+    letter-spacing: -0.005em;
+  }
+  .sum-card .val {
+    font-family: var(--serif);
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--ink);
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+  .sum-card .val .unit {
+    font-size: 16px;
+    color: var(--ink-3);
+    font-weight: 700;
+    margin-left: 4px;
+    letter-spacing: -0.01em;
+  }
+  .sum-card .sub {
+    font-size: 12px;
+    color: var(--ink-3);
+    margin-top: 8px;
+    font-weight: 500;
+  }
+
+  /* ─── Filter row ─── */
+  .filter-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .chip {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border: 1px solid var(--line-soft);
+    border-radius: 99px;
+    background: var(--surface);
+    color: var(--ink-2);
+    cursor: pointer;
+    transition: 0.18s;
+    user-select: none;
+  }
+  .chip:hover { border-color: var(--line); }
+  .chip.active {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+  .chip .count {
+    font-size: 11px;
+    color: var(--ink-3);
+    margin-left: 5px;
+    font-weight: 600;
+  }
+  .chip.active .count { color: rgba(248, 245, 238, 0.65); }
+  .filter-row .sep { width: 1px; height: 18px; background: var(--line-soft); margin: 0 6px; }
+
+  /* ─── Section head ─── */
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin: 36px 0 14px;
+  }
+  .section-head .title {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+  .section-head .count {
+    background: var(--paper-2);
+    color: var(--ink-2);
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-weight: 700;
+    font-family: var(--sans);
+  }
+  .section-head .toggle {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--red);
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .section-head .toggle:hover { text-decoration: underline; }
+  .collapsed-table { display: none; }
+  .collapsed-table.open { display: block; }
+
+  /* ─── Table — 종이 카드 결 ─── */
+  .events-table {
+    background: var(--surface);
+    border: 1px solid var(--line-soft);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(60, 50, 30, 0.04), 0 8px 24px rgba(60, 50, 30, 0.04);
+  }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    text-align: left;
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink-3);
+    padding: 16px 20px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--line-soft);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  thead th.right { text-align: right; }
+  tbody tr {
+    border-bottom: 1px solid var(--line-soft);
+    cursor: pointer;
+    transition: 0.18s;
+  }
+  tbody tr:hover { background: #FBF8F0; }
+  tbody tr:last-child { border-bottom: 0; }
+  tbody td {
+    padding: 20px;
+    vertical-align: middle;
+    font-size: 14px;
+  }
+
+  /* col 1: event */
+  .ev-cell { display: flex; align-items: center; gap: 16px; min-width: 0; }
+  .ev-emoji {
+    width: 52px; height: 52px;
+    flex: 0 0 52px;
+    border-radius: var(--r-md);
+    background: var(--paper-2);
+    border: 1px solid var(--line-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+  }
+  .ev-text { min-width: 0; flex: 1; }
+  .ev-title {
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 4px;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+  }
+  .ev-cat {
+    font-size: 12px;
+    color: var(--ink-3);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+
+  /* col 2: period */
+  .pr-cell { white-space: nowrap; }
+  .pr-date {
+    font-family: var(--serif);
+    font-size: 15px;
+    color: var(--ink);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  .pr-dday {
+    font-size: 11px;
+    font-weight: 700;
+    margin-top: 5px;
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 99px;
+    letter-spacing: 0.02em;
+  }
+  .pr-dday.ongoing { background: var(--green-dim); color: var(--green); }
+  .pr-dday.soon { background: var(--indigo-dim); color: var(--indigo); }
+  .pr-dday.done { background: var(--paper-2); color: var(--ink-3); }
+  .pr-dday.cancel { background: var(--red-dim); color: var(--red); }
+
+  /* col 3, 4: KPI */
+  .kpi-cell { min-width: 180px; }
+  .kpi-vals {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .kpi-vals .cur {
+    font-family: var(--serif);
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--ink);
+    letter-spacing: -0.025em;
+  }
+  .kpi-vals .cur .unit {
+    font-size: 12px;
+    color: var(--ink-3);
+    font-weight: 700;
+    margin-left: 1px;
+  }
+  .kpi-vals .sl { color: var(--ink-3); font-weight: 400; font-size: 14px; }
+  .kpi-vals .tgt {
+    font-family: var(--sans);
+    color: var(--ink-3);
+    font-weight: 600;
+    font-size: 13px;
+  }
+  .kpi-vals .tgt .unit { font-size: 11px; margin-left: 1px; }
+  .kpi-bar {
+    height: 6px;
+    background: var(--paper-2);
+    border-radius: 99px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 6px;
+  }
+  .kpi-bar-fill { height: 100%; border-radius: 99px; transition: 0.3s; }
+  .kpi-bar-fill.ok { background: var(--green); }
+  .kpi-bar-fill.warn { background: var(--gold); }
+  .kpi-bar-fill.danger { background: var(--red); }
+  .kpi-bar-fill.blue { background: var(--green); }
+  .kpi-pct {
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    letter-spacing: -0.005em;
+  }
+  .kpi-pct.ok { color: var(--green); }
+  .kpi-pct.warn { color: var(--gold); }
+  .kpi-pct.danger { color: var(--red); }
+  .kpi-pct.blue { color: var(--green); }
+  .kpi-empty {
+    font-family: var(--serif);
+    font-size: 16px;
+    color: var(--ink-3);
+    font-weight: 500;
+  }
+  .kpi-empty .req {
+    display: block;
+    margin-top: 4px;
+    font-family: var(--sans);
+    font-size: 11px;
+    color: var(--ink-3);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+
+  /* col 5: arrow */
+  .arrow-cell {
+    width: 40px;
+    text-align: right;
+    color: var(--ink-3);
+    font-family: var(--serif);
+    font-size: 22px;
+    padding-right: 20px;
+    transition: 0.18s;
+  }
+  tbody tr:hover .arrow-cell { color: var(--red); transform: translateX(2px); }
+
+  /* ─── Empty state ─── */
+  .empty-state {
+    background: var(--surface);
+    border: 1px dashed var(--line);
+    border-radius: var(--r-lg);
+    padding: 56px 24px;
+    text-align: center;
+    color: var(--ink-3);
+    font-family: var(--serif);
+    font-size: 16px;
+  }
+  .empty-state .ic { font-size: 36px; margin-bottom: 12px; }
+  .empty-state .add {
+    color: var(--red);
+    cursor: pointer;
+    font-weight: 700;
+    margin-left: 6px;
+  }
+
+  /* ─── Footer ─── */
+  .foot {
+    margin-top: 60px;
+    padding-top: 30px;
+    border-top: 1px solid var(--line-soft);
+    font-family: var(--serif);
+    font-size: 13px;
+    color: var(--ink-3);
+    text-align: center;
+    letter-spacing: -0.005em;
+  }
+  .foot .legacy {
+    display: inline-block;
+    margin-top: 6px;
+    font-family: var(--sans);
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+  .foot .legacy a { color: var(--red); border-bottom: 1px solid currentColor; }
+
+  /* ─── 모바일 ─── */
+  @media (max-width: 720px) {
+    body { font-size: 14px; }
+    .container { padding: 20px 16px 70px; }
+    .nav { padding: 14px 18px; }
+    .brand { font-size: 16px; }
+    .hero h1 { font-size: 26px; }
+    .summary-strip { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .sum-card { padding: 16px; }
+    .sum-card .val { font-size: 26px; }
+    .section-head .title { font-size: 18px; }
+    thead { display: none; }
+    tbody tr { display: block; padding: 18px; }
+    tbody td { display: block; padding: 0; }
+    .ev-cell { margin-bottom: 14px; }
+    .pr-cell { margin-bottom: 12px; }
+    .kpi-cell { padding: 14px 0 0; border-top: 1px dashed var(--line-soft); margin-top: 12px; }
+    .kpi-cell + .kpi-cell { margin-top: 10px; }
+    .arrow-cell { display: none; }
+    .ev-title { font-size: 17px; }
+    .ev-emoji { width: 44px; height: 44px; flex-basis: 44px; font-size: 22px; }
+  }
+
+  /* ─── Modal ─── */
+  .modal-bg {
+    position: fixed; inset: 0;
+    background: rgba(42, 39, 36, 0.4);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .modal-bg.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--line-soft);
+    border-radius: var(--r-lg);
+    padding: 28px;
+    width: 92%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+  }
+  .modal h3 {
+    margin: 0 0 16px;
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .modal label {
+    display: block;
+    font-size: 12px;
+    color: var(--ink-2);
+    margin: 12px 0 6px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .modal input, .modal select {
+    width: 100%;
+    padding: 11px 13px;
+    border: 1px solid var(--line-soft);
+    border-radius: var(--r-sm);
+    font-family: var(--sans);
+    font-size: 14px;
+    background: var(--paper);
+    color: var(--ink);
+  }
+  .modal input:focus, .modal select:focus { outline: 1px solid var(--red); border-color: var(--red); }
+  .modal-actions { display: flex; gap: 8px; margin-top: 22px; justify-content: flex-end; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="brand">
+    <span class="seal">B</span>
+    인사이트전략팀 B2C
+    <span class="muted">· 이벤트 카탈로그</span>
+  </div>
+  <div class="nav-actions">
+    <button class="nav-btn" onclick="window.open('compare.html', '_blank')">비교</button>
+    <button class="nav-btn primary" onclick="openAddModal()">+ 새 이벤트</button>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="kicker">2026 · Spring / Summer</div>
+    <h1>이벤트 카탈로그</h1>
+    <p>한나 님 단독 운영 B2C 이벤트의 신청자·이력서 업데이트 KPI를 한눈에 비교합니다. 행을 누르면 카드별 상세 분석으로 이동합니다.</p>
+    <div class="summary-strip" id="summaryStrip"></div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filter-row" id="filterRow"></div>
+
+  <!-- 진행중 & 예정 -->
+  <div class="section-head">
+    <span class="title">진행중 · 예정</span>
+    <span class="count" id="cntActive">0</span>
+  </div>
+  <div class="events-table">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:38%">이벤트</th>
+          <th style="width:18%">모집 기간</th>
+          <th style="width:21%">신청 KPI</th>
+          <th style="width:21%">이력서 업데이트</th>
+          <th class="right" style="width:40px"></th>
+        </tr>
+      </thead>
+      <tbody id="tbodyActive"></tbody>
+    </table>
+  </div>
+
+  <!-- 종료 -->
+  <div class="section-head">
+    <span class="title">종료된 이벤트</span>
+    <span class="count" id="cntDone">0</span>
+    <span class="toggle" id="toggleDone" onclick="toggleDoneTable()">펼치기 ▾</span>
+  </div>
+  <div class="collapsed-table" id="doneWrap">
+    <div class="events-table">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:38%">이벤트</th>
+            <th style="width:18%">행사일</th>
+            <th style="width:21%">신청 KPI</th>
+            <th style="width:21%">이력서 업데이트</th>
+            <th class="right" style="width:40px"></th>
+          </tr>
+        </thead>
+        <tbody id="tbodyDone"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="emptyState" class="empty-state" style="display:none">
+    <div class="ic">📭</div>
+    아직 이벤트가 없습니다 <span class="add" onclick="openAddModal()">+ 새 이벤트 추가</span>
+  </div>
+
+  <div class="foot">
+    인사이트전략팀 · B2C 대시보드
+    <span class="legacy">— 이전 버전 보기 <a href="index-v1-backup.html">v1</a> · <a href="index.html">v2</a> · <a href="index-v3.html">v3</a></span>
+  </div>
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal-bg" id="addModal">
+  <div class="modal">
+    <h3>+ 새 이벤트 추가</h3>
+    <label>이모지</label>
+    <input id="m_emoji" placeholder="📊" maxlength="4">
+    <label>이벤트명</label>
+    <input id="m_title" placeholder="예: WORK FEST 2026">
+    <label>카테고리</label>
+    <input id="m_category" placeholder="페스티벌 / 컨퍼런스 / 웨비나 / 해커톤">
+    <label>기간 (YYYY.MM.DD ~ YYYY.MM.DD)</label>
+    <input id="m_period" placeholder="2026.06.01 ~ 2026.06.30">
+    <label>상태</label>
+    <select id="m_status">
+      <option value="ongoing">진행중</option>
+      <option value="soon">예정</option>
+      <option value="done">종료</option>
+    </select>
+    <label>신청 KPI 목표</label>
+    <input id="m_kpi_signup" placeholder="예: 1,000명">
+    <label>이력서 업데이트 KPI 목표</label>
+    <input id="m_kpi_resume" placeholder="예: 500명">
+    <div class="modal-actions">
+      <button class="nav-btn" onclick="closeAddModal()">취소</button>
+      <button class="nav-btn primary" onclick="saveNewProject()">추가</button>
+    </div>
+  </div>
+</div>
+
+<script src="projects-data.js"></script>
+<script src="data/cache.js" onerror="console.warn('[v4] data/cache.js 없음 (gitignore — 정상)')"></script>
+<script src="sync-client.js"></script>
+
+<script>
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fmt = (n) => (n == null || isNaN(n)) ? '—' : Number(n).toLocaleString('ko-KR');
+  const getJSON = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } };
+
+  function parseDate(s) {
+    const m = String(s || '').match(/(\d{4})[.\-/](\d{1,2})[.\-/](\d{1,2})/);
+    return m ? new Date(+m[1], +m[2]-1, +m[3]) : null;
+  }
+  function parsePeriod(s) {
+    const m = String(s || '').match(/(\d{4}[.\-/]\d{1,2}[.\-/]\d{1,2}).*?(\d{4}[.\-/]\d{1,2}[.\-/]\d{1,2})/);
+    if (!m) return null;
+    return { start: parseDate(m[1]), end: parseDate(m[2]), startStr: m[1], endStr: m[2] };
+  }
+  function parseTarget(s) {
+    const m = String(s || '').match(/[\d,]+/);
+    if (!m) return null;
+    const n = Number(m[0].replace(/,/g, ''));
+    return isNaN(n) ? null : n;
+  }
+  function getEffectiveStatus(p) {
+    if (p.status === 'cancel') return 'cancel';
+    if (p.status === 'done' || p.status === 'completed') return 'done';
+    const period = parsePeriod(p.period);
+    if (!period) return p.status || 'ongoing';
+    const today = new Date(); today.setHours(0,0,0,0);
+    if (today < period.start) return 'soon';
+    if (today > period.end) return 'done';
+    return 'ongoing';
+  }
+  function getDDay(p, status) {
+    const period = parsePeriod(p.period);
+    if (!period) return null;
+    const today = new Date(); today.setHours(0,0,0,0);
+    if (status === 'ongoing') {
+      const d = Math.round((period.end - today) / 86400000);
+      return { txt: `D-${d}`, cls: 'ongoing' };
+    }
+    if (status === 'soon') {
+      const d = Math.round((period.start - today) / 86400000);
+      return { txt: `D-${d}`, cls: 'soon' };
+    }
+    if (status === 'done') return { txt: '종료', cls: 'done' };
+    if (status === 'cancel') return { txt: '취소', cls: 'cancel' };
+    return null;
+  }
+
+  function getSheetUnique(p) {
+    const allUrls = [...(p.resources || []), p.links?.sheet, p.links?.notion].filter(Boolean);
+    const sheetUrl = allUrls.find(u => /spreadsheets\/d\//.test(u || ''));
+    const sheetId = sheetUrl ? (sheetUrl.match(/spreadsheets\/d\/([\w-]+)/) || [])[1] : null;
+    if (!sheetId) return null;
+    const cache = (window.SHEET_CACHES && window.SHEET_CACHES[sheetId]) || getJSON('b2c_sheet_data_' + sheetId);
+    if (!cache?.rows) return null;
+    const rows = cache.rows;
+    if (!rows.length) return { total: 0, unique: 0 };
+    const head = rows[0].map(h => String(h || '').toLowerCase().replace(/\s/g, ''));
+    let idCol = head.findIndex(h => /^(잡코리아|jobkorea).*(id|아이디)$/.test(h) || h === '잡코리아id' || h === 'jobkoreaid');
+    if (idCol < 0) idCol = head.findIndex(h => /id|아이디/.test(h));
+    const seen = new Set();
+    let total = 0;
+    for (let i = 1; i < rows.length; i++) {
+      const r = rows[i];
+      if (!r || r.every(c => !c)) continue;
+      total++;
+      const id = idCol >= 0 ? String(r[idCol] || '').trim() : null;
+      if (id) seen.add(id.toLowerCase());
+    }
+    return { total, unique: seen.size || total };
+  }
+
+  function findKpi(p, kind) {
+    const kpis = (p.extKpis && p.extKpis.length ? p.extKpis : p.kpis || []).filter(k => k?.label && k?.value);
+    const re = kind === 'signup'
+      ? /신청|응모|지원|참여|참가|등록|모집/i
+      : /이력서|업데이트|resume|update/i;
+    return kpis.find(k => re.test(k.label)) || null;
+  }
+  function kpiCurrent(p, kind) {
+    const ana = getSheetUnique(p);
+    const r = getJSON('b2c_resume_stats_' + p.id);
+    if (kind === 'signup') return ana?.unique ?? ana?.total ?? null;
+    if (kind === 'resume') return r?.resumeUpdated ?? null;
+    return null;
+  }
+  function pctClass(pct) {
+    if (pct >= 100) return 'blue';
+    if (pct >= 70) return 'ok';
+    if (pct >= 40) return 'warn';
+    return 'danger';
+  }
+  function lightIcon(pct) {
+    if (pct >= 100) return '✓ 초과';
+    if (pct >= 70) return '안정';
+    if (pct >= 40) return '주의';
+    return '미달';
+  }
+
+  function kpiCell(p, kind) {
+    const kpi = findKpi(p, kind);
+    const cur = kpiCurrent(p, kind);
+    if (!kpi && cur == null) {
+      return `<td class="kpi-cell"><div class="kpi-empty">—<span class="req">데이터 입력 대기</span></div></td>`;
+    }
+    const target = kpi ? parseTarget(kpi.value) : null;
+    if (cur == null || target == null) {
+      const tgtTxt = kpi ? `목표 ${esc(kpi.value)}` : '—';
+      const curTxt = cur != null ? `<span class="cur">${fmt(cur)}<span class="unit">명</span></span>` : `<span class="kpi-empty">—</span>`;
+      return `<td class="kpi-cell">
+        <div class="kpi-vals">${curTxt}<span class="sl">/</span><span class="tgt">${esc(tgtTxt)}</span></div>
+        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:0%"></div></div>
+      </td>`;
+    }
+    const pct = (cur / target) * 100;
+    const cls = pctClass(pct);
+    const w = Math.min(pct, 100).toFixed(1);
+    return `<td class="kpi-cell">
+      <div class="kpi-vals">
+        <span class="cur">${fmt(cur)}<span class="unit">명</span></span>
+        <span class="sl">/</span>
+        <span class="tgt">${fmt(target)}<span class="unit">명</span></span>
+      </div>
+      <div class="kpi-bar"><div class="kpi-bar-fill ${cls}" style="width:${w}%"></div></div>
+      <div class="kpi-pct ${cls}">${lightIcon(pct)} · ${pct.toFixed(1)}%</div>
+    </td>`;
+  }
+
+  function periodCell(p) {
+    const period = parsePeriod(p.period);
+    const status = getEffectiveStatus(p);
+    const dd = getDDay(p, status);
+    if (!period) {
+      return `<td class="pr-cell"><div class="pr-date">${esc(p.period || '기간 미정')}</div></td>`;
+    }
+    const startStr = period.startStr.replace(/^(\d{4})[.\-/](\d{1,2})[.\-/](\d{1,2})/, (_, y, m, d) => `${m}.${d}`);
+    const endStr = period.endStr.replace(/^(\d{4})[.\-/](\d{1,2})[.\-/](\d{1,2})/, (_, y, m, d) => `${m}.${d}`);
+    return `<td class="pr-cell">
+      <div class="pr-date">${esc(startStr)} ~ ${esc(endStr)}</div>
+      ${dd ? `<span class="pr-dday ${dd.cls}">${esc(dd.txt)}</span>` : ''}
+    </td>`;
+  }
+
+  function renderRow(p) {
+    return `<tr onclick="goDetail('${esc(p.id)}')">
+      <td>
+        <div class="ev-cell">
+          <div class="ev-emoji">${esc(p.emoji || '📊')}</div>
+          <div class="ev-text">
+            <div class="ev-title">${esc(p.title || p.name || '(제목 없음)')}</div>
+            <div class="ev-cat">${esc(p.category || '이벤트')}</div>
+          </div>
+        </div>
+      </td>
+      ${periodCell(p)}
+      ${kpiCell(p, 'signup')}
+      ${kpiCell(p, 'resume')}
+      <td class="arrow-cell">→</td>
+    </tr>`;
+  }
+
+  function goDetail(id) { location.href = 'project-detail.html?id=' + encodeURIComponent(id); }
+
+  function getAllProjects() {
+    const demo = Object.values(window.PROJECTS || {});
+    const overrides = window.getOverrides ? window.getOverrides() : {};
+    const deletedIds = window.getDeletedIds ? window.getDeletedIds() : [];
+    const user = window.getUserProjects ? window.getUserProjects() : [];
+    return demo
+      .filter(p => !deletedIds.includes(p.id))
+      .map(p => overrides[p.id] || p)
+      .concat(user);
+  }
+
+  let currentFilter = 'all';
+  const FILTERS = [
+    { key: 'all', label: '전체' },
+    { key: 'ongoing', label: '진행중' },
+    { key: 'soon', label: '예정' },
+    { key: 'done', label: '종료' }
+  ];
+
+  function passesFilter(p, filter) {
+    if (filter === 'all') return true;
+    if (filter.startsWith('cat:')) return p.category === filter.slice(4);
+    return getEffectiveStatus(p) === filter;
+  }
+
+  function renderFilterRow(projects) {
+    const counts = {
+      all: projects.length,
+      ongoing: projects.filter(p => getEffectiveStatus(p) === 'ongoing').length,
+      soon: projects.filter(p => getEffectiveStatus(p) === 'soon').length,
+      done: projects.filter(p => getEffectiveStatus(p) === 'done').length
+    };
+    const cats = Array.from(new Set(projects.map(p => p.category).filter(Boolean)));
+    const html = FILTERS.map(f => `
+      <button class="chip ${currentFilter === f.key ? 'active' : ''}" onclick="setFilter('${f.key}')">
+        ${esc(f.label)}<span class="count">${counts[f.key] ?? 0}</span>
+      </button>
+    `).join('') + (cats.length ? `<span class="sep"></span>` : '') + cats.map(c => `
+      <button class="chip ${currentFilter === 'cat:' + c ? 'active' : ''}" onclick="setFilter('cat:${esc(c).replace(/'/g, '&#39;')}')">${esc(c)}</button>
+    `).join('');
+    document.getElementById('filterRow').innerHTML = html;
+  }
+
+  function setFilter(k) { currentFilter = k; render(); }
+
+  function renderSummary(projects) {
+    const ongoing = projects.filter(p => getEffectiveStatus(p) === 'ongoing');
+    const done = projects.filter(p => getEffectiveStatus(p) === 'done');
+    let totalSignup = 0, totalResume = 0, achieved = 0, totalKpi = 0;
+    projects.forEach(p => {
+      const s = kpiCurrent(p, 'signup'); if (s) totalSignup += s;
+      const r = kpiCurrent(p, 'resume'); if (r) totalResume += r;
+      ['signup', 'resume'].forEach(kind => {
+        const kpi = findKpi(p, kind);
+        const cur = kpiCurrent(p, kind);
+        if (kpi && cur != null) {
+          const tgt = parseTarget(kpi.value);
+          if (tgt) { totalKpi++; if (cur / tgt * 100 >= 100) achieved++; }
+        }
+      });
+    });
+    const achievePct = totalKpi ? (achieved / totalKpi * 100).toFixed(0) : '—';
+    document.getElementById('summaryStrip').innerHTML = `
+      <div class="sum-card"><span class="ic">📚</span><div class="lab">총 이벤트</div><div class="val">${projects.length}<span class="unit">건</span></div><div class="sub">진행중 ${ongoing.length} · 종료 ${done.length}</div></div>
+      <div class="sum-card"><span class="ic">✉️</span><div class="lab">누적 신청자</div><div class="val">${fmt(totalSignup)}<span class="unit">명</span></div><div class="sub">유니크 기준 합산</div></div>
+      <div class="sum-card"><span class="ic">📝</span><div class="lab">누적 이력서 업데이트</div><div class="val">${fmt(totalResume)}<span class="unit">명</span></div><div class="sub">메타베이스 r_edit_dt</div></div>
+      <div class="sum-card"><span class="ic">⭐</span><div class="lab">KPI 달성률</div><div class="val">${achievePct}<span class="unit">%</span></div><div class="sub">초과 ${achieved} / 측정 ${totalKpi}</div></div>
+    `;
+  }
+
+  function render() {
+    const all = getAllProjects();
+    renderSummary(all);
+    renderFilterRow(all);
+    const filtered = all.filter(p => passesFilter(p, currentFilter));
+    const showSplit = (currentFilter === 'all');
+    const active = filtered.filter(p => { const s = getEffectiveStatus(p); return s === 'ongoing' || s === 'soon'; });
+    const done = filtered.filter(p => { const s = getEffectiveStatus(p); return s === 'done' || s === 'cancel'; });
+
+    if (showSplit) {
+      document.getElementById('tbodyActive').innerHTML = active.map(renderRow).join('') || `<tr><td colspan="5" style="padding:36px;color:var(--ink-3);text-align:center;font-family:var(--serif);font-size:15px">진행중 / 예정 이벤트가 없습니다</td></tr>`;
+      document.getElementById('cntActive').textContent = active.length;
+      document.getElementById('tbodyDone').innerHTML = done.map(renderRow).join('') || `<tr><td colspan="5" style="padding:36px;color:var(--ink-3);text-align:center;font-family:var(--serif);font-size:15px">종료된 이벤트가 없습니다</td></tr>`;
+      document.getElementById('cntDone').textContent = done.length;
+      document.querySelectorAll('.section-head')[1].style.display = '';
+    } else {
+      document.getElementById('tbodyActive').innerHTML = filtered.map(renderRow).join('') || `<tr><td colspan="5" style="padding:36px;color:var(--ink-3);text-align:center;font-family:var(--serif);font-size:15px">조건에 맞는 이벤트가 없습니다</td></tr>`;
+      document.getElementById('cntActive').textContent = filtered.length;
+      document.querySelectorAll('.section-head')[1].style.display = 'none';
+      document.getElementById('doneWrap').style.display = 'none';
+    }
+
+    document.getElementById('emptyState').style.display = all.length === 0 ? '' : 'none';
+  }
+
+  function toggleDoneTable() {
+    const wrap = document.getElementById('doneWrap');
+    const tog = document.getElementById('toggleDone');
+    wrap.classList.toggle('open');
+    tog.textContent = wrap.classList.contains('open') ? '접기 ▴' : '펼치기 ▾';
+  }
+
+  function openAddModal() { document.getElementById('addModal').classList.add('open'); }
+  function closeAddModal() { document.getElementById('addModal').classList.remove('open'); }
+  function saveNewProject() {
+    const title = document.getElementById('m_title').value.trim();
+    if (!title) { alert('이벤트명을 입력하세요'); return; }
+    const p = {
+      id: 'user-' + Date.now(),
+      emoji: document.getElementById('m_emoji').value.trim() || '📊',
+      title,
+      category: document.getElementById('m_category').value.trim(),
+      period: document.getElementById('m_period').value.trim(),
+      status: document.getElementById('m_status').value,
+      kpis: [
+        { label: '신청자', value: document.getElementById('m_kpi_signup').value.trim() },
+        { label: '이력서 업데이트', value: document.getElementById('m_kpi_resume').value.trim() }
+      ].filter(k => k.value)
+    };
+    if (window.saveUserProject) window.saveUserProject(p);
+    closeAddModal();
+    render();
+  }
+
+  render();
+  setTimeout(render, 1200);
+</script>
+
+</body>
+</html>
