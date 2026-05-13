@@ -18,10 +18,12 @@ async function kvGet(key) {
 
 async function kvSet(key, value) {
   if (!KV_URL || !KV_TOKEN) throw new Error('KV not configured');
+  // Upstash REST는 body를 raw value로 저장. 호출 측에서 이미 JSON.stringify한 문자열을
+  // 또 stringify하면 이중 wrap돼서 GET 시 글자 인덱스 객체로 풀린다 (2026-05 손실 사고 원인).
   const r = await fetch(`${KV_URL}/set/${encodeURIComponent(key)}`, {
     method: 'POST',
-    headers: { Authorization: `Bearer ${KV_TOKEN}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(value)
+    headers: { Authorization: `Bearer ${KV_TOKEN}`, 'Content-Type': 'text/plain' },
+    body: typeof value === 'string' ? value : JSON.stringify(value)
   });
   if (!r.ok) throw new Error('KV set failed: ' + r.status);
   return r.json();
