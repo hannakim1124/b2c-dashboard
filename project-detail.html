@@ -504,7 +504,7 @@ function render() {
     lines.push('');
   }
 
-  // ─── 외부 자료 링크 ───
+  // ─── 외부 자료 링크 (라벨 칩만, URL 노출 X) ───
   const links = [];
   if (p.links) {
     if (p.links.notion) links.push({ label: '노션', url: p.links.notion });
@@ -517,9 +517,8 @@ function render() {
   if (links.length) {
     lines.push(`<span class="sec">[ 외부 자료 ]</span>`);
     lines.push(`<span class="bar">${'─'.repeat(W)}</span>`);
-    links.forEach(l => {
-      lines.push(`  ${pad('• ' + esc(l.label), 14)}<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.url)}</a>`);
-    });
+    const chips = links.map(l => `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)} ↗</a>`).join('  ·  ');
+    lines.push(`  ${chips}`);
     lines.push('');
   }
 
@@ -534,7 +533,7 @@ function render() {
 
   // ─── 푸터 ───
   lines.push(`<span class="bar">${'─'.repeat(W)}</span>`);
-  lines.push(`<span class="muted">  업데이트: ${new Date().toISOString().slice(0,16).replace('T', ' ')} · 편집은 우측 상단 [📝 편집] 클릭</span>`);
+  lines.push(`<span class="muted">  ${new Date().toISOString().slice(0,16).replace('T', ' ')}</span>`);
 
   // 렌더
   root.outerHTML = `<div class="report" id="root">${lines.join('\n')}</div>`;
