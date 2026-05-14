@@ -74,34 +74,178 @@
   .nav-btn.ghost { color: var(--text-3); }
   .nav-btn-danger { color: var(--text-3); border-color: transparent; }
   .nav-btn-danger:hover { color: var(--text); border-color: var(--text); background: transparent; text-decoration: underline; text-underline-offset: 3px; }
-  .container { max-width: 760px; margin: 0 auto; padding: 64px 28px 120px; }
-  .report {
-    background: transparent;
-    border: 0;
-    border-top: 1px solid var(--text);
-    border-bottom: 1px solid var(--text);
-    border-radius: 0;
-    padding: 36px 0;
-    font-family: var(--mono);
-    font-size: 13px;
-    line-height: 1.8;
-    color: var(--text);
-    white-space: pre;
-    overflow-x: auto;
-    box-shadow: none;
+  .container { max-width: 860px; margin: 0 auto; padding: 56px 28px 120px; }
+
+  /* ─── Report — 카탈로그(index.html) 결 통일 ─── */
+  .report { background: transparent; }
+
+  /* Cover */
+  .report-cover { padding-bottom: 36px; border-bottom: 1px solid var(--line); margin-bottom: 48px; }
+  .report-cover .cover-kicker {
+    font-family: var(--sans); font-size: 11px; font-weight: 500;
+    color: var(--text-3); letter-spacing: 0.12em; text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .report-cover .cover-title {
+    font-family: var(--serif); font-size: 40px; font-weight: 700;
+    letter-spacing: -0.02em; line-height: 1.15; color: var(--text);
+    margin: 0 0 18px;
+  }
+  .report-cover .cover-emoji { font-size: 32px; margin-right: 10px; vertical-align: -2px; }
+  .report-cover .cover-meta {
+    font-family: var(--sans); font-size: 13px; color: var(--text-2);
+    display: flex; flex-wrap: wrap; gap: 24px; align-items: center; letter-spacing: 0;
+  }
+  .report-cover .cover-meta b { color: var(--text-3); font-weight: 500; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; margin-right: 6px; }
+  .report-cover .cover-meta .dday { font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: 0; }
+  .report-cover .cover-meta .status-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border: 1px solid var(--line); border-radius: 99px;
+    font-size: 11px; letter-spacing: 0.05em; color: var(--text-2);
+  }
+  .report-cover .cover-meta .status-badge.done { color: var(--text-3); }
+  .report-cover .tags { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .report-cover .tag {
+    font-family: var(--sans); font-size: 11px; color: var(--text-3);
+    padding: 2px 8px; border: 1px solid var(--line-soft); border-radius: 99px;
     letter-spacing: 0;
   }
-  .report .h1 { font-family: var(--serif); font-size: 28px; font-weight: 700; color: var(--text); letter-spacing: -0.015em; line-height: 1.25; }
-  .report .sec { font-family: var(--sans); color: var(--text-3); font-weight: 500; margin-top: 8px; letter-spacing: 0.08em; text-transform: uppercase; font-size: 11px; }
-  .report .bar { color: var(--border); user-select: none; }
-  .report .muted { color: var(--text-3); }
-  .report .ok { color: var(--text); font-weight: 600; }
-  .report .warn { color: var(--text-2); font-weight: 500; font-style: italic; }
-  .report .danger { color: var(--text); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
-  .report .blue { color: var(--text); font-weight: 600; }
-  .report .b { font-weight: 600; }
-  .report a { color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
-  .report a:hover { color: #000; }
+
+  /* Section */
+  .report-section { margin-bottom: 56px; }
+  .section-head {
+    display: flex; align-items: baseline; gap: 14px;
+    margin-bottom: 22px; padding-bottom: 12px; border-bottom: 1px solid var(--line-soft);
+  }
+  .section-head .sec-num {
+    font-family: var(--sans); font-size: 11px; font-weight: 600;
+    color: var(--text-3); letter-spacing: 0.12em; min-width: 28px;
+  }
+  .section-head .sec-title {
+    font-family: var(--serif); font-size: 22px; font-weight: 700;
+    color: var(--text); letter-spacing: -0.015em; margin: 0;
+  }
+  .section-head .sec-sub {
+    font-family: var(--sans); font-size: 12px; color: var(--text-3);
+    margin-left: auto; letter-spacing: 0;
+  }
+
+  /* KPI Grid */
+  .kpi-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+  }
+  .kpi-card {
+    padding: 20px 18px; border: 1px solid var(--line-soft); border-radius: 2px;
+    background: var(--surface); font-family: var(--sans);
+  }
+  .kpi-card .kpi-label {
+    font-size: 11px; color: var(--text-3);
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; font-weight: 500;
+  }
+  .kpi-card .kpi-value {
+    font-family: var(--serif); font-size: 32px; font-weight: 700;
+    color: var(--text); line-height: 1.1; letter-spacing: -0.02em;
+  }
+  .kpi-card .kpi-unit { font-size: 14px; color: var(--text-2); font-weight: 500; margin-left: 4px; letter-spacing: 0; }
+  .kpi-card .kpi-target {
+    font-size: 12px; color: var(--text-3); margin-top: 8px; letter-spacing: 0;
+  }
+  .kpi-card .kpi-target .pct { color: var(--text); font-weight: 600; }
+  .kpi-card .kpi-bar {
+    height: 3px; background: var(--bg); border: 1px solid var(--line-soft);
+    border-radius: 99px; margin-top: 10px; overflow: hidden;
+  }
+  .kpi-card .kpi-bar > i { display: block; height: 100%; background: var(--text); }
+  .kpi-card .kpi-light { font-size: 14px; margin-left: 6px; }
+
+  /* Data Table */
+  .data-table { width: 100%; border-collapse: collapse; font-family: var(--sans); font-size: 14px; }
+  .data-table th, .data-table td {
+    padding: 12px 4px; border-bottom: 1px solid var(--line-soft);
+    text-align: left; letter-spacing: 0;
+  }
+  .data-table th { font-weight: 500; color: var(--text-2); width: 50%; }
+  .data-table td { color: var(--text); }
+  .data-table td.num { font-family: var(--serif); font-weight: 600; text-align: right; font-size: 16px; }
+  .data-table tr:last-child th, .data-table tr:last-child td { border-bottom: 0; }
+  .data-table .total-row { border-top: 1.5px solid var(--text); }
+  .data-table .total-row th { font-weight: 700; color: var(--text); padding-top: 14px; }
+  .data-table .total-row td.num { font-size: 18px; padding-top: 14px; }
+
+  /* Bar Row (시각 막대) */
+  .bar-row {
+    display: grid; grid-template-columns: 110px 60px 1fr; align-items: center;
+    gap: 12px; padding: 10px 0; font-family: var(--sans); font-size: 13px;
+    border-bottom: 1px dashed var(--line-soft); letter-spacing: 0;
+  }
+  .bar-row:last-child { border-bottom: 0; }
+  .bar-row .br-label { color: var(--text); font-weight: 500; }
+  .bar-row .br-value { font-family: var(--serif); font-weight: 700; font-size: 15px; text-align: right; }
+  .bar-row .br-bar {
+    height: 6px; background: var(--bg); border: 1px solid var(--line-soft);
+    border-radius: 99px; overflow: hidden;
+  }
+  .bar-row .br-bar > i { display: block; height: 100%; background: var(--text); }
+  .bar-row.is-spike .br-value::after { content: ' 🔥'; }
+
+  /* Sub-block (콘텐츠 효율 내부 그룹) */
+  .sub-block { margin-bottom: 22px; }
+  .sub-block:last-child { margin-bottom: 0; }
+  .sub-block .sb-title {
+    font-family: var(--sans); font-size: 12px; font-weight: 600;
+    color: var(--text-2); letter-spacing: 0.06em; text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .sub-block .sb-note {
+    font-family: var(--sans); font-size: 12px; color: var(--text-3);
+    margin-top: 8px; font-style: italic; letter-spacing: 0;
+  }
+
+  /* Link chips */
+  .link-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .link-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 6px 12px; border: 1px solid var(--line); border-radius: 99px;
+    font-family: var(--sans); font-size: 13px; color: var(--text);
+    text-decoration: none; letter-spacing: 0; transition: 0.15s;
+  }
+  .link-chip:hover { border-color: var(--text); }
+
+  /* Empty state (섹션 내부) */
+  .empty-block {
+    padding: 24px 20px; background: var(--surface); border: 1px dashed var(--line-soft);
+    border-radius: 2px; text-align: center; font-family: var(--sans);
+    font-size: 13px; color: var(--text-3); letter-spacing: 0;
+  }
+  .empty-block .eb-hint { font-size: 12px; margin-top: 6px; opacity: 0.8; }
+
+  /* Memo (note) */
+  .memo-block {
+    padding: 24px; background: var(--surface); border: 1px solid var(--line-soft);
+    border-radius: 2px; font-family: var(--serif); font-size: 15px; line-height: 1.85;
+    color: var(--text); white-space: pre-wrap;
+  }
+
+  /* Footer */
+  .report-foot {
+    margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--line);
+    font-family: var(--sans); font-size: 11px; color: var(--text-3);
+    letter-spacing: 0.06em; text-align: right;
+  }
+
+  @media (max-width: 600px) {
+    .container { padding: 32px 16px 80px; }
+    .report-cover .cover-title { font-size: 30px; }
+    .report-cover .cover-emoji { font-size: 26px; }
+    .report-cover .cover-meta { gap: 14px; font-size: 12px; }
+    .section-head .sec-title { font-size: 18px; }
+    .kpi-card { padding: 16px 14px; }
+    .kpi-card .kpi-value { font-size: 26px; }
+    .data-table { font-size: 13px; }
+    .data-table td.num { font-size: 14px; }
+    .bar-row { grid-template-columns: 90px 50px 1fr; gap: 8px; font-size: 12px; }
+  }
   .empty {
     text-align: center;
     color: var(--text-3);
@@ -319,16 +463,18 @@ function render() {
   }
   document.title = `📊 ${p.title || p.name || '프로젝트'}`;
 
-  const lines = [];
-  const W = 56; // 가로 박스 폭
+  document.title = `${p.title || p.name || '프로젝트'} · B2C`;
 
-  // ─── 헤더 ───
+  // ─── 데이터 수집 ───
   const title = p.title || p.name || '(제목 없음)';
-  const emoji = p.emoji || '📊';
+  const emoji = p.emoji || '';
+  const category = p.category || '';
+  const tags = Array.isArray(p.tags) ? p.tags : [];
+
+  // 기간/디데이
   const periodMatch = String(p.period || '').match(/(\d{4}[.\-/]\d{1,2}[.\-/]\d{1,2}).*?(\d{4}[.\-/]\d{1,2}[.\-/]\d{1,2})/);
-  let periodLine = p.period || '(기간 미정)';
-  let dDay = '';
-  let dayN = '';
+  const periodLine = p.period || '기간 미정';
+  let dDay = '', dayN = '';
   if (periodMatch) {
     const sd = parseDate(periodMatch[1]);
     const ed = parseDate(periodMatch[2]);
@@ -342,20 +488,10 @@ function render() {
       else { dDay = `D-${dE}`; dayN = `모집 ${dN}일차 / 총 ${totalDays}일`; }
     }
   }
-  const statusBadge = (p.status === 'done') ? '✅ 종료' : '🟢 진행 중';
+  const statusLabel = (p.status === 'done') ? '종료' : (p.status === 'soon') ? '예정' : (p.status === 'cancel') ? '취소' : '진행중';
+  const statusCls = (p.status === 'done' || p.status === 'cancel') ? 'done' : '';
 
-  lines.push(`<span class="bar">${'═'.repeat(W)}</span>`);
-  lines.push(`<span class="h1">${emoji}  ${esc(title)}</span>`);
-  lines.push(`<span class="muted">기간:</span> ${esc(periodLine)}`);
-  if (dDay) lines.push(`<span class="muted">D-day:</span> <span class="b">${dDay}</span>${dayN ? `  <span class="muted">· ${dayN}</span>` : ''}`);
-  lines.push(`<span class="muted">상태:</span> ${statusBadge}`);
-  if (p.tags && p.tags.length) {
-    lines.push(`<span class="muted">태그:</span> ${p.tags.map(t => `#${esc(t)}`).join(' ')}`);
-  }
-  lines.push(`<span class="bar">${'═'.repeat(W)}</span>`);
-  lines.push('');
-
-  // ─── 핵심 KPI ───
+  // KPI (사용자 정의)
   const rawKpis = (p.extKpis && p.extKpis.length) ? p.extKpis : (p.kpis || []);
   const kpis = Array.isArray(rawKpis) ? rawKpis.filter(k => {
     if (!k) return false;
@@ -363,7 +499,7 @@ function render() {
     return l && v && l !== '—' && v !== '—';
   }) : [];
 
-  // 시트 자동 매칭
+  // 시트 자동 매칭 (라이브 수치)
   const allUrls = [...(p.resources || []), p.links?.sheet, p.links?.notion].filter(Boolean);
   const sheetUrl = allUrls.find(u => /spreadsheets\/d\//.test(u || ''));
   let liveTotal = null, liveUnique = null, sheetFetchedAt = null;
@@ -389,7 +525,6 @@ function render() {
   // 이력서 매칭
   const resumeStats = getJSON('b2c_resume_stats_' + projectId);
   const liveResume = resumeStats?.resumeUpdated ?? null;
-
   function matchCurrent(label) {
     const l = (label || '').toLowerCase();
     if (/이력서|업데이트|resume|update/.test(l)) return liveResume;
@@ -398,214 +533,248 @@ function render() {
     return null;
   }
 
-  lines.push(`<span class="sec">[ 핵심 KPI ]</span>`);
-  lines.push(`<span class="bar">${'─'.repeat(W)}</span>`);
-  if (kpis.length) {
-    lines.push(`  ${pad('지표', 16)}${pad('목표', 12, true)}${pad('실적', 12, true)}${pad('달성률', 10, true)}`);
-    kpis.forEach(k => {
-      const target = parseTarget(k.value);
-      const current = matchCurrent(k.label);
-      let pctStr = '—', lightCls = 'muted', light = '·';
-      if (target != null && current != null) {
-        const pct = current / target * 100;
-        pctStr = pct.toFixed(1) + '%';
-        if (pct >= 100) { lightCls = 'blue'; light = '✅'; }
-        else if (pct >= 70) { lightCls = 'ok'; light = '🟢'; }
-        else if (pct >= 40) { lightCls = 'warn'; light = '🟡'; }
-        else { lightCls = 'danger'; light = '🔴'; }
-      }
-      const curStr = current != null ? fmt(current) : '—';
-      lines.push(`  ${pad(esc(k.label), 16)}${pad(esc(k.value), 12, true)}${pad(curStr, 12, true)}<span class="${lightCls}">${pad(pctStr, 8, true)} ${light}</span>`);
-    });
-  } else {
-    lines.push(`  <span class="muted">(KPI 미설정)</span>`);
-  }
-  lines.push('');
-
-  // ─── 이력서 매칭 ───
-  if (resumeStats) {
-    lines.push(`<span class="sec">[ 이력서 매칭 ]</span>`);
-    lines.push(`<span class="bar">${'─'.repeat(W)}</span>`);
-    const r = resumeStats;
-    lines.push(`  ${pad('시트 ID 입력', 18)}${pad(fmt(r.totalIds), 10, true)}`);
-    lines.push(`  ${pad('DB 매칭', 18)}${pad(fmt(r.matched), 10, true)}   ${pad('(' + (r.matchRate ?? '—') + '%)', 10)}`);
-    lines.push(`  ${pad('이력서 업데이트', 18)}${pad(fmt(r.resumeUpdated), 10, true)}   ${pad('(' + (r.updateRate ?? '—') + '%)', 10)}`);
-    if (r.byType) {
-      lines.push(`  <span class="muted">└ 소셜 ${r.byType.social || 0} · 평문 ${r.byType.plain || 0} · 이메일 ${r.byType.email || 0}</span>`);
-    }
-    if (r.lastUpdated) lines.push(`  <span class="muted">└ 매칭 일시: ${r.lastUpdated}</span>`);
-    lines.push('');
-  }
-
-  // ─── 신청자 자동 분석 (시트) ───
+  // 기타 데이터
   const sheetAnalysis = getJSON('b2c_sheet_analysis_' + projectId);
-  if (liveTotal != null || sheetAnalysis) {
-    lines.push(`<span class="sec">[ 신청자 자동 분석 ]</span>`);
-    lines.push(`<span class="bar">${'─'.repeat(W)}</span>`);
-    if (liveTotal != null) {
-      lines.push(`  ${pad('총 응답 (raw)', 18)}${pad(fmt(liveTotal), 10, true)}`);
-      if (liveUnique != null) lines.push(`  ${pad('유니크 ID', 18)}${pad(fmt(liveUnique), 10, true)}`);
-    }
-    if (sheetFetchedAt) {
-      const d = new Date(sheetFetchedAt);
-      lines.push(`  <span class="muted">└ 마지막 fetch: ${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}</span>`);
-    }
-    if (sheetAnalysis?.daily && Array.isArray(sheetAnalysis.daily)) {
-      lines.push('');
-      lines.push(`  <span class="muted">일별 추이</span>`);
-      const max = Math.max(...sheetAnalysis.daily.map(d => d.count || 0), 1);
-      sheetAnalysis.daily.forEach(d => {
-        const barLen = Math.round((d.count / max) * 20);
-        const bar = '█'.repeat(barLen);
-        const spike = d.count >= 500 ? ' 🔥' : '';
-        lines.push(`  ${pad(d.date, 8)}<span class="blue">${pad(bar, 22)}</span>${pad(fmt(d.count), 6, true)}${spike}`);
-      });
-    }
-    lines.push('');
-  }
-
-  // ─── 광고 효율 ───
   const adReport = getJSON('b2c_ad_report_' + projectId);
-  if (adReport) {
-    lines.push(`<span class="sec">[ 광고 효율 ]</span>`);
-    lines.push(`<span class="bar">${'─'.repeat(W)}</span>`);
-    if (adReport.spend != null) lines.push(`  ${pad('집행 (마크업·VAT 전)', 22)}${pad(fmt(adReport.spend) + '원', 12, true)}`);
-    if (adReport.impressions != null) lines.push(`  ${pad('노출', 22)}${pad(fmt(adReport.impressions), 12, true)}`);
-    if (adReport.clicks != null) lines.push(`  ${pad('클릭', 22)}${pad(fmt(adReport.clicks), 12, true)}`);
-    if (adReport.ctr != null) lines.push(`  ${pad('CTR', 22)}${pad(adReport.ctr + '%', 12, true)}`);
-    if (adReport.cpc != null) lines.push(`  ${pad('CPC', 22)}${pad(fmt(adReport.cpc) + '원', 12, true)}`);
-    if (adReport.cpa != null) lines.push(`  ${pad('CPA (신청 단가)', 22)}${pad(fmt(adReport.cpa) + '원', 12, true)}`);
-    lines.push('');
-  }
-
-  // ─── 콘텐츠 효율 ───
-  // 콘텐츠 담당자 관점: 광고 매체 효율(CVR/CPA) 외에 콘텐츠가 어떻게 일했는지 검증
-  // 데이터 키: b2c_content_efficiency_{projectId} (카드 격리 룰 준수)
   const contentEff = getJSON('b2c_content_efficiency_' + projectId);
-  lines.push(`<span class="sec">[ 콘텐츠 효율 ]</span>`);
-  lines.push(`<span class="bar">${'─'.repeat(W)}</span>`);
-
-  if (contentEff) {
-    // 1) CTR — 광고 섹션 참조 (중복 표시 X, 콘텐츠 관점으로 한 줄)
-    if (adReport && adReport.ctr != null) {
-      lines.push(`  ${pad('CTR (광고 소재 품질)', 22)}${pad(adReport.ctr + '%', 12, true)}  <span class="muted">→ 광고 섹션 참조</span>`);
-      lines.push('');
-    }
-
-    // 2) 채널별 CVR (UTM 채널별 클릭→신청 전환율)
-    if (Array.isArray(contentEff.channels) && contentEff.channels.length) {
-      lines.push(`  <span class="b">채널별 CVR (클릭→신청)</span>`);
-      const maxCvr = Math.max(...contentEff.channels.map(c => Number(c.cvr) || 0), 1);
-      contentEff.channels.forEach(ch => {
-        const cvr = Number(ch.cvr) || 0;
-        const barW = Math.min(22, Math.round((cvr / maxCvr) * 22));
-        const bar = '█'.repeat(barW) + '░'.repeat(22 - barW);
-        lines.push(`    ${pad(esc(ch.name || '-'), 16)}${pad(cvr.toFixed(2) + '%', 8, true)}  <span class="blue">${bar}</span>`);
-      });
-      lines.push('');
-    }
-
-    // 3) 페이지 체류 / 스크롤 깊이 (GA4)
-    if (contentEff.dwellSec != null || contentEff.scrollDepth != null) {
-      lines.push(`  <span class="b">페이지 체류 / 스크롤 (GA)</span>`);
-      if (contentEff.dwellSec != null) {
-        const m = Math.floor(contentEff.dwellSec / 60);
-        const s = contentEff.dwellSec % 60;
-        lines.push(`    ${pad('평균 체류', 16)}${pad(m + '분 ' + s + '초', 14, true)}`);
-      }
-      if (contentEff.scrollDepth != null) {
-        lines.push(`    ${pad('스크롤 깊이', 16)}${pad(contentEff.scrollDepth + '%', 14, true)}`);
-      }
-      lines.push('');
-    }
-
-    // 4) 폼 단계별 드롭률 (퍼널 — 진입 → 폼 시작 → 폼 완료)
-    if (contentEff.funnel) {
-      lines.push(`  <span class="b">폼 단계별 드롭률</span>`);
-      if (contentEff.funnel.viewToStart != null) lines.push(`    ${pad('페이지 진입 → 폼 시작', 24)}${pad(contentEff.funnel.viewToStart + '%', 8, true)}`);
-      if (contentEff.funnel.startToFinish != null) lines.push(`    ${pad('폼 시작 → 폼 완료', 24)}${pad(contentEff.funnel.startToFinish + '%', 8, true)}`);
-      if (contentEff.funnel.overall != null) lines.push(`    ${pad('전체 CVR (진입→완료)', 24)}${pad(contentEff.funnel.overall + '%', 8, true)}`);
-      lines.push('');
-    }
-
-    // 5) 콘텐츠 의도 매칭 (신청자 직무 분포)
-    if (contentEff.intentMatch) {
-      lines.push(`  <span class="b">콘텐츠 의도 매칭 (신청자 직무 분포)</span>`);
-      if (contentEff.intentMatch.distribution) {
-        lines.push(`    ${esc(contentEff.intentMatch.distribution)}`);
-      }
-      if (contentEff.intentMatch.note) {
-        lines.push(`    <span class="muted">→ ${esc(contentEff.intentMatch.note)}</span>`);
-      }
-      lines.push('');
-    }
-  } else {
-    // 빈 상태 — 일관성 룰: 데이터 없어도 섹션은 항상 표시 (feedback_card_section_consistency)
-    lines.push(`  <span class="muted">아직 콘텐츠 성과 데이터가 없어요</span>`);
-    lines.push(`  <span class="muted">· 광고 리포트 + GA UTM 시트 등록 후 자동 분석됩니다</span>`);
-    lines.push('');
-  }
-
-  // ─── 예산 ───
   const budget = getJSON('b2c_budget_' + projectId);
-  if (budget) {
-    lines.push(`<span class="sec">[ 예산 / 품의 ]</span>`);
-    lines.push(`<span class="bar">${'─'.repeat(W)}</span>`);
-    if (budget.items && Array.isArray(budget.items)) {
-      budget.items.forEach(it => {
-        lines.push(`  ${pad(esc(it.label || it.name || '항목'), 22)}${pad(fmt(it.amount) + '원', 14, true)}`);
-      });
-      const total = budget.items.reduce((s, it) => s + (Number(it.amount) || 0), 0);
-      lines.push(`  <span class="bar">${'─'.repeat(36)}</span>`);
-      lines.push(`  ${pad('합계', 22)}<span class="b">${pad(fmt(total) + '원', 14, true)}</span>`);
-    }
-    lines.push('');
-  }
-
-  // ─── 웨비나 메트릭 ───
   const webinar = getJSON('b2c_webinar_metrics_' + projectId);
-  if (webinar) {
-    lines.push(`<span class="sec">[ 웨비나 메트릭 ]</span>`);
-    lines.push(`<span class="bar">${'─'.repeat(W)}</span>`);
-    if (webinar.zoomUnique != null) lines.push(`  ${pad('줌 유니크 참석자', 18)}${pad(fmt(webinar.zoomUnique), 10, true)}`);
-    if (webinar.zoomPeak != null)   lines.push(`  ${pad('최대 동시 접속', 18)}${pad(fmt(webinar.zoomPeak), 10, true)}`);
-    if (webinar.satisfaction != null) lines.push(`  ${pad('만족도', 18)}${pad(webinar.satisfaction + '점', 10, true)}`);
-    lines.push('');
-  }
+  const note = (p.note || p.description || '').trim();
 
-  // ─── 외부 자료 링크 (라벨 칩만, URL 노출 X) ───
+  // 외부 자료 링크
   const links = [];
   if (p.links) {
     if (p.links.notion) links.push({ label: '노션', url: p.links.notion });
     if (p.links.sheet) links.push({ label: '시트', url: p.links.sheet });
     if (p.links.figma) links.push({ label: '피그마', url: p.links.figma });
   }
-  (p.resources || []).forEach((url, i) => {
-    if (url) links.push({ label: `자료 ${i+1}`, url });
-  });
-  if (links.length) {
-    lines.push(`<span class="sec">[ 외부 자료 ]</span>`);
-    lines.push(`<span class="bar">${'─'.repeat(W)}</span>`);
-    const chips = links.map(l => `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)} ↗</a>`).join('  ·  ');
-    lines.push(`  ${chips}`);
-    lines.push('');
+  (p.resources || []).forEach((url, i) => { if (url) links.push({ label: `자료 ${i+1}`, url }); });
+
+  // ─── HTML 헬퍼 ───
+  function fmtDt(iso) {
+    const d = new Date(iso);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  }
+  function lightFor(pct) {
+    if (pct == null) return '·';
+    if (pct >= 100) return '✅';
+    if (pct >= 70) return '🟢';
+    if (pct >= 40) return '🟡';
+    return '🔴';
+  }
+  function section(num, sectionTitle, sub, body) {
+    return `
+      <section class="report-section">
+        <div class="section-head">
+          <span class="sec-num">${num}</span>
+          <h2 class="sec-title">${esc(sectionTitle)}</h2>
+          ${sub ? `<span class="sec-sub">${esc(sub)}</span>` : ''}
+        </div>
+        ${body}
+      </section>
+    `;
+  }
+  function emptyBlock(msg, hint) {
+    return `<div class="empty-block">${esc(msg)}${hint ? `<div class="eb-hint">${esc(hint)}</div>` : ''}</div>`;
   }
 
-  // ─── 메모 ───
-  const note = p.note || p.description || '';
-  if (note.trim()) {
-    lines.push(`<span class="sec">[ 메모 ]</span>`);
-    lines.push(`<span class="bar">${'─'.repeat(W)}</span>`);
-    note.split('\n').forEach(l => lines.push(`  ${esc(l)}`));
-    lines.push('');
+  // ─── 콘텐츠 효율 렌더 (내부 5종) ───
+  function renderContentEff() {
+    if (!contentEff) {
+      return emptyBlock('아직 콘텐츠 성과 데이터가 없어요', '광고 리포트 + GA UTM 시트 등록 후 자동 분석');
+    }
+    const parts = [];
+    // 1) CTR 참조
+    if (adReport && adReport.ctr != null) {
+      parts.push(`
+        <div class="sub-block">
+          <div class="sb-title">CTR · 광고 소재 품질</div>
+          <table class="data-table"><tr><th>광고 노출 대비 클릭률</th><td class="num">${adReport.ctr}%</td></tr></table>
+          <div class="sb-note">→ 광고 효율 섹션 참조</div>
+        </div>
+      `);
+    }
+    // 2) 채널별 CVR
+    if (Array.isArray(contentEff.channels) && contentEff.channels.length) {
+      const maxCvr = Math.max(...contentEff.channels.map(c => Number(c.cvr) || 0), 1);
+      parts.push(`
+        <div class="sub-block">
+          <div class="sb-title">채널별 CVR · 클릭 → 신청</div>
+          ${contentEff.channels.map(ch => {
+            const cvr = Number(ch.cvr) || 0;
+            const w = Math.min(100, Math.round((cvr / maxCvr) * 100));
+            return `<div class="bar-row"><span class="br-label">${esc(ch.name || '-')}</span><span class="br-value">${cvr.toFixed(2)}%</span><span class="br-bar"><i style="width:${w}%"></i></span></div>`;
+          }).join('')}
+        </div>
+      `);
+    }
+    // 3) 페이지 체류 / 스크롤
+    if (contentEff.dwellSec != null || contentEff.scrollDepth != null) {
+      const rows = [];
+      if (contentEff.dwellSec != null) {
+        const m = Math.floor(contentEff.dwellSec / 60);
+        const s = contentEff.dwellSec % 60;
+        rows.push(`<tr><th>평균 체류</th><td class="num">${m}분 ${s}초</td></tr>`);
+      }
+      if (contentEff.scrollDepth != null) {
+        rows.push(`<tr><th>스크롤 깊이</th><td class="num">${contentEff.scrollDepth}%</td></tr>`);
+      }
+      parts.push(`<div class="sub-block"><div class="sb-title">페이지 체류 / 스크롤 · GA</div><table class="data-table">${rows.join('')}</table></div>`);
+    }
+    // 4) 폼 단계별 드롭률
+    if (contentEff.funnel) {
+      const f = contentEff.funnel, rows = [];
+      if (f.viewToStart != null) rows.push(`<tr><th>페이지 진입 → 폼 시작</th><td class="num">${f.viewToStart}%</td></tr>`);
+      if (f.startToFinish != null) rows.push(`<tr><th>폼 시작 → 폼 완료</th><td class="num">${f.startToFinish}%</td></tr>`);
+      if (f.overall != null) rows.push(`<tr class="total-row"><th>전체 CVR · 진입 → 완료</th><td class="num">${f.overall}%</td></tr>`);
+      if (rows.length) parts.push(`<div class="sub-block"><div class="sb-title">폼 단계별 드롭률</div><table class="data-table">${rows.join('')}</table></div>`);
+    }
+    // 5) 콘텐츠 의도 매칭
+    if (contentEff.intentMatch) {
+      const im = contentEff.intentMatch;
+      parts.push(`
+        <div class="sub-block">
+          <div class="sb-title">콘텐츠 의도 매칭 · 신청자 직무 분포</div>
+          ${im.distribution ? `<div style="font-family:var(--serif);font-size:16px;color:var(--text);letter-spacing:0;padding:8px 0">${esc(im.distribution)}</div>` : ''}
+          ${im.note ? `<div class="sb-note">→ ${esc(im.note)}</div>` : ''}
+        </div>
+      `);
+    }
+    return parts.length ? parts.join('') : emptyBlock('콘텐츠 효율 세부 항목 미입력');
   }
 
-  // ─── 푸터 ───
-  lines.push(`<span class="bar">${'─'.repeat(W)}</span>`);
-  lines.push(`<span class="muted">  ${new Date().toISOString().slice(0,16).replace('T', ' ')}</span>`);
+  // ─── HTML 빌드 ───
+  const html = [];
+
+  // Cover
+  const coverKicker = [category, statusLabel].filter(Boolean).join(' · ');
+  html.push(`
+    <header class="report-cover">
+      ${coverKicker ? `<div class="cover-kicker">${esc(coverKicker)}</div>` : ''}
+      <h1 class="cover-title">${emoji ? `<span class="cover-emoji">${esc(emoji)}</span>` : ''}${esc(title)}</h1>
+      <div class="cover-meta">
+        <span><b>기간</b>${esc(periodLine)}</span>
+        ${dDay ? `<span><b>D-day</b><span class="dday">${esc(dDay)}</span></span>` : ''}
+        ${dayN ? `<span><b>진행</b>${esc(dayN)}</span>` : ''}
+        <span class="status-badge ${statusCls}">${esc(statusLabel)}</span>
+      </div>
+      ${tags.length ? `<div class="tags">${tags.map(t => `<span class="tag">#${esc(t)}</span>`).join('')}</div>` : ''}
+    </header>
+  `);
+
+  // 섹션 번호 동적 매김
+  let secCnt = 0;
+  const nx = () => String(++secCnt).padStart(2, '0');
+
+  // 01 핵심 지표
+  html.push(section(nx(), '핵심 지표', null, kpis.length ? `
+    <div class="kpi-grid">
+      ${kpis.map(k => {
+        const target = parseTarget(k.value);
+        const current = matchCurrent(k.label);
+        let pct = null;
+        if (target != null && current != null) pct = current / target * 100;
+        const curStr = current != null ? fmt(current) : '—';
+        const pctStr = pct != null ? pct.toFixed(1) + '%' : '—';
+        const barW = pct != null ? Math.min(100, pct) : 0;
+        return `
+          <div class="kpi-card">
+            <div class="kpi-label">${esc(k.label)}</div>
+            <div class="kpi-value">${curStr}<span class="kpi-unit"> / ${esc(k.value)}</span></div>
+            <div class="kpi-target">달성률 <span class="pct">${pctStr}</span><span class="kpi-light">${lightFor(pct)}</span></div>
+            <div class="kpi-bar"><i style="width:${barW}%"></i></div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  ` : emptyBlock('KPI 미설정', '우상단 편집에서 추가')));
+
+  // 02 이력서 매칭
+  html.push(section(nx(), '이력서 매칭', null, resumeStats ? `
+    <table class="data-table">
+      <tr><th>시트 ID 입력</th><td class="num">${fmt(resumeStats.totalIds)}</td></tr>
+      <tr><th>DB 매칭</th><td class="num">${fmt(resumeStats.matched)} <span style="font-family:var(--sans);font-size:12px;color:var(--text-3);font-weight:400">(${resumeStats.matchRate ?? '—'}%)</span></td></tr>
+      <tr class="total-row"><th>이력서 업데이트</th><td class="num">${fmt(resumeStats.resumeUpdated)} <span style="font-family:var(--sans);font-size:12px;color:var(--text-3);font-weight:400">(${resumeStats.updateRate ?? '—'}%)</span></td></tr>
+    </table>
+    ${resumeStats.byType ? `<div class="sb-note" style="margin-top:14px">소셜 ${resumeStats.byType.social || 0} · 평문 ${resumeStats.byType.plain || 0} · 이메일 ${resumeStats.byType.email || 0}</div>` : ''}
+    ${resumeStats.lastUpdated ? `<div class="sb-note">매칭 일시: ${esc(resumeStats.lastUpdated)}</div>` : ''}
+  ` : emptyBlock('이력서 매칭 데이터 없음', '매칭 큐 처리 후 자동 표시')));
+
+  // 03 신청자 자동 분석
+  const showApplicant = liveTotal != null || sheetAnalysis;
+  html.push(section(nx(), '신청자 자동 분석', sheetFetchedAt ? `fetch ${fmtDt(sheetFetchedAt)}` : null, showApplicant ? `
+    ${liveTotal != null ? `
+      <table class="data-table">
+        <tr><th>총 응답 (raw)</th><td class="num">${fmt(liveTotal)}</td></tr>
+        ${liveUnique != null ? `<tr><th>유니크 ID (중복제외)</th><td class="num">${fmt(liveUnique)}</td></tr>` : ''}
+      </table>
+    ` : ''}
+    ${sheetAnalysis?.daily?.length ? `
+      <div class="sub-block" style="margin-top:22px">
+        <div class="sb-title">일별 추이</div>
+        ${(() => {
+          const max = Math.max(...sheetAnalysis.daily.map(d => d.count || 0), 1);
+          return sheetAnalysis.daily.map(d => {
+            const w = Math.round(((d.count || 0) / max) * 100);
+            const spike = (d.count || 0) >= 500 ? 'is-spike' : '';
+            return `<div class="bar-row ${spike}"><span class="br-label">${esc(d.date)}</span><span class="br-value">${fmt(d.count)}</span><span class="br-bar"><i style="width:${w}%"></i></span></div>`;
+          }).join('');
+        })()}
+      </div>
+    ` : ''}
+  ` : emptyBlock('신청자 시트가 연결되지 않았습니다', '시트 URL 등록 후 자동 분석')));
+
+  // 04 광고 효율
+  html.push(section(nx(), '광고 효율', adReport ? '마크업·VAT 전' : null, adReport ? `
+    <table class="data-table">
+      ${adReport.spend != null ? `<tr><th>집행 (마크업·VAT 전)</th><td class="num">${fmt(adReport.spend)}원</td></tr>` : ''}
+      ${adReport.impressions != null ? `<tr><th>노출</th><td class="num">${fmt(adReport.impressions)}</td></tr>` : ''}
+      ${adReport.clicks != null ? `<tr><th>클릭</th><td class="num">${fmt(adReport.clicks)}</td></tr>` : ''}
+      ${adReport.ctr != null ? `<tr><th>CTR</th><td class="num">${adReport.ctr}%</td></tr>` : ''}
+      ${adReport.cpc != null ? `<tr><th>CPC</th><td class="num">${fmt(adReport.cpc)}원</td></tr>` : ''}
+      ${adReport.cpa != null ? `<tr class="total-row"><th>CPA · 신청 단가</th><td class="num">${fmt(adReport.cpa)}원</td></tr>` : ''}
+    </table>
+  ` : emptyBlock('광고 리포트 없음', '커디팀에서 받은 Meta 리포트 박으면 자동 표시')));
+
+  // 05 콘텐츠 효율
+  html.push(section(nx(), '콘텐츠 효율', '콘텐츠 담당자 관점', renderContentEff()));
+
+  // 06 예산 / 품의
+  html.push(section(nx(), '예산 / 품의', null, (budget?.items?.length) ? `
+    <table class="data-table">
+      ${budget.items.map(it => `<tr><th>${esc(it.label || it.name || '항목')}</th><td class="num">${fmt(it.amount)}원</td></tr>`).join('')}
+      <tr class="total-row"><th>합계</th><td class="num">${fmt(budget.items.reduce((s, it) => s + (Number(it.amount) || 0), 0))}원</td></tr>
+    </table>
+  ` : emptyBlock('예산 미입력')));
+
+  // 07 웨비나 메트릭 (있을 때만)
+  if (webinar) {
+    html.push(section(nx(), '웨비나 메트릭', null, `
+      <table class="data-table">
+        ${webinar.zoomUnique != null ? `<tr><th>줌 유니크 참석자</th><td class="num">${fmt(webinar.zoomUnique)}</td></tr>` : ''}
+        ${webinar.zoomPeak != null ? `<tr><th>최대 동시 접속</th><td class="num">${fmt(webinar.zoomPeak)}</td></tr>` : ''}
+        ${webinar.satisfaction != null ? `<tr><th>만족도</th><td class="num">${webinar.satisfaction}점</td></tr>` : ''}
+      </table>
+    `));
+  }
+
+  // 외부 자료
+  html.push(section(nx(), '외부 자료', null, links.length ? `
+    <div class="link-chips">
+      ${links.map(l => `<a class="link-chip" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)} ↗</a>`).join('')}
+    </div>
+  ` : emptyBlock('외부 자료 없음')));
+
+  // 메모 (있을 때만)
+  if (note) {
+    html.push(section(nx(), '메모', null, `<div class="memo-block">${esc(note)}</div>`));
+  }
+
+  // 푸터
+  html.push(`<div class="report-foot">최종 렌더 · ${new Date().toISOString().slice(0,16).replace('T', ' ')}</div>`);
 
   // 렌더
-  root.outerHTML = `<div class="report" id="root">${lines.join('\n')}</div>`;
+  root.outerHTML = `<article class="report" id="root">${html.join('')}</article>`;
 }
 
 // 데모 PROJECTS 데이터 로드 후 렌더
