@@ -525,6 +525,45 @@
     letter-spacing: 0;
   }
   .trash-count.is-empty { display: none; }
+
+  /* ─── Trash FAB (우하단 floating) ─── */
+  .trash-fab {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 50;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px 10px 14px;
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 99px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
+    cursor: pointer;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0;
+    transition: 0.15s;
+  }
+  .trash-fab:hover {
+    border-color: var(--ink);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 12px 32px rgba(0,0,0,0.08);
+    transform: translateY(-1px);
+  }
+  .trash-fab-icon { font-size: 16px; line-height: 1; }
+  .trash-fab-label { letter-spacing: 0; }
+  .trash-fab .trash-count { margin-left: 2px; }
+  @media (max-width: 640px) {
+    .trash-fab {
+      right: 16px;
+      bottom: 16px;
+      padding: 9px 14px 9px 12px;
+      font-size: 12px;
+    }
+  }
   /* ─── Trash list ─── */
   .trash-modal { max-width: 560px; }
   .trash-item {
@@ -622,10 +661,16 @@
   </div>
   <div class="nav-actions">
     <button class="nav-btn" onclick="window.open('compare.html', '_blank')">비교</button>
-    <button class="nav-btn" id="trashBtn" onclick="openTrashModal()" title="휴지통">휴지통 <span class="trash-count" id="trashCount">0</span></button>
     <button class="nav-btn primary" onclick="openAddModal()">+ 새 이벤트</button>
   </div>
 </nav>
+
+<!-- TRASH FLOATING (우하단) -->
+<button class="trash-fab" id="trashBtn" onclick="openTrashModal()" title="휴지통" aria-label="휴지통">
+  <span class="trash-fab-icon">🗑</span>
+  <span class="trash-fab-label">휴지통</span>
+  <span class="trash-count" id="trashCount">0</span>
+</button>
 
 <!-- TRASH MODAL -->
 <div class="modal-bg" id="trashModal" onclick="if(event.target===this)closeTrashModal()">
