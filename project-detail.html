@@ -71,6 +71,8 @@
   .nav-btn.primary { background: var(--text); color: var(--bg); border-color: var(--text); }
   .nav-btn.primary:hover { background: #000; color: var(--bg); }
   .nav-btn.ghost { color: var(--text-3); }
+  .nav-btn-danger { color: var(--text-3); border-color: transparent; }
+  .nav-btn-danger:hover { color: var(--text); border-color: var(--text); background: transparent; text-decoration: underline; text-underline-offset: 3px; }
   .container { max-width: 760px; margin: 0 auto; padding: 64px 28px 120px; }
   .report {
     background: transparent;
@@ -159,6 +161,7 @@
   </div>
   <div class="nav-left">
     <button class="nav-btn primary" id="editBtn" type="button" onclick="openMetaModal()">📝 편집</button>
+    <button class="nav-btn nav-btn-danger" id="delBtn" type="button" onclick="confirmDelete()">삭제</button>
   </div>
 </nav>
 
@@ -253,6 +256,15 @@ function saveMeta() {
 }
 // ESC 닫기
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMetaModal(); });
+
+// ─── 카드 삭제 ───
+function confirmDelete() {
+  const p = window.getProject(projectId);
+  const title = p?.title || p?.name || '이 카드';
+  if (!confirm(`"${title}" 카드를 삭제할까요?\n\n삭제 후엔 목록의 우하단 휴지통에서만 복구 가능합니다.`)) return;
+  window.deleteProject(projectId);
+  location.href = 'index.html';
+}
 
 // ─── 유틸 ───
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({
