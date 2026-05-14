@@ -262,7 +262,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMetaM
 function confirmDelete() {
   const p = window.getProject(projectId);
   const title = p?.title || p?.name || '이 카드';
-  if (!confirm(`"${title}" 카드를 삭제할까요?\n\n삭제 후엔 목록의 우하단 휴지통에서만 복구 가능합니다.`)) return;
+  if (!confirm(`"${title}" 카드를 삭제할까요?\n\n목록 상단 [휴지통]에서 복구 가능합니다.`)) return;
   window.deleteProject(projectId);
   location.href = 'index.html';
 }

@@ -106,6 +106,42 @@ window.deleteUserProject = function(id) {
   localStorage.setItem('b2c_user_projects', JSON.stringify(list));
 };
 
+// ─── 휴지통 (사용자 카드 전용) ───
+window.getTrash = function() {
+  try { return JSON.parse(localStorage.getItem('b2c_user_trash') || '[]'); }
+  catch (e) { return []; }
+};
+window.trashUserProject = function(id) {
+  const list = window.getUserProjects();
+  const target = list.find(p => p.id === id);
+  if (!target) return false;
+  const trash = window.getTrash();
+  trash.unshift({ ...target, _deletedAt: new Date().toISOString() });
+  localStorage.setItem('b2c_user_trash', JSON.stringify(trash));
+  window.deleteUserProject(id);
+  return true;
+};
+window.restoreFromTrash = function(id) {
+  const trash = window.getTrash();
+  const idx = trash.findIndex(p => p.id === id);
+  if (idx < 0) return false;
+  const item = { ...trash[idx] };
+  delete item._deletedAt;
+  trash.splice(idx, 1);
+  localStorage.setItem('b2c_user_trash', JSON.stringify(trash));
+  const list = window.getUserProjects();
+  list.unshift(item);
+  localStorage.setItem('b2c_user_projects', JSON.stringify(list));
+  return true;
+};
+window.purgeFromTrash = function(id) {
+  const trash = window.getTrash().filter(p => p.id !== id);
+  localStorage.setItem('b2c_user_trash', JSON.stringify(trash));
+};
+window.emptyTrash = function() {
+  localStorage.removeItem('b2c_user_trash');
+};
+
 window.getProject = function(id) {
   // 1) override 우선
   const o = window.getOverrides();
@@ -137,7 +173,7 @@ window.upsertProject = function(p) {
 
 window.deleteProject = function(id) {
   if (window.isUserProject(id)) {
-    window.deleteUserProject(id);
+    window.trashUserProject(id);
     window.removeOverride(id);
   } else if (window.isDemoProject(id)) {
     window.markDeleted(id);
@@ -165,6 +201,7 @@ window.purgeProject = function(id) {
 
 window.resetAll = function() {
   localStorage.removeItem('b2c_user_projects');
+  localStorage.removeItem('b2c_user_trash');
   localStorage.removeItem('b2c_overrides');
   localStorage.removeItem('b2c_deleted');
   localStorage.removeItem('b2c_members');
