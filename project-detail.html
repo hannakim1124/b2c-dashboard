@@ -6,37 +6,45 @@
 <meta name="robots" content="noindex, nofollow">
 <title>📊 프로젝트 리포트</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Joungkyun/font-d2coding/d2coding.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
   :root {
-    --bg: #f5f6f7;
-    --surface: #ffffff;
-    --border: #e5e8eb;
-    --text: #191f28;
-    --text-2: #4e5968;
-    --text-3: #8b95a1;
-    --line: #d0d7e0;
-    --primary: #3182f6;
-    --ok: #00b956;
-    --warn: #f59e0b;
-    --danger: #f04452;
-    --blue: #3182f6;
-    --mono: 'D2Coding', 'Cascadia Code', 'Consolas', 'Menlo', 'Pretendard Mono', monospace;
+    /* 논문 결 — 흑백 + 무채색, index.html과 동일 */
+    --bg: #FCFCFA;
+    --surface: #FFFFFF;
+    --border: #E0DDD3;
+    --text: #1A1A1A;
+    --text-2: #4A4A4A;
+    --text-3: #8A8A86;
+    --line: #C8C4BB;
+    --primary: #1A1A1A;
+    --ok: #1A1A1A;
+    --warn: #4A4A4A;
+    --danger: #1A1A1A;
+    --blue: #1A1A1A;
+    --sans: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    --serif: 'Source Serif 4', 'Noto Serif KR', Georgia, 'Times New Roman', serif;
+    --mono: 'IBM Plex Mono', 'JetBrains Mono', 'D2Coding', 'Consolas', 'Menlo', monospace;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0;
     background: var(--bg);
     color: var(--text);
-    font-family: var(--mono);
-    font-size: 13px;
-    line-height: 1.6;
+    font-family: var(--serif);
+    font-size: 16px;
+    line-height: 1.75;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    letter-spacing: 0;
   }
   .nav {
-    background: var(--surface);
+    background: var(--bg);
     border-bottom: 1px solid var(--border);
-    padding: 12px 20px;
+    padding: 18px 28px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -46,59 +54,100 @@
   }
   .nav-left { display: flex; gap: 8px; align-items: center; }
   .nav-btn {
-    font-family: var(--mono);
-    font-size: 12px;
-    font-weight: 700;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
     color: var(--text-2);
     background: transparent;
     border: 1px solid var(--border);
-    padding: 6px 12px;
-    border-radius: 6px;
+    padding: 8px 14px;
+    border-radius: 2px;
     cursor: pointer;
     text-decoration: none;
     transition: 0.15s;
+    letter-spacing: 0;
   }
-  .nav-btn:hover { background: var(--bg); color: var(--text); }
-  .nav-btn.primary { background: var(--text); color: #fff; border-color: var(--text); }
-  .nav-btn.primary:hover { background: #000; }
+  .nav-btn:hover { background: transparent; color: var(--text); border-color: var(--text); }
+  .nav-btn.primary { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .nav-btn.primary:hover { background: #000; color: var(--bg); }
   .nav-btn.ghost { color: var(--text-3); }
-  .container { max-width: 920px; margin: 0 auto; padding: 32px 20px 80px; }
+  .container { max-width: 760px; margin: 0 auto; padding: 64px 28px 120px; }
   .report {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 32px 28px;
+    background: transparent;
+    border: 0;
+    border-top: 1px solid var(--text);
+    border-bottom: 1px solid var(--text);
+    border-radius: 0;
+    padding: 36px 0;
     font-family: var(--mono);
     font-size: 13px;
-    line-height: 1.7;
+    line-height: 1.8;
     color: var(--text);
     white-space: pre;
     overflow-x: auto;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    box-shadow: none;
+    letter-spacing: 0;
   }
-  .report .h1 { font-size: 15px; font-weight: 700; color: var(--text); }
-  .report .sec { color: var(--text-2); font-weight: 700; margin-top: 4px; }
-  .report .bar { color: var(--line); user-select: none; }
+  .report .h1 { font-family: var(--serif); font-size: 28px; font-weight: 700; color: var(--text); letter-spacing: -0.015em; line-height: 1.25; }
+  .report .sec { font-family: var(--sans); color: var(--text-3); font-weight: 500; margin-top: 8px; letter-spacing: 0.08em; text-transform: uppercase; font-size: 11px; }
+  .report .bar { color: var(--border); user-select: none; }
   .report .muted { color: var(--text-3); }
-  .report .ok { color: var(--ok); font-weight: 700; }
-  .report .warn { color: var(--warn); font-weight: 700; }
-  .report .danger { color: var(--danger); font-weight: 700; }
-  .report .blue { color: var(--blue); font-weight: 700; }
-  .report .b { font-weight: 700; }
-  .report a { color: var(--primary); text-decoration: underline; }
-  .report a:hover { color: #1b64da; }
+  .report .ok { color: var(--text); font-weight: 600; }
+  .report .warn { color: var(--text-2); font-weight: 500; font-style: italic; }
+  .report .danger { color: var(--text); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+  .report .blue { color: var(--text); font-weight: 600; }
+  .report .b { font-weight: 600; }
+  .report a { color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
+  .report a:hover { color: #000; }
   .empty {
     text-align: center;
     color: var(--text-3);
-    padding: 60px 20px;
-    font-family: var(--mono);
+    padding: 80px 20px;
+    font-family: var(--serif);
+    font-size: 15px;
   }
-  .empty .e { font-size: 32px; margin-bottom: 12px; }
+  .empty .e { font-size: 32px; margin-bottom: 12px; opacity: 0.4; }
+  .empty a { color: var(--text); text-decoration: underline; text-underline-offset: 3px; font-weight: 600; }
+  /* ─── Modal — 논문 결 ─── */
+  .modal-bg { position: fixed; inset: 0; background: rgba(26,26,26,0.4); display: none; align-items: center; justify-content: center; z-index: 100; padding: 24px; }
+  .modal-bg.is-open { display: flex; }
+  .modal {
+    background: var(--bg);
+    border: 1px solid var(--text);
+    border-radius: 2px;
+    padding: 36px 36px 28px;
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    font-family: var(--serif);
+  }
+  .modal h3 { font-family: var(--serif); font-size: 22px; font-weight: 700; margin: 0 0 6px; letter-spacing: -0.015em; line-height: 1.3; }
+  .modal .modal-sub { font-family: var(--sans); font-size: 11px; color: var(--text-3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 24px; }
+  .modal label { display: block; font-family: var(--sans); font-size: 11px; color: var(--text-3); margin: 16px 0 6px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; }
+  .modal input, .modal select, .modal textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    font-family: var(--serif);
+    font-size: 15px;
+    background: var(--surface);
+    color: var(--text);
+    letter-spacing: 0;
+    line-height: 1.5;
+  }
+  .modal input:focus, .modal select:focus, .modal textarea:focus { outline: 1px solid var(--text); border-color: var(--text); }
+  .modal textarea { resize: vertical; min-height: 80px; font-family: var(--serif); }
+  .modal-actions { display: flex; gap: 8px; margin-top: 28px; justify-content: flex-end; }
+  .modal-actions .nav-btn { padding: 9px 16px; font-size: 13px; }
   @media (max-width: 600px) {
-    .container { padding: 16px 8px 60px; }
-    .report { padding: 20px 14px; font-size: 11px; line-height: 1.65; border-radius: 8px; }
-    .nav { padding: 8px 12px; }
-    .nav-btn { font-size: 11px; padding: 5px 8px; }
+    .container { padding: 32px 16px 80px; }
+    .report { padding: 24px 0; font-size: 11px; line-height: 1.7; }
+    .nav { padding: 14px 16px; }
+    .nav-btn { font-size: 12px; padding: 6px 10px; }
+    .modal { padding: 24px 20px 18px; }
+    .modal h3 { font-size: 19px; }
   }
 </style>
 </head>
@@ -109,7 +158,7 @@
     <a class="nav-btn" href="index.html">← 목록</a>
   </div>
   <div class="nav-left">
-    <a class="nav-btn primary" id="editBtn" href="#" title="기존 위젯 모드에서 편집">📝 편집</a>
+    <button class="nav-btn primary" id="editBtn" type="button" onclick="openMetaModal()">📝 편집</button>
   </div>
 </nav>
 
@@ -120,19 +169,90 @@
   </div>
 </div>
 
+<!-- META EDIT MODAL -->
+<div class="modal-bg" id="metaModal" onclick="if(event.target===this)closeMetaModal()">
+  <div class="modal">
+    <h3>카드 편집</h3>
+    <div class="modal-sub">Card Metadata</div>
+    <label>이모지</label>
+    <input id="me_emoji" maxlength="4" placeholder="📊">
+    <label>이벤트명</label>
+    <input id="me_title" placeholder="예: WORK FEST 2026">
+    <label>카테고리</label>
+    <input id="me_category" placeholder="페스티벌 / 컨퍼런스 / 웨비나 / 해커톤">
+    <label>기간 (YYYY.MM.DD ~ YYYY.MM.DD)</label>
+    <input id="me_period" placeholder="2026.06.01 ~ 2026.06.30">
+    <label>상태</label>
+    <select id="me_status">
+      <option value="ongoing">진행중</option>
+      <option value="soon">예정</option>
+      <option value="done">종료</option>
+      <option value="cancel">취소</option>
+    </select>
+    <label>신청 KPI 목표</label>
+    <input id="me_kpi_signup" placeholder="예: 1,000명">
+    <label>이력서 업데이트 KPI 목표</label>
+    <input id="me_kpi_resume" placeholder="예: 500명">
+    <div class="modal-actions">
+      <button class="nav-btn" type="button" onclick="closeMetaModal()">취소</button>
+      <button class="nav-btn primary" type="button" onclick="saveMeta()">저장</button>
+    </div>
+  </div>
+</div>
+
 <script src="projects-data.js"></script>
 <script src="sync-client.js?v=20260512a"></script>
 <script>
 // ════════════════════════════════════════════════════════════
-//  Project Detail — Memo Style Report (2026-05-12)
-//  read-only 뷰. 편집은 project-detail-old.html (기존 풀팩) 이용.
+//  Project Detail — Memo Style Report (2026-05-14)
+//  메모장 뷰 + 같은 페이지 모달 편집 (논문 결 통일)
 // ════════════════════════════════════════════════════════════
 
 const params = new URLSearchParams(location.search);
 const projectId = params.get('id');
 
-// 편집 버튼 → 기존 페이지로
-document.getElementById('editBtn').href = `project-detail-old.html?id=${encodeURIComponent(projectId || '')}`;
+// ─── 모달 — 카드 메타 편집 ───
+function openMetaModal() {
+  const p = window.getProject(projectId);
+  if (!p) { alert('프로젝트를 찾을 수 없습니다.'); return; }
+  document.getElementById('me_emoji').value = p.emoji || '';
+  document.getElementById('me_title').value = p.title || p.name || '';
+  document.getElementById('me_category').value = p.category || '';
+  document.getElementById('me_period').value = p.period || '';
+  document.getElementById('me_status').value = p.status || 'ongoing';
+  const kpis = (p.extKpis && p.extKpis.length) ? p.extKpis : (p.kpis || []);
+  const su = kpis.find(k => /신청|응모|지원|참여|참가|등록|모집/i.test(k?.label || ''));
+  const ru = kpis.find(k => /이력서|업데이트|resume|update/i.test(k?.label || ''));
+  document.getElementById('me_kpi_signup').value = su?.value || '';
+  document.getElementById('me_kpi_resume').value = ru?.value || '';
+  document.getElementById('metaModal').classList.add('is-open');
+}
+function closeMetaModal() { document.getElementById('metaModal').classList.remove('is-open'); }
+function saveMeta() {
+  const p = window.getProject(projectId);
+  if (!p) return;
+  const next = { ...p,
+    emoji: document.getElementById('me_emoji').value.trim() || p.emoji || '📊',
+    title: document.getElementById('me_title').value.trim() || p.title || '',
+    category: document.getElementById('me_category').value.trim(),
+    period: document.getElementById('me_period').value.trim(),
+    status: document.getElementById('me_status').value,
+  };
+  // KPI 갱신: 신청·이력서 항목 교체
+  const oldKpis = (p.extKpis && p.extKpis.length) ? p.extKpis : (p.kpis || []);
+  const kept = oldKpis.filter(k => !/(신청|응모|지원|참여|참가|등록|모집|이력서|업데이트|resume|update)/i.test(k?.label || ''));
+  const sv = document.getElementById('me_kpi_signup').value.trim();
+  const rv = document.getElementById('me_kpi_resume').value.trim();
+  if (sv) kept.push({ label: '신청자', value: sv });
+  if (rv) kept.push({ label: '이력서 업데이트', value: rv });
+  next.kpis = kept;
+  if (next.extKpis) next.extKpis = kept;
+  window.upsertProject(next);
+  closeMetaModal();
+  render();
+}
+// ESC 닫기
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMetaModal(); });
 
 // ─── 유틸 ───
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({

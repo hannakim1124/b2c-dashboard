@@ -5,87 +5,94 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>📊 월별 이벤트 비교 — 인사이트전략팀</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap">
 <style>
   :root {
-    --c-text: #191F28;
-    --c-text-2: #4E5968;
-    --c-text-3: #8B95A1;
-    --c-border: #E5E8EB;
-    --c-surface: #F2F4F6;
-    --c-surface-alt: #F9FAFB;
-    --c-primary: #3182F6;
-    --c-primary-bg: #E8F3FF;
-    --c-success: #00C471;
-    --c-success-bg: #E5F8EE;
-    --c-warning-bg: #FFF4DB;
-    --c-danger: #F04438;
-    --c-danger-bg: #FEE4E2;
+    /* 논문 결 — index.html과 동일 */
+    --c-text: #1A1A1A;
+    --c-text-2: #4A4A4A;
+    --c-text-3: #8A8A86;
+    --c-border: #E0DDD3;
+    --c-surface: #F4F2EC;
+    --c-surface-alt: #FAF9F4;
+    --c-primary: #1A1A1A;
+    --c-primary-bg: #ECEAE2;
+    --c-success: #2A2A2A;
+    --c-success-bg: #ECEAE2;
+    --c-warning-bg: #ECEAE2;
+    --c-danger: #2A2A2A;
+    --c-danger-bg: #ECEAE2;
+    --c-paper: #FCFCFA;
+    --sans: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    --serif: 'Source Serif 4', 'Noto Serif KR', Georgia, 'Times New Roman', serif;
   }
   * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; color: var(--c-text); background: #fff; letter-spacing: -0.01em; }
-  .nav { position: sticky; top: 0; background: #fff; border-bottom: 1px solid var(--c-border); z-index: 100; }
-  .nav-inner { max-width: 1280px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; gap: 24px; }
-  .nav-brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 14px; color: var(--c-text); text-decoration: none; }
-  .logo { width: 28px; height: 28px; background: var(--c-text); color: #fff; border-radius: 8px; display: grid; place-items: center; font-size: 11px; font-weight: 800; }
-  .nav-menu { display: flex; list-style: none; gap: 4px; padding: 0; margin: 0; }
-  .nav-menu a { padding: 8px 14px; color: var(--c-text-2); text-decoration: none; font-size: 13px; font-weight: 700; border-radius: 8px; }
-  .nav-menu a:hover { background: var(--c-surface); color: var(--c-text); }
-  .nav-menu a.is-active { background: var(--c-primary-bg); color: var(--c-primary); }
-  .page { max-width: 1280px; margin: 0 auto; padding: 28px 20px 60px; }
-  .page-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 28px; gap: 16px; flex-wrap: wrap; }
-  .page-head h1 { font-size: 24px; margin: 0 0 6px; font-weight: 800; letter-spacing: -0.02em; }
-  .page-head .sub { font-size: 13px; color: var(--c-text-3); font-weight: 500; }
+  html, body { margin: 0; padding: 0; font-family: var(--serif); color: var(--c-text); background: var(--c-paper); letter-spacing: 0; line-height: 1.75; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  .nav { position: sticky; top: 0; background: var(--c-paper); border-bottom: 1px solid var(--c-border); z-index: 100; }
+  .nav-inner { max-width: 760px; margin: 0 auto; padding: 18px 28px; display: flex; align-items: center; gap: 24px; }
+  .nav-brand { display: flex; align-items: center; gap: 10px; font-family: var(--serif); font-weight: 700; font-size: 16px; color: var(--c-text); text-decoration: none; letter-spacing: -0.01em; }
+  .logo { width: 26px; height: 26px; background: transparent; color: var(--c-text); border: 1px solid var(--c-text); border-radius: 0; display: grid; place-items: center; font-size: 11px; font-weight: 700; font-family: var(--serif); font-style: italic; }
+  .nav-menu { display: flex; list-style: none; gap: 2px; padding: 0; margin: 0; }
+  .nav-menu a { padding: 8px 14px; color: var(--c-text-2); text-decoration: none; font-family: var(--sans); font-size: 13px; font-weight: 500; border-radius: 0; letter-spacing: 0; }
+  .nav-menu a:hover { color: var(--c-text); text-decoration: underline; text-underline-offset: 4px; }
+  .nav-menu a.is-active { background: transparent; color: var(--c-text); text-decoration: underline; text-underline-offset: 4px; font-weight: 700; }
+  .page { max-width: 760px; margin: 0 auto; padding: 56px 28px 120px; }
+  .page-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 48px; padding-bottom: 28px; border-bottom: 1px solid var(--c-border); gap: 16px; flex-wrap: wrap; }
+  .page-head h1 { font-family: var(--serif); font-size: 34px; margin: 0 0 16px; font-weight: 700; letter-spacing: -0.015em; line-height: 1.25; }
+  .page-head .sub { font-family: var(--serif); font-size: 16px; color: var(--c-text-2); font-weight: 400; line-height: 1.75; }
   /* 우상단 다운로드 버튼 그룹 */
   .dl-tabs { display: flex; gap: 6px; align-items: center; }
-  .dl-tabs .label { font-size: 11px; font-weight: 700; color: var(--c-text-3); margin-right: 4px; }
-  .dl-btn { padding: 8px 14px; background: #fff; color: var(--c-text-2); border: 1px solid var(--c-border); border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
-  .dl-btn:hover { background: var(--c-primary-bg); border-color: var(--c-primary); color: var(--c-primary); }
-  .dl-btn.is-excel:hover { background: var(--c-success-bg); border-color: var(--c-success); color: var(--c-success); }
-  .dl-btn.is-notion:hover { background: var(--c-warning-bg); border-color: #C2A445; color: #8B5A00; }
-  /* 비교 표 */
-  .cmp-card { background: #fff; border: 1px solid var(--c-border); border-radius: 12px; padding: 0; overflow: hidden; margin-bottom: 24px; }
-  .cmp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .dl-tabs .label { font-family: var(--sans); font-size: 11px; font-weight: 500; color: var(--c-text-3); margin-right: 4px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .dl-btn { padding: 8px 14px; background: transparent; color: var(--c-text-2); border: 1px solid var(--c-border); border-radius: 2px; font-family: var(--sans); font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+  .dl-btn:hover { background: var(--c-surface-alt); border-color: var(--c-text); color: var(--c-text); }
+  .dl-btn.is-excel:hover, .dl-btn.is-notion:hover { background: var(--c-surface-alt); border-color: var(--c-text); color: var(--c-text); }
+  /* 비교 표 — 논문 결 */
+  .cmp-card { background: transparent; border: 0; border-top: 1px solid var(--c-text); border-bottom: 1px solid var(--c-text); border-radius: 0; padding: 0; overflow: visible; margin-bottom: 28px; }
+  .cmp-table { width: 100%; border-collapse: collapse; font-family: var(--sans); font-size: 13px; }
   .cmp-table th, .cmp-table td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--c-border); }
-  .cmp-table th { background: var(--c-surface-alt); font-weight: 700; color: var(--c-text-2); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; position: sticky; top: 56px; }
+  .cmp-table th { background: transparent; font-weight: 500; color: var(--c-text-3); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; position: sticky; top: 60px; border-bottom: 1px solid var(--c-text); }
   .cmp-table th:first-child { width: 180px; }
-  .cmp-table td.metric-label { font-weight: 700; color: var(--c-text); background: var(--c-surface-alt); }
-  .cmp-table td.value { font-weight: 700; color: var(--c-text); font-variant-numeric: tabular-nums; }
-  .cmp-table td.value .sub { display: block; font-size: 11px; font-weight: 500; color: var(--c-text-3); margin-top: 2px; }
+  .cmp-table td.metric-label { font-family: var(--serif); font-weight: 500; color: var(--c-text); background: transparent; }
+  .cmp-table td.value { font-family: var(--serif); font-weight: 500; color: var(--c-text); font-variant-numeric: tabular-nums; }
+  .cmp-table td.value .sub { display: block; font-family: var(--sans); font-size: 11px; font-weight: 400; color: var(--c-text-3); margin-top: 2px; }
   .cmp-table tr:last-child td { border-bottom: none; }
-  .cmp-table .delta-up { color: var(--c-success); font-size: 11px; margin-left: 6px; }
-  .cmp-table .delta-down { color: var(--c-danger); font-size: 11px; margin-left: 6px; }
+  .cmp-table .delta-up { color: var(--c-text-2); font-family: var(--sans); font-size: 11px; margin-left: 6px; }
+  .cmp-table .delta-down { color: var(--c-text-2); font-family: var(--sans); font-size: 11px; margin-left: 6px; font-style: italic; }
   /* 빈 상태 */
-  .empty { padding: 60px 24px; text-align: center; background: var(--c-surface-alt); border-radius: 12px; }
-  .empty .ic { font-size: 40px; margin-bottom: 12px; }
-  .empty h2 { font-size: 16px; margin: 0 0 6px; color: var(--c-text); }
-  .empty p { font-size: 13px; color: var(--c-text-3); margin: 0 0 16px; line-height: 1.6; }
-  .empty a { color: var(--c-primary); font-weight: 700; text-decoration: none; }
+  .empty { padding: 60px 24px; text-align: center; background: transparent; border: 1px dashed var(--c-border); border-radius: 0; }
+  .empty .ic { font-size: 36px; margin-bottom: 12px; opacity: 0.4; }
+  .empty h2 { font-family: var(--serif); font-size: 18px; margin: 0 0 8px; color: var(--c-text); font-weight: 600; letter-spacing: -0.01em; }
+  .empty p { font-family: var(--serif); font-size: 14px; color: var(--c-text-3); margin: 0 0 16px; line-height: 1.7; }
+  .empty a { color: var(--c-text); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
   /* 이벤트 교집합 매트릭스 */
-  .ix-card { background: #fff; border: 1px solid var(--c-border); border-radius: 12px; padding: 20px; margin-bottom: 24px; }
-  .ix-card h3 { font-size: 14px; margin: 0 0 6px; font-weight: 800; }
-  .ix-card .ix-sub { font-size: 12px; color: var(--c-text-3); margin-bottom: 16px; }
-  .ix-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .ix-card { background: transparent; border: 0; border-top: 1px solid var(--c-border); border-radius: 0; padding: 24px 0; margin-bottom: 28px; }
+  .ix-card h3 { font-family: var(--serif); font-size: 18px; margin: 0 0 8px; font-weight: 600; letter-spacing: -0.01em; }
+  .ix-card .ix-sub { font-family: var(--serif); font-size: 14px; color: var(--c-text-3); margin-bottom: 18px; }
+  .ix-table { width: 100%; border-collapse: collapse; font-family: var(--sans); font-size: 12px; }
   .ix-table th, .ix-table td { padding: 10px 8px; text-align: center; border-bottom: 1px solid var(--c-border); }
-  .ix-table th { background: var(--c-surface-alt); font-weight: 800; font-size: 11px; color: var(--c-text-2); position: sticky; top: 0; }
-  .ix-table th:first-child, .ix-table td:first-child { text-align: left; font-weight: 800; background: var(--c-surface-alt); position: sticky; left: 0; z-index: 2; }
-  .ix-table td.self { background: #F2F4F6; color: var(--c-text-3); font-style: italic; }
-  .ix-table td.has { background: var(--c-primary-bg); color: var(--c-primary); font-weight: 800; cursor: help; }
-  .ix-table td.has:hover { background: var(--c-primary); color: #fff; }
-  .ix-table td .pct { display: block; font-size: 10px; font-weight: 600; color: var(--c-text-3); margin-top: 2px; }
+  .ix-table th { background: transparent; font-weight: 500; font-size: 11px; color: var(--c-text-3); position: sticky; top: 0; letter-spacing: 0.05em; text-transform: uppercase; }
+  .ix-table th:first-child, .ix-table td:first-child { text-align: left; font-weight: 500; background: transparent; position: sticky; left: 0; z-index: 2; font-family: var(--serif); color: var(--c-text); }
+  .ix-table td.self { background: var(--c-surface); color: var(--c-text-3); font-style: italic; }
+  .ix-table td.has { background: var(--c-surface-alt); color: var(--c-text); font-weight: 600; cursor: help; }
+  .ix-table td.has:hover { background: var(--c-text); color: var(--c-paper); }
+  .ix-table td .pct { display: block; font-size: 10px; font-weight: 400; color: var(--c-text-3); margin-top: 2px; }
   .ix-table td.has .pct { color: inherit; opacity: 0.7; }
-  .ix-empty { padding: 24px; text-align: center; font-size: 12px; color: var(--c-text-3); background: var(--c-surface-alt); border-radius: 8px; }
+  .ix-empty { padding: 24px; text-align: center; font-family: var(--serif); font-size: 13px; color: var(--c-text-3); background: transparent; border: 1px dashed var(--c-border); border-radius: 0; }
   /* 트렌드 */
-  .trend-card { background: #fff; border: 1px solid var(--c-border); border-radius: 12px; padding: 20px; }
-  .trend-card h3 { font-size: 14px; margin: 0 0 16px; font-weight: 800; }
-  .trend-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-  .trend-row .label { width: 140px; font-size: 12px; color: var(--c-text-2); font-weight: 700; flex-shrink: 0; }
+  .trend-card { background: transparent; border: 0; border-top: 1px solid var(--c-border); border-radius: 0; padding: 24px 0; }
+  .trend-card h3 { font-family: var(--serif); font-size: 18px; margin: 0 0 18px; font-weight: 600; letter-spacing: -0.01em; }
+  .trend-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .trend-row .label { width: 140px; font-family: var(--serif); font-size: 13px; color: var(--c-text-2); font-weight: 500; flex-shrink: 0; }
   .trend-row .bars { flex: 1; display: flex; gap: 6px; align-items: flex-end; height: 60px; }
-  .trend-bar { flex: 1; min-width: 40px; position: relative; background: var(--c-primary-bg); border-radius: 4px 4px 0 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
-  .trend-bar .fill { width: 100%; background: var(--c-primary); border-radius: 4px 4px 0 0; }
-  .trend-bar .lbl { font-size: 10px; font-weight: 700; color: var(--c-text-2); margin-top: 4px; white-space: nowrap; }
-  .trend-bar .val { font-size: 10px; font-weight: 700; color: var(--c-text); position: absolute; top: -16px; left: 50%; transform: translateX(-50%); }
+  .trend-bar { flex: 1; min-width: 40px; position: relative; background: var(--c-surface); border-radius: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+  .trend-bar .fill { width: 100%; background: var(--c-text); border-radius: 0; }
+  .trend-bar .lbl { font-family: var(--sans); font-size: 10px; font-weight: 500; color: var(--c-text-2); margin-top: 4px; white-space: nowrap; letter-spacing: 0; }
+  .trend-bar .val { font-family: var(--sans); font-size: 10px; font-weight: 600; color: var(--c-text); position: absolute; top: -16px; left: 50%; transform: translateX(-50%); }
   /* 토스트 */
-  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120%); background: var(--c-text); color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 700; transition: transform 0.3s, opacity 0.3s; z-index: 1000; opacity: 0; pointer-events: none; visibility: hidden; }
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120%); background: var(--c-text); color: var(--c-paper); padding: 12px 20px; border-radius: 2px; font-family: var(--sans); font-size: 13px; font-weight: 500; transition: transform 0.3s, opacity 0.3s; z-index: 1000; opacity: 0; pointer-events: none; visibility: hidden; }
   .toast.is-show { transform: translateX(-50%) translateY(0); opacity: 1; visibility: visible; }
 
   /* ─── 반응형 (모바일 / 태블릿) ─── */
