@@ -469,12 +469,80 @@ function render() {
   if (adReport) {
     lines.push(`<span class="sec">[ 광고 효율 ]</span>`);
     lines.push(`<span class="bar">${'─'.repeat(W)}</span>`);
-    if (adReport.spend != null) lines.push(`  ${pad('집행', 16)}${pad(fmt(adReport.spend) + '원', 16, true)}`);
-    if (adReport.impressions != null) lines.push(`  ${pad('노출', 16)}${pad(fmt(adReport.impressions), 16, true)}`);
-    if (adReport.clicks != null) lines.push(`  ${pad('클릭', 16)}${pad(fmt(adReport.clicks), 16, true)}`);
-    if (adReport.ctr != null) lines.push(`  ${pad('CTR', 16)}${pad(adReport.ctr + '%', 16, true)}`);
-    if (adReport.cpc != null) lines.push(`  ${pad('CPC', 16)}${pad(fmt(adReport.cpc) + '원', 16, true)}`);
-    if (adReport.cpa != null) lines.push(`  ${pad('CPA (신청 단가)', 16)}${pad(fmt(adReport.cpa) + '원', 16, true)}`);
+    if (adReport.spend != null) lines.push(`  ${pad('집행 (마크업·VAT 전)', 22)}${pad(fmt(adReport.spend) + '원', 12, true)}`);
+    if (adReport.impressions != null) lines.push(`  ${pad('노출', 22)}${pad(fmt(adReport.impressions), 12, true)}`);
+    if (adReport.clicks != null) lines.push(`  ${pad('클릭', 22)}${pad(fmt(adReport.clicks), 12, true)}`);
+    if (adReport.ctr != null) lines.push(`  ${pad('CTR', 22)}${pad(adReport.ctr + '%', 12, true)}`);
+    if (adReport.cpc != null) lines.push(`  ${pad('CPC', 22)}${pad(fmt(adReport.cpc) + '원', 12, true)}`);
+    if (adReport.cpa != null) lines.push(`  ${pad('CPA (신청 단가)', 22)}${pad(fmt(adReport.cpa) + '원', 12, true)}`);
+    lines.push('');
+  }
+
+  // ─── 콘텐츠 효율 ───
+  // 콘텐츠 담당자 관점: 광고 매체 효율(CVR/CPA) 외에 콘텐츠가 어떻게 일했는지 검증
+  // 데이터 키: b2c_content_efficiency_{projectId} (카드 격리 룰 준수)
+  const contentEff = getJSON('b2c_content_efficiency_' + projectId);
+  lines.push(`<span class="sec">[ 콘텐츠 효율 ]</span>`);
+  lines.push(`<span class="bar">${'─'.repeat(W)}</span>`);
+
+  if (contentEff) {
+    // 1) CTR — 광고 섹션 참조 (중복 표시 X, 콘텐츠 관점으로 한 줄)
+    if (adReport && adReport.ctr != null) {
+      lines.push(`  ${pad('CTR (광고 소재 품질)', 22)}${pad(adReport.ctr + '%', 12, true)}  <span class="muted">→ 광고 섹션 참조</span>`);
+      lines.push('');
+    }
+
+    // 2) 채널별 CVR (UTM 채널별 클릭→신청 전환율)
+    if (Array.isArray(contentEff.channels) && contentEff.channels.length) {
+      lines.push(`  <span class="b">채널별 CVR (클릭→신청)</span>`);
+      const maxCvr = Math.max(...contentEff.channels.map(c => Number(c.cvr) || 0), 1);
+      contentEff.channels.forEach(ch => {
+        const cvr = Number(ch.cvr) || 0;
+        const barW = Math.min(22, Math.round((cvr / maxCvr) * 22));
+        const bar = '█'.repeat(barW) + '░'.repeat(22 - barW);
+        lines.push(`    ${pad(esc(ch.name || '-'), 16)}${pad(cvr.toFixed(2) + '%', 8, true)}  <span class="blue">${bar}</span>`);
+      });
+      lines.push('');
+    }
+
+    // 3) 페이지 체류 / 스크롤 깊이 (GA4)
+    if (contentEff.dwellSec != null || contentEff.scrollDepth != null) {
+      lines.push(`  <span class="b">페이지 체류 / 스크롤 (GA)</span>`);
+      if (contentEff.dwellSec != null) {
+        const m = Math.floor(contentEff.dwellSec / 60);
+        const s = contentEff.dwellSec % 60;
+        lines.push(`    ${pad('평균 체류', 16)}${pad(m + '분 ' + s + '초', 14, true)}`);
+      }
+      if (contentEff.scrollDepth != null) {
+        lines.push(`    ${pad('스크롤 깊이', 16)}${pad(contentEff.scrollDepth + '%', 14, true)}`);
+      }
+      lines.push('');
+    }
+
+    // 4) 폼 단계별 드롭률 (퍼널 — 진입 → 폼 시작 → 폼 완료)
+    if (contentEff.funnel) {
+      lines.push(`  <span class="b">폼 단계별 드롭률</span>`);
+      if (contentEff.funnel.viewToStart != null) lines.push(`    ${pad('페이지 진입 → 폼 시작', 24)}${pad(contentEff.funnel.viewToStart + '%', 8, true)}`);
+      if (contentEff.funnel.startToFinish != null) lines.push(`    ${pad('폼 시작 → 폼 완료', 24)}${pad(contentEff.funnel.startToFinish + '%', 8, true)}`);
+      if (contentEff.funnel.overall != null) lines.push(`    ${pad('전체 CVR (진입→완료)', 24)}${pad(contentEff.funnel.overall + '%', 8, true)}`);
+      lines.push('');
+    }
+
+    // 5) 콘텐츠 의도 매칭 (신청자 직무 분포)
+    if (contentEff.intentMatch) {
+      lines.push(`  <span class="b">콘텐츠 의도 매칭 (신청자 직무 분포)</span>`);
+      if (contentEff.intentMatch.distribution) {
+        lines.push(`    ${esc(contentEff.intentMatch.distribution)}`);
+      }
+      if (contentEff.intentMatch.note) {
+        lines.push(`    <span class="muted">→ ${esc(contentEff.intentMatch.note)}</span>`);
+      }
+      lines.push('');
+    }
+  } else {
+    // 빈 상태 — 일관성 룰: 데이터 없어도 섹션은 항상 표시 (feedback_card_section_consistency)
+    lines.push(`  <span class="muted">아직 콘텐츠 성과 데이터가 없어요</span>`);
+    lines.push(`  <span class="muted">· 광고 리포트 + GA UTM 시트 등록 후 자동 분석됩니다</span>`);
     lines.push('');
   }
 
