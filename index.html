@@ -364,6 +364,7 @@
   .pr-dday.soon { background: var(--indigo-dim); color: var(--indigo); }
   .pr-dday.done { background: var(--paper-2); color: var(--ink-3); }
   .pr-dday.cancel { background: var(--red-dim); color: var(--red); }
+  .pr-oneday { font-size: 12px; color: var(--ink-3); font-family: var(--sans); margin-left: 4px; }
 
   /* col 3, 4: KPI */
   .kpi-cell { min-width: 180px; }
@@ -649,6 +650,95 @@
   }
   .modal input:focus, .modal select:focus { outline: 1px solid var(--red); border-color: var(--red); }
   .modal-actions { display: flex; gap: 8px; margin-top: 22px; justify-content: flex-end; }
+
+  /* ─── Emoji Picker ─── */
+  .emoji-picker {
+    border: 1px solid var(--line-soft);
+    border-radius: var(--r-sm);
+    background: var(--paper);
+    padding: 10px;
+  }
+  .emoji-preview-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .emoji-preview {
+    width: 44px; height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    border: 1px solid var(--line-soft);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+  }
+  .emoji-input-inline {
+    flex: 1;
+    padding: 9px 11px !important;
+    font-size: 13px !important;
+  }
+  .emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+  }
+  .emoji-btn {
+    aspect-ratio: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    background: var(--surface);
+    border: 1px solid transparent;
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s;
+    padding: 0;
+    font-family: inherit;
+  }
+  .emoji-btn:hover { background: var(--paper-2); }
+  .emoji-btn.active {
+    border-color: var(--ink);
+    background: var(--paper-2);
+  }
+
+  /* ─── Date Range ─── */
+  .period-toggle {
+    display: inline-flex;
+    border: 1px solid var(--line-soft);
+    border-radius: var(--r-sm);
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .period-toggle button {
+    padding: 7px 14px;
+    font-size: 12px;
+    font-family: var(--sans);
+    background: var(--surface);
+    border: 0;
+    cursor: pointer;
+    color: var(--ink-2);
+    font-weight: 600;
+  }
+  .period-toggle button.active {
+    background: var(--ink);
+    color: var(--surface);
+  }
+  .date-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .date-row input[type="date"] {
+    flex: 1;
+  }
+  .date-row .dash {
+    color: var(--ink-3);
+    font-size: 14px;
+    user-select: none;
+  }
 </style>
 </head>
 <body>
@@ -749,17 +839,36 @@
 </div>
 
 <!-- ADD MODAL -->
-<div class="modal-bg" id="addModal">
+<div class="modal-bg" id="addModal" onclick="if(event.target===this)closeAddModal()">
   <div class="modal">
     <h3>+ 새 이벤트 추가</h3>
+
     <label>이모지</label>
-    <input id="m_emoji" placeholder="📊" maxlength="4">
+    <div class="emoji-picker">
+      <div class="emoji-preview-row">
+        <span class="emoji-preview" id="m_emoji_preview">📊</span>
+        <input id="m_emoji" class="emoji-input-inline" placeholder="직접 입력도 가능" maxlength="4" oninput="onEmojiInput()">
+      </div>
+      <div class="emoji-grid" id="m_emoji_grid"></div>
+    </div>
+
     <label>이벤트명</label>
     <input id="m_title" placeholder="예: WORK FEST 2026">
+
     <label>카테고리</label>
     <input id="m_category" placeholder="페스티벌 / 컨퍼런스 / 웨비나 / 해커톤">
-    <label>기간 (YYYY.MM.DD ~ YYYY.MM.DD)</label>
-    <input id="m_period" placeholder="2026.06.01 ~ 2026.06.30">
+
+    <label>기간</label>
+    <div class="period-toggle" role="tablist">
+      <button type="button" id="m_period_multi" class="active" onclick="setPeriodMode('multi')">여러 날</button>
+      <button type="button" id="m_period_single" onclick="setPeriodMode('single')">당일</button>
+    </div>
+    <div class="date-row">
+      <input type="date" id="m_period_start">
+      <span class="dash" id="m_period_dash">~</span>
+      <input type="date" id="m_period_end">
+    </div>
+
     <label>상태</label>
     <select id="m_status">
       <option value="ongoing">진행중</option>
@@ -917,8 +1026,10 @@
     }
     const startStr = period.startStr.replace(/^(\d{4})[.\-/](\d{1,2})[.\-/](\d{1,2})/, (_, y, m, d) => `${m}.${d}`);
     const endStr = period.endStr.replace(/^(\d{4})[.\-/](\d{1,2})[.\-/](\d{1,2})/, (_, y, m, d) => `${m}.${d}`);
+    const sameDay = period.start && period.end && period.start.getTime() === period.end.getTime();
+    const dateLabel = sameDay ? `${startStr} <span class="pr-oneday">(당일)</span>` : `${esc(startStr)} ~ ${esc(endStr)}`;
     return `<td class="pr-cell">
-      <div class="pr-date">${esc(startStr)} ~ ${esc(endStr)}</div>
+      <div class="pr-date">${dateLabel}</div>
       ${dd ? `<span class="pr-dday ${dd.cls}">${esc(dd.txt)}</span>` : ''}
     </td>`;
   }
@@ -1045,7 +1156,47 @@
     tog.textContent = wrap.classList.contains('open') ? '접기 ▴' : '펼치기 ▾';
   }
 
-  function openAddModal() { document.getElementById('addModal').classList.add('open'); }
+  const EMOJI_PRESETS = ['📊','🎉','🎤','🎙️','🎯','🎁','🎓','🏆','💼','📝','📋','📄','🚀','💡','🔥','⭐','✨','📣','📢','📅','📌','💻','🪩','🍀'];
+
+  function renderEmojiGrid() {
+    const grid = document.getElementById('m_emoji_grid');
+    if (!grid) return;
+    const cur = (document.getElementById('m_emoji_preview').textContent || '').trim();
+    grid.innerHTML = EMOJI_PRESETS.map(e => `<button type="button" class="emoji-btn ${e===cur?'active':''}" onclick="pickEmoji('${e}')">${e}</button>`).join('');
+  }
+  function pickEmoji(e) {
+    document.getElementById('m_emoji_preview').textContent = e;
+    document.getElementById('m_emoji').value = '';
+    renderEmojiGrid();
+  }
+  function onEmojiInput() {
+    const v = document.getElementById('m_emoji').value.trim();
+    if (v) {
+      document.getElementById('m_emoji_preview').textContent = v;
+      renderEmojiGrid();
+    }
+  }
+  function setPeriodMode(mode) {
+    const isSingle = mode === 'single';
+    document.getElementById('m_period_single').classList.toggle('active', isSingle);
+    document.getElementById('m_period_multi').classList.toggle('active', !isSingle);
+    document.getElementById('m_period_dash').style.display = isSingle ? 'none' : '';
+    document.getElementById('m_period_end').style.display = isSingle ? 'none' : '';
+  }
+  function openAddModal() {
+    document.getElementById('m_emoji_preview').textContent = '📊';
+    document.getElementById('m_emoji').value = '';
+    document.getElementById('m_title').value = '';
+    document.getElementById('m_category').value = '';
+    document.getElementById('m_period_start').value = '';
+    document.getElementById('m_period_end').value = '';
+    document.getElementById('m_status').value = 'ongoing';
+    document.getElementById('m_kpi_signup').value = '';
+    document.getElementById('m_kpi_resume').value = '';
+    setPeriodMode('multi');
+    renderEmojiGrid();
+    document.getElementById('addModal').classList.add('open');
+  }
   function closeAddModal() { document.getElementById('addModal').classList.remove('open'); }
 
   // ─── 휴지통 ───
@@ -1114,12 +1265,28 @@
   function saveNewProject() {
     const title = document.getElementById('m_title').value.trim();
     if (!title) { alert('이벤트명을 입력하세요'); return; }
+
+    const isSingle = document.getElementById('m_period_single').classList.contains('active');
+    const start = document.getElementById('m_period_start').value;
+    const end = isSingle ? start : document.getElementById('m_period_end').value;
+    let period = '';
+    if (start) {
+      const fmtDate = (iso) => iso.replace(/-/g, '.');
+      period = isSingle
+        ? `${fmtDate(start)} ~ ${fmtDate(start)}`
+        : (end ? `${fmtDate(start)} ~ ${fmtDate(end)}` : `${fmtDate(start)} ~ ${fmtDate(start)}`);
+    }
+
+    const emoji = (document.getElementById('m_emoji').value.trim()
+      || document.getElementById('m_emoji_preview').textContent.trim()
+      || '📊');
+
     const p = {
       id: 'user-' + Date.now(),
-      emoji: document.getElementById('m_emoji').value.trim() || '📊',
+      emoji,
       title,
       category: document.getElementById('m_category').value.trim(),
-      period: document.getElementById('m_period').value.trim(),
+      period,
       status: document.getElementById('m_status').value,
       kpis: [
         { label: '신청자', value: document.getElementById('m_kpi_signup').value.trim() },
