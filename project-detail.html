@@ -220,6 +220,18 @@
   }
   .empty-block .eb-hint { font-size: 12px; margin-top: 6px; opacity: 0.8; }
 
+  /* Refresh bar (시트 새로고침) */
+  .refresh-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px; padding: 10px 12px;
+    background: var(--surface); border: 1px solid var(--line-soft);
+    border-radius: 2px;
+    font-family: var(--sans); font-size: 12px;
+  }
+  .refresh-bar .rb-meta { color: var(--text-3); letter-spacing: 0; }
+  .refresh-bar .nav-btn { padding: 6px 12px; font-size: 12px; }
+  .refresh-bar .nav-btn:disabled { opacity: 0.5; cursor: wait; }
+
   /* Memo (note) */
   .memo-block {
     padding: 24px; background: var(--surface); border: 1px solid var(--line-soft);
@@ -414,29 +426,50 @@ function saveMeta() {
   window.upsertProject(next);
   closeMetaModal();
 
-  // 새 시트 URL이면 즉시 fetch 트리거 (api/fetch-sheet → SHEET_CACHES 채움)
+  // 새 시트 URL이면 즉시 fetch 트리거
   if (sheetUrl && /spreadsheets\/d\//.test(sheetUrl)) {
     const sid = (sheetUrl.match(/spreadsheets\/d\/([\w-]+)/) || [])[1];
     const already = (window.SHEET_CACHES && window.SHEET_CACHES[sid]);
-    if (sid && !already && typeof fetch === 'function') {
-      fetch(`/api/fetch-sheet?url=${encodeURIComponent(sheetUrl)}`)
-        .then(r => r.ok ? r.json() : null)
-        .then(d => {
-          if (d?.rows) {
-            window.SHEET_CACHES = window.SHEET_CACHES || {};
-            window.SHEET_CACHES[sid] = d;
-            try { localStorage.setItem('b2c_sheet_data_' + sid, JSON.stringify(d)); } catch(e) {}
-            render();
-          }
-        })
-        .catch(() => {});
-    }
+    if (sid && !already) setTimeout(() => refreshSheet(), 100);
   }
 
   render();
 }
 // ESC 닫기
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMetaModal(); });
+
+// ─── 시트 새로고침 (실시간 fetch) ───
+async function refreshSheet() {
+  const p = window.getProject(projectId);
+  if (!p) return;
+  const allUrls = [...(p.resources || []), p.links?.sheet].filter(Boolean);
+  const sheetUrl = allUrls.find(u => /spreadsheets\/d\//.test(u || ''));
+  if (!sheetUrl) { alert('시트 URL이 등록되지 않았습니다. 우상단 편집에서 추가하세요.'); return; }
+  const sid = (sheetUrl.match(/spreadsheets\/d\/([\w-]+)/) || [])[1];
+  if (!sid) { alert('시트 URL 형식이 이상합니다.'); return; }
+  const gid = (sheetUrl.match(/[#&?]gid=(\d+)/) || [])[1] || '0';
+  const btn = document.getElementById('refreshSheetBtn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ fetching...'; }
+  try {
+    const r = await fetch('/api/fetch-sheet?t=' + Date.now(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      cache: 'no-store',
+      body: JSON.stringify({ sheetUrl, sheetId: sid, gid })
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    if (!d?.rows) throw new Error(d?.error || '빈 응답');
+    const payload = { sheetId: sid, sheetUrl, fetchedAt: d.fetchedAt || new Date().toISOString(), rows: d.rows };
+    window.SHEET_CACHES = window.SHEET_CACHES || {};
+    window.SHEET_CACHES[sid] = payload;
+    try { localStorage.setItem('b2c_sheet_data_' + sid, JSON.stringify(payload)); } catch(e) {}
+    render();
+  } catch (e) {
+    alert('시트 fetch 실패: ' + (e.message || e) + '\n\n시트 권한이 "링크 공개"인지 확인해주세요.');
+    if (btn) { btn.disabled = false; btn.textContent = '🔄 시트 새로고침'; }
+  }
+}
 
 // ─── 카드 삭제 ───
 function confirmDelete() {
@@ -738,7 +771,14 @@ function render() {
 
   // 03 신청자 자동 분석
   const showApplicant = liveTotal != null || sheetAnalysis;
-  html.push(section(nx(), '신청자 자동 분석', sheetFetchedAt ? `fetch ${fmtDt(sheetFetchedAt)}` : null, showApplicant ? `
+  const refreshBar = (p.links?.sheet || (p.resources || []).some(u => /spreadsheets\/d\//.test(u || ''))) ? `
+    <div class="refresh-bar">
+      <span class="rb-meta">${sheetFetchedAt ? `마지막 fetch · ${fmtDt(sheetFetchedAt)}` : '아직 fetch 전'}</span>
+      <button class="nav-btn" type="button" onclick="refreshSheet()" id="refreshSheetBtn">🔄 시트 새로고침</button>
+    </div>
+  ` : '';
+  html.push(section(nx(), '신청자 자동 분석', null, showApplicant ? `
+    ${refreshBar}
     ${liveTotal != null ? `
       <table class="data-table">
         <tr><th>총 응답 (raw)</th><td class="num">${fmt(liveTotal)}</td></tr>
@@ -758,7 +798,7 @@ function render() {
         })()}
       </div>
     ` : ''}
-  ` : emptyBlock('신청자 시트가 연결되지 않았습니다', '시트 URL 등록 후 자동 분석')));
+  ` : (refreshBar + emptyBlock('신청자 시트가 연결되지 않았습니다', '시트 URL 등록 후 자동 분석'))));
 
   // 04 광고 효율
   html.push(section(nx(), '광고 효율', adReport ? '마크업·VAT 전' : null, adReport ? `
