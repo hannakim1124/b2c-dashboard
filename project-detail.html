@@ -341,6 +341,12 @@
     <input id="me_kpi_signup" placeholder="예: 1,000명">
     <label>이력서 업데이트 KPI 목표</label>
     <input id="me_kpi_resume" placeholder="예: 500명">
+
+    <label>구글 시트 URL (신청자수 자동 분석)</label>
+    <input id="me_link_sheet" placeholder="https://docs.google.com/spreadsheets/d/...">
+    <label>노션 페이지 URL (이벤트 메타)</label>
+    <input id="me_link_notion" placeholder="https://www.notion.so/...">
+
     <div class="modal-actions">
       <button class="nav-btn" type="button" onclick="closeMetaModal()">취소</button>
       <button class="nav-btn primary" type="button" onclick="saveMeta()">저장</button>
@@ -373,6 +379,8 @@ function openMetaModal() {
   const ru = kpis.find(k => /이력서|업데이트|resume|update/i.test(k?.label || ''));
   document.getElementById('me_kpi_signup').value = su?.value || '';
   document.getElementById('me_kpi_resume').value = ru?.value || '';
+  document.getElementById('me_link_sheet').value = p.links?.sheet || '';
+  document.getElementById('me_link_notion').value = p.links?.notion || '';
   document.getElementById('metaModal').classList.add('is-open');
 }
 function closeMetaModal() { document.getElementById('metaModal').classList.remove('is-open'); }
@@ -395,8 +403,36 @@ function saveMeta() {
   if (rv) kept.push({ label: '이력서 업데이트', value: rv });
   next.kpis = kept;
   if (next.extKpis) next.extKpis = kept;
+
+  // 외부 링크 (시트/노션)
+  const sheetUrl = document.getElementById('me_link_sheet').value.trim();
+  const notionUrl = document.getElementById('me_link_notion').value.trim();
+  next.links = { ...(p.links || {}) };
+  if (sheetUrl) next.links.sheet = sheetUrl; else delete next.links.sheet;
+  if (notionUrl) next.links.notion = notionUrl; else delete next.links.notion;
+
   window.upsertProject(next);
   closeMetaModal();
+
+  // 새 시트 URL이면 즉시 fetch 트리거 (api/fetch-sheet → SHEET_CACHES 채움)
+  if (sheetUrl && /spreadsheets\/d\//.test(sheetUrl)) {
+    const sid = (sheetUrl.match(/spreadsheets\/d\/([\w-]+)/) || [])[1];
+    const already = (window.SHEET_CACHES && window.SHEET_CACHES[sid]);
+    if (sid && !already && typeof fetch === 'function') {
+      fetch(`/api/fetch-sheet?url=${encodeURIComponent(sheetUrl)}`)
+        .then(r => r.ok ? r.json() : null)
+        .then(d => {
+          if (d?.rows) {
+            window.SHEET_CACHES = window.SHEET_CACHES || {};
+            window.SHEET_CACHES[sid] = d;
+            try { localStorage.setItem('b2c_sheet_data_' + sid, JSON.stringify(d)); } catch(e) {}
+            render();
+          }
+        })
+        .catch(() => {});
+    }
+  }
+
   render();
 }
 // ESC 닫기
