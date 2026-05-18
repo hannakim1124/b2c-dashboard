@@ -10,5 +10,13 @@
     "api/fetch-doc.js": { "maxDuration": 20 },
     "api/fetch-notion.js": { "maxDuration": 30 },
     "api/sync.js": { "maxDuration": 10 }
-  }
+  },
+  "headers": [
+    {
+      "source": "/(.*\\.html)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    }
+  ]
 }

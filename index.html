@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>인사이트전략팀 B2C 이벤트 카탈로그</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -749,6 +752,7 @@
     <span class="muted">· 이벤트 카탈로그</span>
   </div>
   <div class="nav-actions">
+    <button class="nav-btn" id="globalRefreshBtn" onclick="manualRefreshAll()" title="모든 카드의 시트 데이터 강제 새로고침">🔄 시트 동기화</button>
     <button class="nav-btn" onclick="window.open('compare.html', '_blank')">비교</button>
     <button class="nav-btn primary" onclick="openAddModal()">+ 새 이벤트</button>
   </div>
@@ -1311,11 +1315,10 @@
   setTimeout(() => { render(); renderTrashBadge(); }, 1200);
 
   // ── 백그라운드 자동 시트 fetch (메인 페이지 진입 시 1회) ──────────────
-  // data/cache.js의 정적 스냅샷이 옛값이라 KPI가 안 맞는 문제 해결.
-  // 카드별 sheetUrl 추출 → 병렬 fetch → 더 최신이면 캐시 갱신 → render.
-  async function autoRefreshSheets() {
+  async function autoRefreshSheets(opts = {}) {
+    const verbose = opts.verbose !== false;
     const projects = getAllProjects();
-    const targets = new Map(); // sid → sheetUrl
+    const targets = new Map();
     for (const p of projects) {
       const urls = [...(p.resources || []), p.links?.sheet].filter(Boolean);
       const sheetUrl = urls.find(u => /spreadsheets\/d\//.test(u || ''));
@@ -1323,7 +1326,9 @@
       const sid = (sheetUrl.match(/spreadsheets\/d\/([\w-]+)/) || [])[1];
       if (sid && !targets.has(sid)) targets.set(sid, sheetUrl);
     }
-    if (!targets.size) return;
+    if (verbose) console.log('[autoRefreshSheets] 카드:', projects.length, '시트 fetch 대상:', targets.size, [...targets.keys()]);
+    if (!targets.size) { if (verbose) console.warn('[autoRefreshSheets] 시트 URL 박힌 카드 없음 — 카드 편집에서 시트 URL 등록 필요'); return { fetched: 0, errors: 0 }; }
+    let okCount = 0, errCount = 0;
     const tasks = [...targets.entries()].map(async ([sid, sheetUrl]) => {
       const gid = (sheetUrl.match(/[#&?]gid=(\d+)/) || [])[1] || '0';
       try {
@@ -1333,19 +1338,38 @@
           cache: 'no-store',
           body: JSON.stringify({ sheetUrl, sheetId: sid, gid })
         });
-        if (!r.ok) return;
+        if (!r.ok) { errCount++; if (verbose) console.warn('[autoRefreshSheets] HTTP', r.status, sid); return; }
         const d = await r.json();
-        if (!d?.rows) return;
+        if (!d?.rows) { errCount++; if (verbose) console.warn('[autoRefreshSheets] 빈 응답', sid, d?.error); return; }
         const payload = { sheetId: sid, sheetUrl, fetchedAt: d.fetchedAt || new Date().toISOString(), rows: d.rows };
         window.SHEET_CACHES = window.SHEET_CACHES || {};
         window.SHEET_CACHES[sid] = payload;
         try { localStorage.setItem('b2c_sheet_data_' + sid, JSON.stringify(payload)); } catch(e) {}
-      } catch(e) { /* 조용히 무시 — 캐시는 그대로 */ }
+        okCount++;
+        if (verbose) console.log('[autoRefreshSheets] ✓', sid, 'rows:', d.rows.length, 'fetchedAt:', payload.fetchedAt);
+      } catch(e) { errCount++; if (verbose) console.error('[autoRefreshSheets] 예외', sid, e.message); }
     });
     await Promise.all(tasks);
+    if (verbose) console.log('[autoRefreshSheets] 완료. 성공:', okCount, '실패:', errCount);
     render();
+    return { fetched: okCount, errors: errCount };
   }
-  setTimeout(autoRefreshSheets, 200);
+  window.autoRefreshSheets = autoRefreshSheets;
+
+  // ── 수동 새로고침 버튼 ──────────────────────────────────────────────
+  async function manualRefreshAll() {
+    const btn = document.getElementById('globalRefreshBtn');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ 동기화 중...'; }
+    const res = await autoRefreshSheets({ verbose: true });
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = res.fetched > 0 ? `✓ ${res.fetched}건 갱신` : (res.errors > 0 ? '⚠ 실패' : '시트 없음');
+      setTimeout(() => { btn.textContent = '🔄 시트 동기화'; }, 2500);
+    }
+  }
+  window.manualRefreshAll = manualRefreshAll;
+
+  setTimeout(() => autoRefreshSheets({ verbose: true }), 200);
 </script>
 
 </body>
