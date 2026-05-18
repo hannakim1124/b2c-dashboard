@@ -189,6 +189,55 @@
   .bar-row .br-bar > i { display: block; height: 100%; background: var(--text); }
   .bar-row.is-spike .br-value::after { content: ' 🔥'; }
 
+  /* Trend Chart (일별 막대 + 누적 라인) */
+  .trend-chart {
+    margin-top: 8px;
+    padding: 18px 8px 8px;
+    background: var(--surface);
+    border: 1px solid var(--line-soft);
+    border-radius: 2px;
+  }
+  .trend-chart .tc-legend {
+    display: flex; gap: 18px; align-items: center;
+    font-family: var(--sans); font-size: 11px; color: var(--text-3);
+    letter-spacing: 0.04em; padding: 0 8px 12px;
+  }
+  .trend-chart .tc-legend .lg-swatch {
+    display: inline-block; width: 14px; height: 8px;
+    background: var(--text-3); opacity: 0.32; margin-right: 6px; vertical-align: middle;
+  }
+  .trend-chart .tc-legend .lg-line {
+    display: inline-block; width: 18px; height: 0;
+    border-top: 1.5px solid var(--text); margin-right: 6px; vertical-align: middle;
+  }
+  .trend-chart .tc-legend .lg-line::after {
+    content: ''; display: inline-block; width: 6px; height: 6px;
+    border-radius: 50%; background: var(--bg); border: 1.2px solid var(--text);
+    margin-left: -12px; vertical-align: middle;
+  }
+  .trend-chart .tc-summary {
+    margin-left: auto; font-family: var(--serif); color: var(--text);
+    font-weight: 700; font-size: 13px; letter-spacing: 0;
+  }
+  .trend-chart svg { display: block; width: 100%; height: auto; }
+  .trend-chart .tc-grid { stroke: var(--line-soft); stroke-width: 0.6; }
+  .trend-chart .tc-axis { fill: var(--text-3); font-family: var(--sans); font-size: 10px; letter-spacing: 0; }
+  .trend-chart .tc-bar { fill: var(--text-3); opacity: 0.28; transition: opacity 0.15s; }
+  .trend-chart .tc-bar.spike { fill: var(--text); opacity: 0.55; }
+  .trend-chart .tc-bar:hover { opacity: 0.85; }
+  .trend-chart .tc-line { fill: none; stroke: var(--text); stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
+  .trend-chart .tc-dot { fill: var(--bg); stroke: var(--text); stroke-width: 1.2; }
+  .trend-chart .tc-dot.last { fill: var(--text); }
+  .trend-chart .tc-label-val {
+    font-family: var(--serif); font-size: 10px; font-weight: 600;
+    fill: var(--text); letter-spacing: 0;
+  }
+  @media (max-width: 600px) {
+    .trend-chart { padding: 14px 4px 4px; }
+    .trend-chart .tc-legend { font-size: 10px; gap: 12px; padding: 0 4px 10px; }
+    .trend-chart .tc-summary { font-size: 12px; }
+  }
+
   /* Sub-block (콘텐츠 효율 내부 그룹) */
   .sub-block { margin-bottom: 22px; }
   .sub-block:last-child { margin-bottom: 0; }
@@ -518,6 +567,134 @@ function getJSON(key) {
   try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch(e) { return null; }
 }
 
+// ─── 시트 timestamp 컬럼 → 일별/누적 자동 집계 ───
+// 구글폼 응답 시트 1열은 보통 "타임스탬프"이지만, 헤더 텍스트로 찾아 우선 매칭하고
+// 못 찾으면 0번 컬럼을 fallback으로 사용.
+function computeDailyTrend(rows) {
+  if (!rows || rows.length < 2) return null;
+  const headers = rows[0] || [];
+  let tsIdx = -1;
+  headers.forEach((h, i) => {
+    if (tsIdx < 0 && /(타임스탬프|timestamp|날짜|date|제출.*시각|응답.*시각)/i.test(String(h).replace(/\s/g, ''))) tsIdx = i;
+  });
+  if (tsIdx < 0) tsIdx = 0;
+  const dailyMap = {};
+  rows.slice(1).forEach(r => {
+    const raw = String(r[tsIdx] || '').trim();
+    if (!raw) return;
+    // 지원 포맷: "2026. 5. 1 오전 1:04:21" / "2026-05-01 ..." / "2026/05/01 ..."
+    const m = raw.match(/(\d{4})[.\-/\s]+(\d{1,2})[.\-/\s]+(\d{1,2})/);
+    if (!m) return;
+    const key = `${m[1]}-${String(m[2]).padStart(2, '0')}-${String(m[3]).padStart(2, '0')}`;
+    dailyMap[key] = (dailyMap[key] || 0) + 1;
+  });
+  const dates = Object.keys(dailyMap).sort();
+  if (!dates.length) return null;
+  // 날짜 구멍 메우기 (시작~끝 사이 비는 날 0으로)
+  const first = new Date(dates[0]);
+  const last = new Date(dates[dates.length - 1]);
+  const filled = [];
+  let cum = 0;
+  for (let t = first.getTime(); t <= last.getTime(); t += 86400000) {
+    const d = new Date(t);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const count = dailyMap[key] || 0;
+    cum += count;
+    filled.push({ date: key, count, cumulative: cum });
+  }
+  return filled;
+}
+
+// ─── SVG 콤보 차트 (일별 막대 + 누적 라인) ───
+function renderTrendChart(daily) {
+  if (!Array.isArray(daily) || daily.length === 0) return '';
+  const W = 760, H = 280;
+  const padL = 46, padR = 46, padT = 18, padB = 42;
+  const innerW = W - padL - padR;
+  const innerH = H - padT - padB;
+  const n = daily.length;
+  const xStep = n > 1 ? innerW / (n - 1) : innerW;
+  const maxDaily = Math.max(...daily.map(d => d.count || 0), 1);
+  const maxCum = Math.max(...daily.map(d => d.cumulative || 0), 1);
+  const niceMaxCum = (() => {
+    const pow = Math.pow(10, Math.floor(Math.log10(maxCum)));
+    return Math.ceil(maxCum / pow) * pow;
+  })();
+  const niceMaxDaily = (() => {
+    const pow = Math.pow(10, Math.floor(Math.log10(maxDaily)));
+    return Math.ceil(maxDaily / pow) * pow;
+  })();
+  const xOf = (i) => padL + i * xStep;
+  const yOfCum = (v) => padT + innerH - (v / niceMaxCum) * innerH;
+  const yOfDaily = (v) => padT + innerH - (v / niceMaxDaily) * innerH;
+
+  // 막대 (일별)
+  const barW = Math.max(2, Math.min(20, xStep * 0.55));
+  const bars = daily.map((d, i) => {
+    const x = xOf(i) - barW / 2;
+    const h = innerH - (yOfDaily(d.count) - padT);
+    const y = yOfDaily(d.count);
+    const spike = d.count >= 500 ? ' spike' : '';
+    return `<rect class="tc-bar${spike}" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${Math.max(h, 0).toFixed(1)}"><title>${d.date} · 일별 ${d.count.toLocaleString()}</title></rect>`;
+  }).join('');
+
+  // 누적 라인
+  const linePts = daily.map((d, i) => `${xOf(i).toFixed(1)},${yOfCum(d.cumulative).toFixed(1)}`).join(' ');
+  const dots = daily.map((d, i) => {
+    const last = i === n - 1 ? ' last' : '';
+    return `<circle class="tc-dot${last}" cx="${xOf(i).toFixed(1)}" cy="${yOfCum(d.cumulative).toFixed(1)}" r="${i === n - 1 ? 3.6 : 2.6}"><title>${d.date} · 누적 ${d.cumulative.toLocaleString()}</title></circle>`;
+  }).join('');
+
+  // 마지막 누적값 라벨
+  const lastD = daily[n - 1];
+  const lastLabel = `<text class="tc-label-val" x="${(xOf(n - 1) + 6).toFixed(1)}" y="${(yOfCum(lastD.cumulative) - 4).toFixed(1)}" text-anchor="start">${lastD.cumulative.toLocaleString()}</text>`;
+
+  // 그리드 + 좌(누적) 축
+  const ticks = [0, 0.25, 0.5, 0.75, 1];
+  const grid = ticks.map(t => `<line class="tc-grid" x1="${padL}" x2="${W - padR}" y1="${(padT + t * innerH).toFixed(1)}" y2="${(padT + t * innerH).toFixed(1)}" />`).join('');
+  const yLeft = ticks.map(t => {
+    const val = Math.round(niceMaxCum * (1 - t));
+    return `<text class="tc-axis" x="${padL - 8}" y="${(padT + t * innerH + 3).toFixed(1)}" text-anchor="end">${val.toLocaleString()}</text>`;
+  }).join('');
+  // 우(일별) 축
+  const yRight = ticks.map(t => {
+    const val = Math.round(niceMaxDaily * (1 - t));
+    return `<text class="tc-axis" x="${W - padR + 8}" y="${(padT + t * innerH + 3).toFixed(1)}" text-anchor="start">${val.toLocaleString()}</text>`;
+  }).join('');
+
+  // X축 라벨 (적당히 간격두고)
+  const xLabelStep = Math.max(1, Math.ceil(n / 9));
+  const xLabels = daily.map((d, i) => {
+    if (i % xLabelStep !== 0 && i !== n - 1) return '';
+    const mmdd = d.date.slice(5).replace('-', '/');
+    return `<text class="tc-axis" x="${xOf(i).toFixed(1)}" y="${H - padB + 18}" text-anchor="middle">${mmdd}</text>`;
+  }).join('');
+
+  // 축 캡션
+  const captionL = `<text class="tc-axis" x="${padL - 8}" y="${padT - 6}" text-anchor="end">누적</text>`;
+  const captionR = `<text class="tc-axis" x="${W - padR + 8}" y="${padT - 6}" text-anchor="start">일별</text>`;
+
+  return `
+    <div class="trend-chart">
+      <div class="tc-legend">
+        <span><span class="lg-swatch"></span>일별 신청</span>
+        <span><span class="lg-line"></span>누적 신청</span>
+        <span class="tc-summary">누적 ${lastD.cumulative.toLocaleString()}명 · ${lastD.date.slice(5).replace('-', '/')}</span>
+      </div>
+      <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" role="img" aria-label="신청자 일별 추이">
+        ${grid}
+        ${captionL}${captionR}
+        ${yLeft}${yRight}
+        ${bars}
+        <polyline class="tc-line" points="${linePts}" />
+        ${dots}
+        ${lastLabel}
+        ${xLabels}
+      </svg>
+    </div>
+  `;
+}
+
 // ─── 메인 ───
 function render() {
   const root = document.getElementById('root');
@@ -571,7 +748,7 @@ function render() {
   // 시트 자동 매칭 (라이브 수치)
   const allUrls = [...(p.resources || []), p.links?.sheet, p.links?.notion].filter(Boolean);
   const sheetUrl = allUrls.find(u => /spreadsheets\/d\//.test(u || ''));
-  let liveTotal = null, liveUnique = null, sheetFetchedAt = null;
+  let liveTotal = null, liveUnique = null, sheetFetchedAt = null, autoDaily = null;
   if (sheetUrl) {
     const sid = (sheetUrl.match(/spreadsheets\/d\/([\w-]+)/) || [])[1];
     if (sid) {
@@ -590,6 +767,7 @@ function render() {
           const ids = c.rows.slice(1).map(r => (r[idIdx] || '').trim().toLowerCase()).filter(Boolean);
           liveUnique = new Set(ids).size;
         }
+        autoDaily = computeDailyTrend(c.rows);
       }
     }
   }
@@ -772,7 +950,18 @@ function render() {
   ` : emptyBlock('이력서 매칭 데이터 없음', '매칭 큐 처리 후 자동 표시')));
 
   // 03 신청자 자동 분석
-  const showApplicant = liveTotal != null || sheetAnalysis;
+  const trendDaily = (autoDaily && autoDaily.length) ? autoDaily
+                    : (sheetAnalysis?.daily?.length ? sheetAnalysis.daily.map(d => ({
+                        date: d.date,
+                        count: Number(d.count) || 0,
+                        cumulative: Number(d.cumulative) || 0,
+                      })) : null);
+  // sheetAnalysis 폴백에 cumulative가 없으면 보정
+  if (trendDaily && trendDaily.some(d => !d.cumulative)) {
+    let cum = 0;
+    trendDaily.forEach(d => { cum += (d.count || 0); d.cumulative = cum; });
+  }
+  const showApplicant = liveTotal != null || (trendDaily && trendDaily.length);
   const refreshBar = (p.links?.sheet || (p.resources || []).some(u => /spreadsheets\/d\//.test(u || ''))) ? `
     <div class="refresh-bar">
       <span class="rb-meta">${sheetFetchedAt ? `마지막 fetch · ${fmtDt(sheetFetchedAt)}` : '아직 fetch 전'}</span>
@@ -787,17 +976,10 @@ function render() {
         ${liveUnique != null ? `<tr><th>유니크 ID (중복제외)</th><td class="num">${fmt(liveUnique)}</td></tr>` : ''}
       </table>
     ` : ''}
-    ${sheetAnalysis?.daily?.length ? `
+    ${(trendDaily && trendDaily.length) ? `
       <div class="sub-block" style="margin-top:22px">
-        <div class="sb-title">일별 추이</div>
-        ${(() => {
-          const max = Math.max(...sheetAnalysis.daily.map(d => d.count || 0), 1);
-          return sheetAnalysis.daily.map(d => {
-            const w = Math.round(((d.count || 0) / max) * 100);
-            const spike = (d.count || 0) >= 500 ? 'is-spike' : '';
-            return `<div class="bar-row ${spike}"><span class="br-label">${esc(d.date)}</span><span class="br-value">${fmt(d.count)}</span><span class="br-bar"><i style="width:${w}%"></i></span></div>`;
-          }).join('');
-        })()}
+        <div class="sb-title">일별 / 누적 추이</div>
+        ${renderTrendChart(trendDaily)}
       </div>
     ` : ''}
   ` : (refreshBar + emptyBlock('신청자 시트가 연결되지 않았습니다', '시트 URL 등록 후 자동 분석'))));
