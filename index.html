@@ -983,7 +983,7 @@
   function kpiCurrent(p, kind) {
     const ana = getSheetUnique(p);
     const r = getJSON('b2c_resume_stats_' + p.id);
-    if (kind === 'signup') return ana?.unique ?? ana?.total ?? null;
+    if (kind === 'signup') return ana?.total ?? ana?.unique ?? null;
     if (kind === 'resume') return r?.resumeUpdated ?? null;
     return null;
   }
