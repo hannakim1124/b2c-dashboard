@@ -575,7 +575,9 @@ function render() {
   if (sheetUrl) {
     const sid = (sheetUrl.match(/spreadsheets\/d\/([\w-]+)/) || [])[1];
     if (sid) {
-      const c = (window.SHEET_CACHES && window.SHEET_CACHES[sid]) || getJSON('b2c_sheet_data_' + sid);
+      const ls = getJSON('b2c_sheet_data_' + sid);
+      const mem = window.SHEET_CACHES && window.SHEET_CACHES[sid];
+      const c = (ls && mem) ? (new Date(ls.fetchedAt || 0) >= new Date(mem.fetchedAt || 0) ? ls : mem) : (ls || mem);
       if (c?.fetchedAt) sheetFetchedAt = c.fetchedAt;
       if (c?.rows && c.rows.length > 1) {
         liveTotal = c.rows.length - 1;

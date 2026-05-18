@@ -937,12 +937,20 @@
     return null;
   }
 
+  // 시트 캐시 우선순위: localStorage vs 메모리(data/cache.js) — fetchedAt 더 최신 쪽 사용
+  function pickFreshSheetCache(sheetId) {
+    const ls = getJSON('b2c_sheet_data_' + sheetId);
+    const mem = window.SHEET_CACHES && window.SHEET_CACHES[sheetId];
+    if (ls && mem) return new Date(ls.fetchedAt || 0) >= new Date(mem.fetchedAt || 0) ? ls : mem;
+    return ls || mem;
+  }
+
   function getSheetUnique(p) {
     const allUrls = [...(p.resources || []), p.links?.sheet, p.links?.notion].filter(Boolean);
     const sheetUrl = allUrls.find(u => /spreadsheets\/d\//.test(u || ''));
     const sheetId = sheetUrl ? (sheetUrl.match(/spreadsheets\/d\/([\w-]+)/) || [])[1] : null;
     if (!sheetId) return null;
-    const cache = (window.SHEET_CACHES && window.SHEET_CACHES[sheetId]) || getJSON('b2c_sheet_data_' + sheetId);
+    const cache = pickFreshSheetCache(sheetId);
     if (!cache?.rows) return null;
     const rows = cache.rows;
     if (!rows.length) return { total: 0, unique: 0 };
@@ -1301,6 +1309,43 @@
   render();
   renderTrashBadge();
   setTimeout(() => { render(); renderTrashBadge(); }, 1200);
+
+  // ── 백그라운드 자동 시트 fetch (메인 페이지 진입 시 1회) ──────────────
+  // data/cache.js의 정적 스냅샷이 옛값이라 KPI가 안 맞는 문제 해결.
+  // 카드별 sheetUrl 추출 → 병렬 fetch → 더 최신이면 캐시 갱신 → render.
+  async function autoRefreshSheets() {
+    const projects = getAllProjects();
+    const targets = new Map(); // sid → sheetUrl
+    for (const p of projects) {
+      const urls = [...(p.resources || []), p.links?.sheet].filter(Boolean);
+      const sheetUrl = urls.find(u => /spreadsheets\/d\//.test(u || ''));
+      if (!sheetUrl) continue;
+      const sid = (sheetUrl.match(/spreadsheets\/d\/([\w-]+)/) || [])[1];
+      if (sid && !targets.has(sid)) targets.set(sid, sheetUrl);
+    }
+    if (!targets.size) return;
+    const tasks = [...targets.entries()].map(async ([sid, sheetUrl]) => {
+      const gid = (sheetUrl.match(/[#&?]gid=(\d+)/) || [])[1] || '0';
+      try {
+        const r = await fetch('/api/fetch-sheet?t=' + Date.now(), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          cache: 'no-store',
+          body: JSON.stringify({ sheetUrl, sheetId: sid, gid })
+        });
+        if (!r.ok) return;
+        const d = await r.json();
+        if (!d?.rows) return;
+        const payload = { sheetId: sid, sheetUrl, fetchedAt: d.fetchedAt || new Date().toISOString(), rows: d.rows };
+        window.SHEET_CACHES = window.SHEET_CACHES || {};
+        window.SHEET_CACHES[sid] = payload;
+        try { localStorage.setItem('b2c_sheet_data_' + sid, JSON.stringify(payload)); } catch(e) {}
+      } catch(e) { /* 조용히 무시 — 캐시는 그대로 */ }
+    });
+    await Promise.all(tasks);
+    render();
+  }
+  setTimeout(autoRefreshSheets, 200);
 </script>
 
 </body>
