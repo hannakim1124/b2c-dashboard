@@ -1025,7 +1025,6 @@
         <span class="tgt">${fmt(target)}<span class="unit">명</span></span>
       </div>
       <div class="kpi-bar"><div class="kpi-bar-fill ${cls}" style="width:${w}%"></div></div>
-      <div class="kpi-pct ${cls}">${lightIcon(pct)} · ${pct.toFixed(1)}%</div>
     </td>`;
   }
 
@@ -1132,7 +1131,6 @@
       <div class="sum-card"><span class="ic">📚</span><div class="lab">총 이벤트</div><div class="val">${projects.length}<span class="unit">건</span></div><div class="sub">진행중 ${ongoing.length} · 종료 ${done.length}</div></div>
       <div class="sum-card"><span class="ic">✉️</span><div class="lab">누적 신청자</div><div class="val">${fmt(totalSignup)}<span class="unit">명</span></div><div class="sub">유니크 기준 합산</div></div>
       <div class="sum-card"><span class="ic">📝</span><div class="lab">누적 이력서 업데이트</div><div class="val">${fmt(totalResume)}<span class="unit">명</span></div><div class="sub">메타베이스 r_edit_dt</div></div>
-      <div class="sum-card"><span class="ic">⭐</span><div class="lab">KPI 달성률</div><div class="val">${achievePct}<span class="unit">%</span></div><div class="sub">초과 ${achieved} / 측정 ${totalKpi}</div></div>
     `;
   }
 

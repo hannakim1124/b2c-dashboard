@@ -892,6 +892,11 @@ function render() {
     return parts.length ? parts.join('') : emptyBlock('콘텐츠 효율 세부 항목 미입력');
   }
 
+  // ─── 라이브 모드 ───
+  // p.liveMode === true 인 카드는 Cover + 핵심지표(신청·이력서만) + 신청자 자동분석만 노출
+  // 나머지(이력서매칭/광고/콘텐츠/예산/웨비나/외부자료/메모)는 종료 후 일괄 등록 시점에 자동 노출
+  const isLive = (p.liveMode === true) || projectId === 'user-1779061028204';
+
   // ─── HTML 빌드 ───
   const html = [];
 
@@ -915,10 +920,13 @@ function render() {
   let secCnt = 0;
   const nx = () => String(++secCnt).padStart(2, '0');
 
-  // 01 핵심 지표
-  html.push(section(nx(), '핵심 지표', null, kpis.length ? `
+  // 01 핵심 지표 (라이브 모드면 신청·이력서 KPI만 노출)
+  const visibleKpis = isLive
+    ? kpis.filter(k => /신청|응모|지원|참여|참가|등록|모집|이력서|업데이트|resume|update/i.test(k?.label || ''))
+    : kpis;
+  html.push(section(nx(), '핵심 지표', null, visibleKpis.length ? `
     <div class="kpi-grid">
-      ${kpis.map(k => {
+      ${visibleKpis.map(k => {
         const target = parseTarget(k.value);
         const current = matchCurrent(k.label);
         let pct = null;
@@ -938,8 +946,8 @@ function render() {
     </div>
   ` : emptyBlock('KPI 미설정', '우상단 편집에서 추가')));
 
-  // 02 이력서 매칭
-  html.push(section(nx(), '이력서 매칭', null, resumeStats ? `
+  // 02 이력서 매칭 (라이브 모드 스킵)
+  if (!isLive) html.push(section(nx(), '이력서 매칭', null, resumeStats ? `
     <table class="data-table">
       <tr><th>시트 ID 입력</th><td class="num">${fmt(resumeStats.totalIds)}</td></tr>
       <tr><th>DB 매칭</th><td class="num">${fmt(resumeStats.matched)} <span style="font-family:var(--sans);font-size:12px;color:var(--text-3);font-weight:400">(${resumeStats.matchRate ?? '—'}%)</span></td></tr>
@@ -984,50 +992,52 @@ function render() {
     ` : ''}
   ` : (refreshBar + emptyBlock('신청자 시트가 연결되지 않았습니다', '시트 URL 등록 후 자동 분석'))));
 
-  // 04 광고 효율
-  html.push(section(nx(), '광고 효율', adReport ? '마크업·VAT 전' : null, adReport ? `
-    <table class="data-table">
-      ${adReport.spend != null ? `<tr><th>집행 (마크업·VAT 전)</th><td class="num">${fmt(adReport.spend)}원</td></tr>` : ''}
-      ${adReport.impressions != null ? `<tr><th>노출</th><td class="num">${fmt(adReport.impressions)}</td></tr>` : ''}
-      ${adReport.clicks != null ? `<tr><th>클릭</th><td class="num">${fmt(adReport.clicks)}</td></tr>` : ''}
-      ${adReport.ctr != null ? `<tr><th>CTR</th><td class="num">${adReport.ctr}%</td></tr>` : ''}
-      ${adReport.cpc != null ? `<tr><th>CPC</th><td class="num">${fmt(adReport.cpc)}원</td></tr>` : ''}
-      ${adReport.cpa != null ? `<tr class="total-row"><th>CPA · 신청 단가</th><td class="num">${fmt(adReport.cpa)}원</td></tr>` : ''}
-    </table>
-  ` : emptyBlock('광고 리포트 없음', '커디팀에서 받은 Meta 리포트 박으면 자동 표시')));
-
-  // 05 콘텐츠 효율
-  html.push(section(nx(), '콘텐츠 효율', '콘텐츠 담당자 관점', renderContentEff()));
-
-  // 06 예산 / 품의
-  html.push(section(nx(), '예산 / 품의', null, (budget?.items?.length) ? `
-    <table class="data-table">
-      ${budget.items.map(it => `<tr><th>${esc(it.label || it.name || '항목')}</th><td class="num">${fmt(it.amount)}원</td></tr>`).join('')}
-      <tr class="total-row"><th>합계</th><td class="num">${fmt(budget.items.reduce((s, it) => s + (Number(it.amount) || 0), 0))}원</td></tr>
-    </table>
-  ` : emptyBlock('예산 미입력')));
-
-  // 07 웨비나 메트릭 (있을 때만)
-  if (webinar) {
-    html.push(section(nx(), '웨비나 메트릭', null, `
+  if (!isLive) {
+    // 04 광고 효율
+    html.push(section(nx(), '광고 효율', adReport ? '마크업·VAT 전' : null, adReport ? `
       <table class="data-table">
-        ${webinar.zoomUnique != null ? `<tr><th>줌 유니크 참석자</th><td class="num">${fmt(webinar.zoomUnique)}</td></tr>` : ''}
-        ${webinar.zoomPeak != null ? `<tr><th>최대 동시 접속</th><td class="num">${fmt(webinar.zoomPeak)}</td></tr>` : ''}
-        ${webinar.satisfaction != null ? `<tr><th>만족도</th><td class="num">${webinar.satisfaction}점</td></tr>` : ''}
+        ${adReport.spend != null ? `<tr><th>집행 (마크업·VAT 전)</th><td class="num">${fmt(adReport.spend)}원</td></tr>` : ''}
+        ${adReport.impressions != null ? `<tr><th>노출</th><td class="num">${fmt(adReport.impressions)}</td></tr>` : ''}
+        ${adReport.clicks != null ? `<tr><th>클릭</th><td class="num">${fmt(adReport.clicks)}</td></tr>` : ''}
+        ${adReport.ctr != null ? `<tr><th>CTR</th><td class="num">${adReport.ctr}%</td></tr>` : ''}
+        ${adReport.cpc != null ? `<tr><th>CPC</th><td class="num">${fmt(adReport.cpc)}원</td></tr>` : ''}
+        ${adReport.cpa != null ? `<tr class="total-row"><th>CPA · 신청 단가</th><td class="num">${fmt(adReport.cpa)}원</td></tr>` : ''}
       </table>
-    `));
-  }
+    ` : emptyBlock('광고 리포트 없음', '커디팀에서 받은 Meta 리포트 박으면 자동 표시')));
 
-  // 외부 자료
-  html.push(section(nx(), '외부 자료', null, links.length ? `
-    <div class="link-chips">
-      ${links.map(l => `<a class="link-chip" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)} ↗</a>`).join('')}
-    </div>
-  ` : emptyBlock('외부 자료 없음')));
+    // 05 콘텐츠 효율
+    html.push(section(nx(), '콘텐츠 효율', '콘텐츠 담당자 관점', renderContentEff()));
 
-  // 메모 (있을 때만)
-  if (note) {
-    html.push(section(nx(), '메모', null, `<div class="memo-block">${esc(note)}</div>`));
+    // 06 예산 / 품의
+    html.push(section(nx(), '예산 / 품의', null, (budget?.items?.length) ? `
+      <table class="data-table">
+        ${budget.items.map(it => `<tr><th>${esc(it.label || it.name || '항목')}</th><td class="num">${fmt(it.amount)}원</td></tr>`).join('')}
+        <tr class="total-row"><th>합계</th><td class="num">${fmt(budget.items.reduce((s, it) => s + (Number(it.amount) || 0), 0))}원</td></tr>
+      </table>
+    ` : emptyBlock('예산 미입력')));
+
+    // 07 웨비나 메트릭 (있을 때만)
+    if (webinar) {
+      html.push(section(nx(), '웨비나 메트릭', null, `
+        <table class="data-table">
+          ${webinar.zoomUnique != null ? `<tr><th>줌 유니크 참석자</th><td class="num">${fmt(webinar.zoomUnique)}</td></tr>` : ''}
+          ${webinar.zoomPeak != null ? `<tr><th>최대 동시 접속</th><td class="num">${fmt(webinar.zoomPeak)}</td></tr>` : ''}
+          ${webinar.satisfaction != null ? `<tr><th>만족도</th><td class="num">${webinar.satisfaction}점</td></tr>` : ''}
+        </table>
+      `));
+    }
+
+    // 외부 자료
+    html.push(section(nx(), '외부 자료', null, links.length ? `
+      <div class="link-chips">
+        ${links.map(l => `<a class="link-chip" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)} ↗</a>`).join('')}
+      </div>
+    ` : emptyBlock('외부 자료 없음')));
+
+    // 메모 (있을 때만)
+    if (note) {
+      html.push(section(nx(), '메모', null, `<div class="memo-block">${esc(note)}</div>`));
+    }
   }
 
   // 푸터
