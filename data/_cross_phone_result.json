@@ -1,0 +1,21 @@
+{
+  "fetchedAt": "2026-05-19T04:01:28.718Z",
+  "cutoff": "2026-05-19 12:00:00 KST",
+  "method": "폰번호 정규화 (비숫자 제거 + 앞 0 제거) 후 유니크 교집합",
+  "unique_phones": {
+    "career": 1479,
+    "devcon": 1463,
+    "workfest": 4182
+  },
+  "cross": {
+    "career_x_devcon": 36,
+    "career_x_workfest": 52,
+    "devcon_x_workfest": 27,
+    "all_three": 3
+  },
+  "rates": {
+    "career_x_devcon": "2.43%",
+    "career_x_workfest": "3.52%",
+    "devcon_x_workfest": "1.85%"
+  }
+}
