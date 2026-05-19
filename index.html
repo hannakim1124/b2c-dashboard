@@ -100,10 +100,11 @@
       <span class="brand-sub">인사이트전략팀 · 26.2분기</span>
     </div>
     <nav class="nav-tabs">
-      <button class="nav-tab active" data-tab="article">아티클</button>
+      <button class="nav-tab active" data-tab="event">웨비나·이벤트</button>
+      <button class="nav-tab" data-tab="article">아티클</button>
       <button class="nav-tab" data-tab="insta">인스타</button>
       <button class="nav-tab" data-tab="community">커뮤니티</button>
-      <button class="nav-tab" data-tab="event">웨비나·이벤트</button>
+      <button class="nav-tab" data-tab="b2b">B2B</button>
     </nav>
   </div>
 </header>
@@ -117,7 +118,7 @@
   </div>
 
   <!-- 아티클 -->
-  <section class="tab-pane active" id="tab-article">
+  <section class="tab-pane" id="tab-article">
     <h2 class="section-title">📰 아티클</h2>
     <div class="section-desc">콘텐츠 LAB 발행 콘텐츠 · 4~5월 트래픽 추이</div>
 
@@ -264,6 +265,74 @@
     </div>
   </section>
 
+  <!-- B2B -->
+  <section class="tab-pane" id="tab-b2b">
+    <h2 class="section-title">🏢 B2B 콘텐츠</h2>
+    <div class="section-desc">블로그 · 뉴스레터 · 리포트 · 밋업 · MQL 리드 확보</div>
+
+    <div class="panel">
+      <h3>B2B 블로그</h3>
+      <div class="kpi-grid">
+        <div class="kpi accent"><div class="k">런칭일</div><div class="v">4/22</div><div class="extra">blog.worxphere.ai</div></div>
+        <div class="kpi"><div class="k">PV</div><div class="v">39,470</div><div class="extra">5/18 기준</div></div>
+        <div class="kpi"><div class="k">UV</div><div class="v">30,762</div></div>
+        <div class="kpi"><div class="k">게시물</div><div class="v">11<span class="u">개</span></div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>B2B 뉴스레터</h3>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="k">발송 대상</div><div class="v">80<span class="u">만 기업회원</span></div></div>
+        <div class="kpi"><div class="k">평균 오픈율</div><div class="v">6<span class="u">%</span></div></div>
+        <div class="kpi accent"><div class="k">오픈 대비 클릭율</div><div class="v">21.7<span class="u">%</span></div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>B2B 데이터 리포트 (리드 마그넷)</h3>
+      <table class="simple">
+        <thead><tr><th>리포트</th><th>발행</th><th>신청자</th></tr></thead>
+        <tbody>
+          <tr><td>AX 채용 리포트</td><td>4월</td><td class="num">394명</td></tr>
+          <tr><td>기업 선호도 리포트</td><td>5월</td><td class="muted">발행 예정</td></tr>
+          <tr><td>채용 공고 작성법(안) 리포트</td><td>6월</td><td class="muted">발행 예정</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h3>B2B 밋업 — 흐레카 데이</h3>
+      <table class="simple">
+        <thead>
+          <tr><th>회차</th><th>신청</th><th>선정</th><th>참석확정</th><th>참석</th><th>참석률</th><th>채용상담</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>3월 · HR팀장 편 <span class="pill" style="font-size:10px;padding:2px 7px;">완료</span></td>
+            <td class="num">101</td><td class="num">70</td><td class="num">36</td>
+            <td class="num">25</td><td class="num">69%</td><td class="num">4</td>
+          </tr>
+          <tr>
+            <td>5/21 · AX 편 <span class="pill live" style="font-size:10px;padding:2px 7px;"><span class="dot"></span>예정</span></td>
+            <td class="num live">147</td><td class="num live">120</td><td class="num live">88</td>
+            <td class="muted">예정</td><td class="muted">—</td><td class="muted">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h3>MQL 리드 확보 현황</h3>
+      <div class="kpi-grid">
+        <div class="kpi accent"><div class="k">총 누적</div><div class="v">1,979<span class="u">명</span></div></div>
+        <div class="kpi"><div class="k">더 리부트 (1월)</div><div class="v">1,748<span class="u">명</span></div></div>
+        <div class="kpi"><div class="k">AX 채용 리포트 (5월)</div><div class="v">135<span class="u">명</span></div></div>
+        <div class="kpi"><div class="k">흐레카 AX 편 (5월)</div><div class="v">96<span class="u">명</span></div></div>
+      </div>
+    </div>
+  </section>
+
   <footer class="footer">
     데이터 기준 2026-05-19 · 인사이트전략팀 김한나<br>
     매칭: 휴대폰 번호 정규화 후 유니크 · 매체비 VAT 제외 Meta 실 집행
@@ -281,7 +350,7 @@
       window.scrollTo({ top:0, behavior:'smooth' });
     });
   });
-  const hash = (location.hash || '#article').replace('#','');
+  const hash = (location.hash || '#event').replace('#','');
   const t = document.querySelector('.nav-tab[data-tab="' + hash + '"]');
   if (t) t.click();
 </script>
