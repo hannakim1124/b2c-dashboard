@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>B2C 이벤트 성과 보고 · 2026 Q1~Q2</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root {
+    --bg: #FFFFFF;
+    --surface: #FFFFFF;
+    --surface-2: #F9FAFB;
+    --surface-3: #F2F4F6;
+    --line: #E5E8EB;
+    --line-2: #EAEDF0;
+
+    --ink: #191F28;
+    --ink-2: #4E5968;
+    --ink-3: #8B95A1;
+    --ink-4: #B0B8C1;
+
+    --blue: #3182F6;
+    --blue-soft: #E8F2FE;
+    --blue-dim: #F4F8FF;
+
+    --green: #00875A;
+    --green-soft: #E6F4EF;
+
+    --red: #DC2626;
+    --red-soft: #FDECEC;
+
+    --warn: #F59E0B;
+    --warn-soft: #FFF7E6;
+
+    --font: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--surface-3);
+    color: var(--ink);
+    font-family: var(--font);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── 헤더 ── */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+    padding: 20px 32px;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .topbar-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .title-block h1 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); }
+  .title-block .sub { margin-top: 4px; font-size: 13px; color: var(--ink-3); }
+  .meta-block { display: flex; gap: 8px; align-items: center; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; font-size: 12px; color: var(--ink-2); font-weight: 500; }
+  .pill.live { background: var(--blue-dim); color: var(--blue); border-color: var(--blue-soft); }
+  .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); }
+
+  /* ── 컨테이너 ── */
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 32px; }
+  .section { margin-bottom: 40px; }
+  .section-head { margin-bottom: 16px; }
+  .section-head h2 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); }
+  .section-head .desc { margin-top: 4px; font-size: 13px; color: var(--ink-3); }
+
+  /* ── Executive Summary ── */
+  .exec {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 28px;
+  }
+  .exec-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+  .exec-cell { }
+  .exec-cell .label { font-size: 12px; color: var(--ink-3); font-weight: 500; margin-bottom: 6px; letter-spacing: 0.02em; }
+  .exec-cell .value { font-size: 28px; font-weight: 700; color: var(--ink); letter-spacing: -0.03em; line-height: 1.15; }
+  .exec-cell .unit { font-size: 14px; font-weight: 500; color: var(--ink-3); margin-left: 2px; }
+  .exec-cell .delta { margin-top: 6px; font-size: 12px; color: var(--ink-3); }
+
+  /* ── 비교 표 ── */
+  .compare-table {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow-x: auto;
+  }
+  table.kpi { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 640px; }
+  table.kpi th, table.kpi td { padding: 14px 20px; text-align: right; border-bottom: 1px solid var(--line-2); }
+  table.kpi th:first-child, table.kpi td:first-child { text-align: left; font-weight: 600; color: var(--ink); width: 30%; }
+  table.kpi thead th { background: var(--surface-2); font-weight: 600; color: var(--ink-2); font-size: 13px; }
+  table.kpi tbody tr:last-child td { border-bottom: none; }
+  table.kpi tbody tr:hover { background: var(--surface-2); }
+  table.kpi .num { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--ink); }
+  table.kpi .num.big { font-size: 16px; }
+  table.kpi .sub { display: block; font-size: 12px; color: var(--ink-3); font-weight: 400; margin-top: 2px; }
+  table.kpi .best { color: var(--green); }
+  table.kpi .ongoing { color: var(--blue); font-weight: 600; }
+  .legend { margin-top: 12px; font-size: 12px; color: var(--ink-3); padding: 0 8px; }
+
+  /* ── 이벤트 카드 3개 ── */
+  .event-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .event-card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
+    padding: 24px; display: flex; flex-direction: column;
+  }
+  .event-card .head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .event-card .head .quarter { font-size: 12px; color: var(--ink-3); font-weight: 600; letter-spacing: 0.05em; }
+  .event-card .head .badge { font-size: 11px; padding: 3px 8px; border-radius: 6px; font-weight: 600; }
+  .event-card .head .badge.done { background: var(--green-soft); color: var(--green); }
+  .event-card .head .badge.ongoing { background: var(--blue-soft); color: var(--blue); }
+  .event-card h3 { margin: 6px 0 12px; font-size: 17px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); }
+  .event-card .when { font-size: 12px; color: var(--ink-3); margin-bottom: 18px; }
+  .event-card .kpi-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .event-card .kpi { background: var(--surface-2); border-radius: 10px; padding: 12px 14px; }
+  .event-card .kpi .k { font-size: 11px; color: var(--ink-3); font-weight: 500; margin-bottom: 4px; }
+  .event-card .kpi .v { font-size: 20px; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .event-card .kpi .v .u { font-size: 12px; font-weight: 500; color: var(--ink-3); margin-left: 1px; }
+  .event-card .kpi .extra { font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+  .event-card .note { font-size: 12px; color: var(--ink-3); padding-top: 14px; border-top: 1px dashed var(--line-2); margin-top: auto; }
+  .event-card.ongoing-card { border-color: var(--blue); border-width: 1.5px; }
+
+  /* ── 퍼널 ── */
+  .funnel-card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 28px; }
+  .funnel-row { display: flex; align-items: center; gap: 18px; margin-bottom: 12px; }
+  .funnel-row:last-child { margin-bottom: 0; }
+  .funnel-label { width: 200px; flex-shrink: 0; }
+  .funnel-label .name { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .funnel-label .sub { font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+  .funnel-bar-wrap { flex: 1; height: 44px; background: var(--surface-3); border-radius: 8px; overflow: hidden; position: relative; }
+  .funnel-bar { height: 100%; display: flex; align-items: center; justify-content: flex-end; padding-right: 12px; color: white; font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; transition: width .3s; }
+  .funnel-bar.b1 { background: var(--blue); }
+  .funnel-bar.b2 { background: #5B9BFA; }
+  .funnel-bar.b3 { background: #8FBCFB; color: var(--ink); }
+  .funnel-bar.b4 { background: #C7DCFD; color: var(--ink); }
+  .funnel-meta { width: 110px; text-align: right; flex-shrink: 0; }
+  .funnel-meta .pct { font-size: 14px; font-weight: 700; color: var(--ink); }
+  .funnel-meta .pct-sub { font-size: 11px; color: var(--ink-3); }
+  .funnel-note { margin-top: 18px; padding: 14px 16px; background: var(--warn-soft); border-radius: 8px; font-size: 13px; color: var(--ink-2); line-height: 1.6; }
+  .funnel-note strong { color: var(--ink); font-weight: 600; }
+
+  /* ── 인사이트 ── */
+  .insight-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .insight-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+  .insight-card .ic-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: var(--blue); margin-bottom: 8px; }
+  .insight-card.warn .ic-label { color: var(--warn); }
+  .insight-card.good .ic-label { color: var(--green); }
+  .insight-card h4 { margin: 0 0 6px; font-size: 15px; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
+  .insight-card p { margin: 0; font-size: 13px; color: var(--ink-2); line-height: 1.6; }
+
+  /* ── 푸터 ── */
+  .footer { margin-top: 48px; padding: 24px 0; border-top: 1px solid var(--line); font-size: 12px; color: var(--ink-3); text-align: center; }
+
+  /* 반응형 */
+  @media (max-width: 900px) {
+    .wrap { padding: 20px; }
+    .exec-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .exec-cell .value { font-size: 24px; }
+    .event-grid { grid-template-columns: 1fr; }
+    .insight-grid { grid-template-columns: 1fr; }
+    .funnel-row { flex-wrap: wrap; gap: 10px; }
+    .funnel-label { width: 100%; }
+    .funnel-meta { width: 100%; text-align: left; }
+    table.kpi th, table.kpi td { padding: 10px 12px; font-size: 13px; }
+    .topbar { padding: 16px 20px; }
+    .meta-block { flex-wrap: wrap; }
+  }
+  @media (max-width: 560px) {
+    .exec-grid { grid-template-columns: 1fr; gap: 16px; }
+    .exec-cell .value { font-size: 22px; }
+    .section { margin-bottom: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="title-block">
+      <h1>B2C 이벤트 성과 보고</h1>
+      <div class="sub">2026 Q1~Q2 · 인사이트전략팀 · 김한나</div>
+    </div>
+    <div class="meta-block">
+      <span class="pill"><span class="dot"></span>WORK FEST 진행중</span>
+      <span class="pill">as of 2026-05-19 12:00</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ── Executive Summary ── -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Executive Summary</h2>
+      <div class="desc">2026년 상반기 B2C 이벤트 3종 누적 성과</div>
+    </div>
+    <div class="exec">
+      <div class="exec-grid">
+        <div class="exec-cell">
+          <div class="label">진행 이벤트</div>
+          <div class="value">3<span class="unit">건</span></div>
+          <div class="delta">웨비나 2 · 이벤트 1</div>
+        </div>
+        <div class="exec-cell">
+          <div class="label">총 신청자</div>
+          <div class="value">7,510<span class="unit">명</span></div>
+          <div class="delta">커컨 1,566 + 데브콘 1,511 + 워페 4,433</div>
+        </div>
+        <div class="exec-cell">
+          <div class="label">실 참여자</div>
+          <div class="value">5,853<span class="unit">명</span></div>
+          <div class="delta">전환율 77.94% · 이력서 이벤트 신청 = 참여</div>
+        </div>
+        <div class="exec-cell">
+          <div class="label">이력서 업데이트</div>
+          <div class="value">3,088<span class="unit">건</span></div>
+          <div class="delta">CVR 41.12% · 신규 가입 94명 (1.25%)</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 이벤트별 카드 3개 ── -->
+  <section class="section">
+    <div class="section-head">
+      <h2>이벤트별 상세</h2>
+      <div class="desc">각 이벤트 핵심 KPI 개별 뷰</div>
+    </div>
+    <div class="event-grid">
+
+      <article class="event-card">
+        <div class="head">
+          <div class="quarter">Q1 · 2026.03</div>
+          <div class="badge done">완료</div>
+        </div>
+        <h3>커리어 컨퍼런스</h3>
+        <div class="when">B2C 대형 컨퍼런스 · 회원 직무 전환 지원</div>
+        <div class="kpi-row">
+          <div class="kpi"><div class="k">총 신청자</div><div class="v">1,566<span class="u">명</span></div></div>
+          <div class="kpi"><div class="k">실 참여자</div><div class="v">595<span class="u">명</span></div></div>
+          <div class="kpi"><div class="k">이력서 업데이트</div><div class="v">111<span class="u">건</span></div><div class="extra">신규 84 · 수정 27</div></div>
+          <div class="kpi"><div class="k">CVR / CPA</div><div class="v">7.09<span class="u">%</span></div><div class="extra">CPA 2,848원 · 신규가입 8</div></div>
+        </div>
+        <div class="note">참여 전환율 38.0% · 이력서 CVR 7.09% · 신규 가입 전환율 0.51%</div>
+      </article>
+
+      <article class="event-card">
+        <div class="head">
+          <div class="quarter">Q2 · 2026.04</div>
+          <div class="badge done">완료</div>
+        </div>
+        <h3>잡코리아 데브콘</h3>
+        <div class="when">개발자 타겟 컨퍼런스 · 첫 단독 운영</div>
+        <div class="kpi-row">
+          <div class="kpi"><div class="k">총 신청자</div><div class="v">1,511<span class="u">명</span></div></div>
+          <div class="kpi"><div class="k">실 참여자</div><div class="v">825<span class="u">명</span></div></div>
+          <div class="kpi"><div class="k">이력서 업데이트</div><div class="v">149<span class="u">건</span></div><div class="extra">신규 63 · 수정 86</div></div>
+          <div class="kpi"><div class="k">CVR / CPA</div><div class="v">9.86<span class="u">%</span></div><div class="extra">CPA 2,707원 · 신규가입 15</div></div>
+        </div>
+        <div class="note">참여 전환율 54.6% (이벤트 중 최고) · CPA 2,707원 · 신규 가입 1.0%</div>
+      </article>
+
+      <article class="event-card ongoing-card">
+        <div class="head">
+          <div class="quarter">Q2 · 2026.05.28</div>
+          <div class="badge ongoing">진행중</div>
+        </div>
+        <h3>WORK FEST</h3>
+        <div class="when">잡코리아 첫 이력서 페스티벌 · 5/19 12:00 스냅샷</div>
+        <div class="kpi-row">
+          <div class="kpi"><div class="k">총 신청자</div><div class="v">4,433<span class="u">명</span></div><div class="extra">5/19 12:00 누적</div></div>
+          <div class="kpi"><div class="k">실 참여자</div><div class="v">4,433<span class="u">명</span></div><div class="extra">신청자 = 참여자</div></div>
+          <div class="kpi"><div class="k">이력서 업데이트</div><div class="v">2,828<span class="u">건</span></div><div class="extra">신규 597 · 수정 2,231</div></div>
+          <div class="kpi"><div class="k">CVR / CPA</div><div class="v">63.79<span class="u">%</span></div><div class="extra">신규가입 71 (1.60%)</div></div>
+        </div>
+        <div class="note"><strong>D-9</strong> 잔여 · 신청 4,433 = 직전 두 합 +44.1% · 이력서 CVR 63.79%는 웨비나 평균(8.5%)의 7.5배 · 신규 가입 71명</div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ── KPI 비교 표 (이벤트별 상세 다음) ── -->
+  <section class="section" id="kpi-table-section">
+    <div class="section-head">
+      <h2>이벤트별 KPI 비교</h2>
+      <div class="desc">웨비나(2) / 이벤트(1) — CVR·CPA는 마크업 전 Meta 실 집행 기준 · 모든 비율은 신청자 대비</div>
+    </div>
+    <div class="compare-table">
+      <table class="kpi">
+        <thead>
+          <tr>
+            <th>지표</th>
+            <th>커리어 컨퍼런스<br><span style="font-weight:400;color:var(--ink-3);font-size:12px;">2026.03 · 웨비나 · 완료</span></th>
+            <th>잡코리아 데브콘<br><span style="font-weight:400;color:var(--ink-3);font-size:12px;">2026.04 · 웨비나 · 완료</span></th>
+            <th>WORK FEST<br><span style="font-weight:400;color:var(--blue);font-size:12px;">2026.05.28 · 이벤트 · 진행중</span></th>
+            <th style="background:var(--ink); color:white;">합계<br><span style="font-weight:400;color:#B0B8C1;font-size:12px;">3개 이벤트</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>총 신청자 수</td>
+            <td class="num big">1,566<span class="sub">명</span></td>
+            <td class="num big">1,511<span class="sub">명</span></td>
+            <td class="num big ongoing">4,433<span class="sub">명 · 5/19 12:00</span></td>
+            <td class="num big" style="background:var(--surface-2);">7,510<span class="sub">명</span></td>
+          </tr>
+          <tr>
+            <td>실 참여자 수<br><span class="sub" style="font-weight:400;color:var(--ink-3);">이력서 이벤트 신청 = 참여 포함</span></td>
+            <td class="num big">595<span class="sub">명</span></td>
+            <td class="num big">825<span class="sub">명</span></td>
+            <td class="num big ongoing">4,433<span class="sub">명 · 신청 = 참여</span></td>
+            <td class="num big" style="background:var(--surface-2);">5,853<span class="sub">명</span></td>
+          </tr>
+          <tr>
+            <td>참여 전환율<br><span class="sub" style="font-weight:400;color:var(--ink-3);">참여 ÷ 신청</span></td>
+            <td class="num">38.0%</td>
+            <td class="num best">54.6%</td>
+            <td class="num ongoing">100%<span class="sub">정의상 1:1</span></td>
+            <td class="num" style="background:var(--surface-2);">77.94%</td>
+          </tr>
+          <tr style="border-top:2px solid var(--line);">
+            <td>이력서 업데이트 수<br><span class="sub" style="font-weight:400;color:var(--ink-3);">신규 생성 + 기존 수정</span></td>
+            <td class="num">111<span class="sub">신규 84 · 수정 27</span></td>
+            <td class="num">149<span class="sub">신규 63 · 수정 86</span></td>
+            <td class="num best ongoing">2,828<span class="sub">신규 597 · 수정 2,231</span></td>
+            <td class="num big" style="background:var(--surface-2);">3,088<span class="sub">건</span></td>
+          </tr>
+          <tr>
+            <td>이력서 CVR<br><span class="sub" style="font-weight:400;color:var(--ink-3);">이력서 ÷ 신청</span></td>
+            <td class="num">7.09%</td>
+            <td class="num">9.86%</td>
+            <td class="num best ongoing">63.79%</td>
+            <td class="num big" style="background:var(--surface-2);">41.12%</td>
+          </tr>
+          <tr style="border-top:2px solid var(--line);">
+            <td>신규 가입 수<br><span class="sub" style="font-weight:400;color:var(--ink-3);">이벤트 기간 내 신규 회원</span></td>
+            <td class="num">8<span class="sub">명</span></td>
+            <td class="num">15<span class="sub">명</span></td>
+            <td class="num best ongoing">71<span class="sub">명</span></td>
+            <td class="num big" style="background:var(--surface-2);">94<span class="sub">명</span></td>
+          </tr>
+          <tr>
+            <td>신규 가입 전환율<br><span class="sub" style="font-weight:400;color:var(--ink-3);">신규 가입 ÷ 신청</span></td>
+            <td class="num">0.51%</td>
+            <td class="num">0.99%</td>
+            <td class="num best ongoing">1.60%</td>
+            <td class="num" style="background:var(--surface-2);">1.25%</td>
+          </tr>
+          <tr style="border-top:2px solid var(--line);">
+            <td>CPA (이력서 1건당)<br><span class="sub" style="font-weight:400;color:var(--ink-3);">매체비 ÷ 이력서 업데이트</span></td>
+            <td class="num">2,848<span class="sub">원</span></td>
+            <td class="num best">2,707<span class="sub">원</span></td>
+            <td class="num ongoing">—<span class="sub">행사 후</span></td>
+            <td class="num" style="background:var(--surface-2);">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="legend">· <strong>best</strong>(녹색) = 항목별 최우수 / · 매체비는 VAT 제외 Meta 실 집행 / · 모든 전환율은 신청자 대비</div>
+  </section>
+
+  <!-- ── 이력서 업데이트 분해 (신규 vs 수정) ── -->
+  <section class="section">
+    <div class="section-head">
+      <h2>이력서 업데이트 구성 — 신규 생성 vs 기존 수정</h2>
+      <div class="desc">이벤트 성격이 신규/수정 비율에 그대로 반영됨 — 페스티벌 인센티브 설계 효과 검증</div>
+    </div>
+    <div class="funnel-card">
+      <div class="funnel-row">
+        <div class="funnel-label">
+          <div class="name">커리어 컨퍼런스</div>
+          <div class="sub">신규 우세 (3.1 : 1)</div>
+        </div>
+        <div class="funnel-bar-wrap" style="background:#F2F4F6;">
+          <div style="display:flex; height:100%; width:100%;">
+            <div style="background:var(--blue); width:75.7%; display:flex; align-items:center; justify-content:flex-end; padding-right:10px; color:white; font-weight:700; font-size:13px;">신규 84</div>
+            <div style="background:#C7DCFD; width:24.3%; display:flex; align-items:center; justify-content:center; color:var(--ink); font-weight:700; font-size:13px;">수정 27</div>
+          </div>
+        </div>
+        <div class="funnel-meta">
+          <div class="pct">111건</div>
+          <div class="pct-sub">총 업데이트</div>
+        </div>
+      </div>
+
+      <div class="funnel-row">
+        <div class="funnel-label">
+          <div class="name">잡코리아 데브콘</div>
+          <div class="sub">균형 (1 : 1.4)</div>
+        </div>
+        <div class="funnel-bar-wrap" style="background:#F2F4F6;">
+          <div style="display:flex; height:100%; width:100%;">
+            <div style="background:var(--blue); width:42.3%; display:flex; align-items:center; justify-content:flex-end; padding-right:10px; color:white; font-weight:700; font-size:13px;">신규 63</div>
+            <div style="background:#C7DCFD; width:57.7%; display:flex; align-items:center; justify-content:center; color:var(--ink); font-weight:700; font-size:13px;">수정 86</div>
+          </div>
+        </div>
+        <div class="funnel-meta">
+          <div class="pct">149건</div>
+          <div class="pct-sub">총 업데이트</div>
+        </div>
+      </div>
+
+      <div class="funnel-row">
+        <div class="funnel-label">
+          <div class="name">WORK FEST</div>
+          <div class="sub" style="color:var(--blue);font-weight:600;">수정 압도 (1 : 3.7)</div>
+        </div>
+        <div class="funnel-bar-wrap" style="background:#F2F4F6;">
+          <div style="display:flex; height:100%; width:100%;">
+            <div style="background:var(--blue); width:21.1%; display:flex; align-items:center; justify-content:flex-end; padding-right:10px; color:white; font-weight:700; font-size:13px;">신규 597</div>
+            <div style="background:#C7DCFD; width:78.9%; display:flex; align-items:center; justify-content:center; color:var(--ink); font-weight:700; font-size:13px;">수정 2,231</div>
+          </div>
+        </div>
+        <div class="funnel-meta">
+          <div class="pct">2,828건</div>
+          <div class="pct-sub">총 업데이트</div>
+        </div>
+      </div>
+
+      <div class="funnel-note">
+        <strong>해석:</strong> 컨퍼런스(커컨/데브콘)는 행사 청취 목적 신청 → 처음 이력서를 만드는 비중 높음. WORK FEST는 "기존 이력서 한 줄만 업데이트" 인센티브 설계로 <strong>수정 케이스가 신규의 3.7배</strong> — CRM IAM "10초컷 업데이트" 메시지(이력서 보유 SEG)가 정확히 의도대로 작동.<br>
+        <strong>전략적 함의:</strong> 페스티벌 포맷 = 기존 회원의 이력서 활성화에 효과적 / 컨퍼런스 포맷 = 신규 회원 이력서 작성 유도에 효과적. 후속 이벤트는 KPI 목적에 따라 포맷 선택.
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Cross-event 재참여 퍼널 (3개 페어 + 3개 모두) ── -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Cross-event 재참여 퍼널</h2>
+      <div class="desc">이벤트 신청자가 다른 이벤트도 신청한 비율 — 모든 페어 휴대폰 번호 매칭 통일 (신뢰 ~99%)</div>
+    </div>
+
+    <div class="funnel-card">
+
+      <!-- 퍼널 1: 커컨 → 데브콘 -->
+      <div style="border-left:3px solid var(--blue); padding-left:18px; margin-bottom:22px;">
+        <div style="display:flex; align-items:baseline; gap:10px; margin-bottom:12px; flex-wrap:wrap;">
+          <div style="font-size:11px; font-weight:700; color:var(--blue); letter-spacing:0.08em;">FUNNEL 1</div>
+          <div style="font-size:15px; font-weight:700; color:var(--ink);">커리어 컨퍼런스 → 데브콘</div>
+        </div>
+        <div class="funnel-row">
+          <div class="funnel-label">
+            <div class="name">커컨 신청자</div>
+            <div class="sub">유니크 폰번호</div>
+          </div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar b1" style="width: 100%; justify-content:flex-start; padding-left:14px;">1,479명</div>
+          </div>
+          <div class="funnel-meta"><div class="pct">100%</div><div class="pct-sub">기준</div></div>
+        </div>
+        <div class="funnel-row">
+          <div class="funnel-label">
+            <div class="name"><span style="color:var(--ink-3);">ㄴ</span> 데브콘도 신청</div>
+            <div class="sub">교집합</div>
+          </div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar b2" style="width: 2.4%; min-width: 70px;">36</div>
+          </div>
+          <div class="funnel-meta"><div class="pct">2.4%</div><div class="pct-sub">재참여율</div></div>
+        </div>
+      </div>
+
+      <!-- 퍼널 2: 커컨 → 워페 -->
+      <div style="border-left:3px solid var(--blue); padding-left:18px; margin-bottom:22px;">
+        <div style="display:flex; align-items:baseline; gap:10px; margin-bottom:12px; flex-wrap:wrap;">
+          <div style="font-size:11px; font-weight:700; color:var(--blue); letter-spacing:0.08em;">FUNNEL 2</div>
+          <div style="font-size:15px; font-weight:700; color:var(--ink);">커리어 컨퍼런스 → WORK FEST</div>
+        </div>
+        <div class="funnel-row">
+          <div class="funnel-label">
+            <div class="name">커컨 신청자</div>
+            <div class="sub">유니크 폰번호</div>
+          </div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar b1" style="width: 100%; justify-content:flex-start; padding-left:14px;">1,479명</div>
+          </div>
+          <div class="funnel-meta"><div class="pct">100%</div><div class="pct-sub">기준</div></div>
+        </div>
+        <div class="funnel-row">
+          <div class="funnel-label">
+            <div class="name"><span style="color:var(--ink-3);">ㄴ</span> WORK FEST도 신청</div>
+            <div class="sub">교집합</div>
+          </div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar b2" style="width: 3.5%; min-width: 70px;">52</div>
+          </div>
+          <div class="funnel-meta"><div class="pct">3.5%</div><div class="pct-sub">재참여율</div></div>
+        </div>
+      </div>
+
+      <!-- 퍼널 3: 데브콘 → 워페 -->
+      <div style="border-left:3px solid var(--blue); padding-left:18px; margin-bottom:22px;">
+        <div style="display:flex; align-items:baseline; gap:10px; margin-bottom:12px; flex-wrap:wrap;">
+          <div style="font-size:11px; font-weight:700; color:var(--blue); letter-spacing:0.08em;">FUNNEL 3</div>
+          <div style="font-size:15px; font-weight:700; color:var(--ink);">잡코리아 데브콘 → WORK FEST</div>
+        </div>
+        <div class="funnel-row">
+          <div class="funnel-label">
+            <div class="name">데브콘 신청자</div>
+            <div class="sub">유니크 폰번호</div>
+          </div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar b1" style="width: 100%; justify-content:flex-start; padding-left:14px;">1,463명</div>
+          </div>
+          <div class="funnel-meta"><div class="pct">100%</div><div class="pct-sub">기준</div></div>
+        </div>
+        <div class="funnel-row">
+          <div class="funnel-label">
+            <div class="name"><span style="color:var(--ink-3);">ㄴ</span> WORK FEST도 신청</div>
+            <div class="sub">교집합</div>
+          </div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar b2" style="width: 1.8%; min-width: 70px;">27</div>
+          </div>
+          <div class="funnel-meta"><div class="pct">1.8%</div><div class="pct-sub">재참여율</div></div>
+        </div>
+      </div>
+
+      <!-- 3개 모두 -->
+      <div style="border-left:3px solid var(--ink); padding-left:18px; margin-top:24px; padding-top:16px; padding-bottom:16px; background:var(--surface-2); border-radius:0 8px 8px 0;">
+        <div style="display:flex; align-items:baseline; gap:10px; margin-bottom:12px; flex-wrap:wrap;">
+          <div style="font-size:11px; font-weight:700; color:var(--ink); letter-spacing:0.08em;">★ TRIPLE</div>
+          <div style="font-size:15px; font-weight:700; color:var(--ink);">3개 이벤트 모두 신청</div>
+          <div style="font-size:12px; color:var(--ink-3);">진성 회원 풀</div>
+        </div>
+        <div class="funnel-row">
+          <div class="funnel-label">
+            <div class="name">3종 모두 신청한 회원</div>
+            <div class="sub">커컨 ∩ 데브콘 ∩ 워페</div>
+          </div>
+          <div class="funnel-bar-wrap" style="background:white;">
+            <div class="funnel-bar" style="width: 40%; min-width: 80px; background:var(--ink); color:white; justify-content:flex-start; padding-left:14px;">2명</div>
+          </div>
+          <div class="funnel-meta"><div class="pct">2명</div><div class="pct-sub">최진성 코어</div></div>
+        </div>
+      </div>
+
+      <div class="funnel-note">
+        <strong>요약:</strong> 커컨→데브콘 <strong>36명 (2.4%)</strong> · 커컨→워페 <strong>52명 (3.5%)</strong> · 데브콘→워페 <strong>27명 (1.8%)</strong> · 3개 모두 <strong>2명</strong>.<br>
+        <strong>TRIPLE 검증 룰:</strong> 폰만 일치 + 소셜 ID(KA_/NV_/GL_/FB_)만 보유 케이스는 동일인 검증 약함으로 제외. 이메일·평문 ID 교차 검증된 회원만 인정 (휴대폰 raw 매칭 3명 중 1명 제외 → 2명 확정).<br>
+        <strong>시사점 1 — 신규 유입 확장:</strong> 재참여율이 1.8~3.5%로 낮다는 것은 각 이벤트가 서로 다른 회원 풀을 끌어왔다는 신호. 카니발라이제이션이 아닌 신규 유입 확장 효과 확인.<br>
+        <strong>시사점 2 — 커컨 → 워페가 가장 높음 (3.5%):</strong> 일반 직군 컨퍼런스에서 페스티벌로의 자연스러운 흐름. 후속 이벤트 기획 시 "컨퍼런스 후 페스티벌" 시퀀스 가능성.<br>
+        <strong>시사점 3 — 3중 신청 3명:</strong> 매우 적은 코어 풀. 이들 대상 별도 VIP 인센티브 운영 검토 가능.<br>
+        <strong>매칭 방법:</strong> 세 시트 모두 휴대폰 번호 보유 (워페 col[10] 발견). 정규화(비숫자 제거 + 앞 0 제거) 후 유니크 폰 교집합. 데이터 기준 5/19 12:00, 워페 유니크 폰 4,182명.
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 핵심 인사이트 ── -->
+  <section class="section">
+    <div class="section-head">
+      <h2>핵심 인사이트</h2>
+      <div class="desc">3개 이벤트 비교에서 도출된 시사점</div>
+    </div>
+    <div class="insight-grid">
+
+      <div class="insight-card">
+        <div class="ic-label">SCALE</div>
+        <h4>WORK FEST 신청 4,433명 · 이력서 업데이트 2,828건</h4>
+        <p>5/19 12:00 스냅샷. 직전 두 이벤트 합 신청(3,077명) 대비 <strong>+44.1%</strong>, 이력서 업데이트(260건) 대비 <strong>+987%</strong>. CVR 63.79%는 두 이벤트 평균(9.7%)의 6.6배 — 페스티벌 포맷·인센티브 효과 검증.</p>
+      </div>
+
+      <div class="insight-card good">
+        <div class="ic-label">STRENGTH</div>
+        <h4>데브콘 참여 전환 54.6%</h4>
+        <p>전사 평균을 상회하는 참여율. 개발 직군 타겟의 높은 몰입도가 확인됨. 후속 개발 직군 이벤트의 ROI 근거가 됨.</p>
+      </div>
+
+      <div class="insight-card good">
+        <div class="ic-label">EFFICIENCY</div>
+        <h4>완료 이벤트 CPA 평균 2,778원</h4>
+        <p>데브콘 2,707원 / 커컨 2,848원으로 매체 효율 동등 수준 유지. 채널 믹스 표준화 가능 — 후속 이벤트 예산 산정 기준선 확립.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="footer">
+    데이터 기준 2026-05-19 12:00 · 이력서 업데이트 = 신규 생성 + 모든 수정 합산 (데이터팀 표준) · 이력서 CVR = 이력서 ÷ 신청 단순 비율<br>
+    워크페스트 회원 매칭률 77.7% (3,445/4,433) · Cross-event TRIPLE은 폰+이메일 교차 검증 통과 회원만 (소셜 ID only 제외)<br>
+    매체비 VAT 제외 Meta 실 집행 기준 · 노션 원본: 콘텐츠 성과 지표 > B2C 콘텐츠 > 웨비나(2)/이벤트(1)<br>
+    문서 책임자 김한나 · 인사이트전략팀 · 2026 Q1~Q2 회고
+  </footer>
+
+</main>
+
+</body>
+</html>
