@@ -1,0 +1,14 @@
+{
+  "fetchedAt": "2026-05-19T03:48:07.840Z",
+  "method": "커컨 이메일 localpart SHA256 → m_id, 워페 social/plain/email 분류 → m_id, 두 풀 교집합",
+  "columns": [
+    "wf_matched",
+    "career_matched",
+    "cross_overlap"
+  ],
+  "values": {
+    "wf_matched": 3445,
+    "career_matched": 292,
+    "cross_overlap": 14
+  }
+}

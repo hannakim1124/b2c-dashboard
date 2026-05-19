@@ -405,59 +405,126 @@
     </div>
   </section>
 
-  <!-- ── Cross-event 퍼널 ── -->
+  <!-- ── Cross-event 재참여 분석 (검증 + 워페 추가) ── -->
   <section class="section">
     <div class="section-head">
-      <h2>Cross-event 재참여 퍼널</h2>
-      <div class="desc">동일 신청자의 이벤트 간 재참여 흐름 — 휴대폰 번호 매칭 기준</div>
+      <h2>Cross-event 재참여 분석</h2>
+      <div class="desc">동일 신청자가 다른 이벤트도 신청했는지 — 이벤트별 매칭 키가 달라 페어별 별도 산출</div>
     </div>
-    <div class="funnel-card">
 
+    <!-- 매칭 방법 표 -->
+    <div class="compare-table" style="margin-bottom:16px;">
+      <table class="kpi">
+        <thead>
+          <tr>
+            <th>이벤트 페어</th>
+            <th>매칭 키</th>
+            <th>방법</th>
+            <th>매칭률</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>커컨 ↔ 데브콘</td>
+            <td class="num" style="text-align:left;">휴대폰 번호</td>
+            <td class="num" style="text-align:left;font-weight:400;color:var(--ink-2);">비숫자 제거 + 앞 0 제거 후 유니크 비교</td>
+            <td class="num best">~99% (직접 매칭)</td>
+          </tr>
+          <tr>
+            <td>커컨 ↔ 워페</td>
+            <td class="num" style="text-align:left;">m_id (회원 ID)</td>
+            <td class="num" style="text-align:left;font-weight:400;color:var(--ink-2);">커컨 이메일 → localpart SHA256 / 워페 회원ID 분류</td>
+            <td class="num">27.2% (커컨 측 한계)</td>
+          </tr>
+          <tr>
+            <td>데브콘 ↔ 워페</td>
+            <td class="num" style="text-align:left;color:var(--ink-3);">— (직접 매칭 키 없음)</td>
+            <td class="num" style="text-align:left;font-weight:400;color:var(--ink-3);">데브콘 폰만 / 워페 회원ID만 / user_db 폰 권한 보류</td>
+            <td class="num ongoing">별도 분석 필요</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 결과 카드 3개 -->
+    <div class="funnel-card">
       <div class="funnel-row">
         <div class="funnel-label">
-          <div class="name">커리어 컨퍼런스 신청</div>
-          <div class="sub">2026.03 · 유니크 폰번호 기준</div>
+          <div class="name">커컨 → 데브콘 재참여</div>
+          <div class="sub">유니크 폰번호 매칭 기준</div>
         </div>
         <div class="funnel-bar-wrap">
-          <div class="funnel-bar b1" style="width: 100%;">1,479명</div>
+          <div class="funnel-bar b1" style="width: 100%; justify-content:flex-start; padding-left:14px;">커컨 1,479명 (유니크 폰)</div>
         </div>
         <div class="funnel-meta">
           <div class="pct">100%</div>
           <div class="pct-sub">기준 모수</div>
         </div>
       </div>
-
       <div class="funnel-row">
         <div class="funnel-label">
-          <div class="name">↳ 데브콘도 신청</div>
-          <div class="sub">2026.04 · 재참여자</div>
+          <div class="name"><span style="color:var(--ink-3);">ㄴ</span> 데브콘도 신청</div>
+          <div class="sub">교집합 36명</div>
         </div>
         <div class="funnel-bar-wrap">
-          <div class="funnel-bar b2" style="width: 2.4%; min-width: 60px;">36명</div>
+          <div class="funnel-bar b2" style="width: 2.4%; min-width: 70px;">36</div>
         </div>
         <div class="funnel-meta">
           <div class="pct">2.4%</div>
-          <div class="pct-sub">→ 데브콘 재참여</div>
+          <div class="pct-sub">재참여율</div>
         </div>
       </div>
 
+      <div style="height:14px;"></div>
+
       <div class="funnel-row">
         <div class="funnel-label">
-          <div class="name">↳ WORK FEST도 신청</div>
-          <div class="sub">2026.05 · 3개 모두 참여</div>
+          <div class="name">커컨 → WORK FEST 재참여</div>
+          <div class="sub">m_id 매칭 (이메일 localpart SHA256)</div>
         </div>
         <div class="funnel-bar-wrap">
-          <div class="funnel-bar b3" style="width: 14%; min-width: 100px; background:#E5E8EB; color:var(--ink-3);">별도 분석</div>
+          <div class="funnel-bar b1" style="width: 100%; justify-content:flex-start; padding-left:14px;">커컨 m_id 매칭 292명 (이메일 1,072 중 27.2%)</div>
         </div>
         <div class="funnel-meta">
-          <div class="pct" style="font-size:12px;color:var(--ink-3);">체계 다름</div>
-          <div class="pct-sub">회원ID↔폰 lookup 필요</div>
+          <div class="pct">100%</div>
+          <div class="pct-sub">매칭 모수</div>
+        </div>
+      </div>
+      <div class="funnel-row">
+        <div class="funnel-label">
+          <div class="name"><span style="color:var(--ink-3);">ㄴ</span> WORK FEST도 신청</div>
+          <div class="sub">교집합 14명 (최소치)</div>
+        </div>
+        <div class="funnel-bar-wrap">
+          <div class="funnel-bar b2" style="width: 4.8%; min-width: 70px;">14</div>
+        </div>
+        <div class="funnel-meta">
+          <div class="pct">4.8%</div>
+          <div class="pct-sub">재참여율 (하한)</div>
+        </div>
+      </div>
+
+      <div style="height:14px;"></div>
+
+      <div class="funnel-row">
+        <div class="funnel-label">
+          <div class="name">데브콘 → WORK FEST 재참여</div>
+          <div class="sub" style="color:var(--ink-3);">데브콘 폰만 보유</div>
+        </div>
+        <div class="funnel-bar-wrap">
+          <div class="funnel-bar b3" style="width: 18%; min-width: 130px; background:#E5E8EB; color:var(--ink-3);">user_db 폰 권한 보류 — 후속</div>
+        </div>
+        <div class="funnel-meta">
+          <div class="pct" style="font-size:12px;color:var(--ink-3);">— </div>
+          <div class="pct-sub">PII 정책</div>
         </div>
       </div>
 
       <div class="funnel-note">
-        <strong>매칭 근거:</strong> 커리어 컨퍼런스·데브콘은 휴대폰 번호 기준 매칭(폰 정규화 후 유니크 비교). WORK FEST는 잡코리아 회원ID 체계만 수집되어, 메타베이스에서 회원ID ↔ 폰번호 lookup이 필요한 별도 분석 영역 (후속 라운드).<br>
-        <strong>해석:</strong> 커컨 신청자 중 데브콘 재참여 2.4% — 같은 컨퍼런스 결이라도 타겟(전직군 vs 개발직군)이 달라 자연스러운 분포.
+        <strong>해석 1 (커컨 ↔ 데브콘):</strong> 휴대폰 매칭 36명 / 2.4%. 같은 컨퍼런스 결이라도 타겟(전직군 vs 개발직군) 차이로 자연스러운 분포. 매칭률 ~99% 신뢰.<br>
+        <strong>해석 2 (커컨 ↔ 워페):</strong> 14명 / 4.8% — 컨퍼런스에서 페스티벌까지 흘러온 회원. 단 커컨 이메일 → m_id 매칭률이 27.2%로 낮아 <strong>실제 cross는 14명보다 클 가능성</strong> (이메일이 회원ID와 무관한 케이스 누락). 보수적 하한값.<br>
+        <strong>해석 3 (데브콘 ↔ 워페):</strong> 데브콘 시트가 휴대폰만 수집 + user_db 휴대폰 컬럼 권한 보류 상태. 후속 라운드에서 PII 권한 풀린 후 산출 가능.<br>
+        <strong>시사점:</strong> 이벤트 간 재참여율이 낮다는 것은 <strong>각 이벤트가 서로 다른 회원 풀을 끌어왔다는 신호</strong> — 카니발라이제이션이 아닌 신규 유입 확장 효과. 후속 이벤트는 cross-event 전용 인센티브로 재참여율 끌어올릴 여지 있음.
       </div>
     </div>
   </section>
