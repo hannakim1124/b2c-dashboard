@@ -24,7 +24,8 @@
 
   .topbar { background:rgba(255,255,255,0.92); backdrop-filter:saturate(180%) blur(12px); border-bottom:1px solid var(--line-soft); position:sticky; top:0; z-index:30; }
   .topbar-inner { max-width:1200px; margin:0 auto; padding:14px 28px 0; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; }
-  .brand { display:flex; align-items:center; gap:12px; padding-bottom:14px; }
+  .brand { display:flex; align-items:center; gap:12px; padding-bottom:14px; cursor:pointer; transition:opacity .15s; user-select:none; }
+  .brand:hover { opacity:0.7; }
   .brand-mark { width:30px; height:30px; border-radius:9px; background:linear-gradient(135deg,#3182F6,#1B64DA); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:14px; font-weight:900; }
   .brand-name { font-weight:700; font-size:15px; color:var(--ink); letter-spacing:-0.025em; }
   .brand-sub { color:var(--ink-3); font-weight:500; font-size:12px; margin-left:6px; padding-left:10px; border-left:1px solid var(--line); }
@@ -57,6 +58,45 @@
   .kpi .extra { margin-top:6px; font-size:11px; color:var(--ink-3); line-height:1.45; }
   .kpi.accent { background:var(--blue-soft); border-color:rgba(49,130,246,0.18); }
   .kpi.accent .k { color:var(--blue-strong); }
+
+  /* Home summary */
+  .home-hero { margin-bottom:24px; }
+  .home-hero h1 { margin:0 0 8px; font-size:28px; font-weight:800; letter-spacing:-0.03em; color:var(--ink); }
+  .home-hero .desc { color:var(--ink-3); font-size:14px; }
+  .home-hero h1 em { font-style:normal; background:linear-gradient(135deg,#3182F6,#0F4FBA); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+  .summary-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-bottom:24px; }
+  .summary-card {
+    background:var(--surface); border:1px solid var(--line); border-radius:14px;
+    padding:18px 20px; box-shadow:0 1px 3px rgba(25,31,40,0.04);
+    cursor:pointer; transition:all .18s; text-decoration:none; color:inherit; display:block;
+  }
+  .summary-card:hover { box-shadow:0 4px 12px rgba(25,31,40,0.08); transform:translateY(-2px); border-color:rgba(49,130,246,0.25); }
+  .summary-card .sc-tag {
+    display:inline-flex; align-items:center; gap:5px;
+    font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase;
+    color:var(--blue-strong); background:var(--blue-soft);
+    padding:3px 8px; border-radius:999px; margin-bottom:10px;
+  }
+  .summary-card .sc-tag.b2b { color:#7C3AED; background:#F3EDFE; }
+  .summary-card .sc-tag.live { color:var(--blue-strong); background:var(--blue-soft); }
+  .summary-card .sc-tag.live::before {
+    content:""; width:5px; height:5px; border-radius:50%;
+    background:var(--blue); animation:pulse 1.8s ease-out infinite;
+  }
+  .summary-card .sc-k { font-size:13px; color:var(--ink-2); font-weight:600; margin-bottom:6px; }
+  .summary-card .sc-v {
+    font-size:30px; font-weight:800; color:var(--ink);
+    letter-spacing:-0.035em; line-height:1.05;
+    font-variant-numeric:tabular-nums;
+  }
+  .summary-card .sc-v .u { font-size:13px; font-weight:600; color:var(--ink-2); margin-left:3px; }
+  .summary-card .sc-extra { margin-top:6px; font-size:11px; color:var(--ink-3); line-height:1.45; }
+  .summary-card .sc-arrow {
+    margin-top:10px; font-size:11px; color:var(--ink-3); font-weight:600;
+    display:flex; align-items:center; gap:4px;
+  }
+  .summary-card:hover .sc-arrow { color:var(--blue-strong); }
 
   table.simple { width:100%; border-collapse:collapse; font-size:13px; margin:8px 0 0; }
   table.simple th, table.simple td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--line-soft); vertical-align:top; }
@@ -94,13 +134,13 @@
 
 <header class="topbar">
   <div class="topbar-inner">
-    <div class="brand">
+    <div class="brand" data-home="1" title="홈으로">
       <span class="brand-mark">B</span>
       <span class="brand-name">콘텐츠 성과 지표</span>
       <span class="brand-sub">인사이트전략팀 · 26.2분기</span>
     </div>
     <nav class="nav-tabs">
-      <button class="nav-tab active" data-tab="event">웨비나·이벤트</button>
+      <button class="nav-tab" data-tab="event">웨비나·이벤트</button>
       <button class="nav-tab" data-tab="article">아티클</button>
       <button class="nav-tab" data-tab="insta">인스타</button>
       <button class="nav-tab" data-tab="community">커뮤니티</button>
@@ -116,6 +156,82 @@
     <span class="pill live"><span class="dot"></span>WORK FEST 진행중 · D-9</span>
     <span class="pill">as of 2026-05-19</span>
   </div>
+
+  <!-- 홈 (요약 한 장) -->
+  <section class="tab-pane active" id="tab-home">
+    <div class="home-hero">
+      <h1>콘텐츠 <em>한눈에</em> 보기</h1>
+      <div class="desc">각 카드를 클릭하면 해당 영역 상세 탭으로 이동합니다.</div>
+    </div>
+
+    <div class="summary-grid">
+
+      <a class="summary-card" data-go="event">
+        <span class="sc-tag live">웨비나·이벤트</span>
+        <div class="sc-k">총 신청자 수</div>
+        <div class="sc-v">7,510<span class="u">명</span></div>
+        <div class="sc-extra">커컨 1,566 + 데브콘 1,511 + 워페 4,433</div>
+        <div class="sc-arrow">상세 보기 →</div>
+      </a>
+
+      <a class="summary-card" data-go="event">
+        <span class="sc-tag live">웨비나·이벤트</span>
+        <div class="sc-k">이력서 업데이트</div>
+        <div class="sc-v">3,088<span class="u">건</span></div>
+        <div class="sc-extra">전환율 41.12% (신규 + 수정)</div>
+        <div class="sc-arrow">상세 보기 →</div>
+      </a>
+
+      <a class="summary-card" data-go="article">
+        <span class="sc-tag">아티클</span>
+        <div class="sc-k">총 조회수</div>
+        <div class="sc-v">52,631<span class="u">회</span></div>
+        <div class="sc-extra">발행 33개 · 5월 1인당 View 1.48</div>
+        <div class="sc-arrow">상세 보기 →</div>
+      </a>
+
+      <a class="summary-card" data-go="insta">
+        <span class="sc-tag">인스타</span>
+        <div class="sc-k">팔로워 수</div>
+        <div class="sc-v">269<span class="u">명</span></div>
+        <div class="sc-extra">조회 30.7만 · 도달 19.4만</div>
+        <div class="sc-arrow">상세 보기 →</div>
+      </a>
+
+      <a class="summary-card" data-go="community">
+        <span class="sc-tag">커뮤니티</span>
+        <div class="sc-k">오픈채팅방 참여</div>
+        <div class="sc-v">670<span class="u">명</span></div>
+        <div class="sc-extra">개발자 281 · PMPO 159 · 디자인 152 · 마케팅 82</div>
+        <div class="sc-arrow">상세 보기 →</div>
+      </a>
+
+      <a class="summary-card" data-go="b2b">
+        <span class="sc-tag b2b">B2B</span>
+        <div class="sc-k">MQL 리드 누적</div>
+        <div class="sc-v">1,979<span class="u">명</span></div>
+        <div class="sc-extra">더리부트 1,748 + 흐레카 96 + AX 리포트 135</div>
+        <div class="sc-arrow">상세 보기 →</div>
+      </a>
+
+      <a class="summary-card" data-go="b2b">
+        <span class="sc-tag b2b">B2B</span>
+        <div class="sc-k">블로그 PV</div>
+        <div class="sc-v">39,470</div>
+        <div class="sc-extra">UV 30,762 · 4/22 런칭 · 게시물 11개</div>
+        <div class="sc-arrow">상세 보기 →</div>
+      </a>
+
+      <a class="summary-card" data-go="b2b">
+        <span class="sc-tag b2b">B2B</span>
+        <div class="sc-k">뉴스레터 클릭율</div>
+        <div class="sc-v">21.7<span class="u">%</span></div>
+        <div class="sc-extra">발송 80만 · 오픈율 6%</div>
+        <div class="sc-arrow">상세 보기 →</div>
+      </a>
+
+    </div>
+  </section>
 
   <!-- 아티클 -->
   <section class="tab-pane" id="tab-article">
@@ -341,18 +457,25 @@
 </main>
 
 <script>
+  function activate(target) {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === target));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.id === 'tab-' + target));
+    history.replaceState(null, '', '#' + target);
+    window.scrollTo({ top:0, behavior:'smooth' });
+  }
   document.querySelectorAll('.nav-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      const target = tab.dataset.tab;
-      document.querySelectorAll('.nav-tab').forEach(t => t.classList.toggle('active', t === tab));
-      document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.id === 'tab-' + target));
-      history.replaceState(null, '', '#' + target);
-      window.scrollTo({ top:0, behavior:'smooth' });
-    });
+    tab.addEventListener('click', () => activate(tab.dataset.tab));
   });
-  const hash = (location.hash || '#event').replace('#','');
-  const t = document.querySelector('.nav-tab[data-tab="' + hash + '"]');
-  if (t) t.click();
+  // 브랜드(좌상단) 클릭 → 홈
+  const brand = document.querySelector('[data-home]');
+  if (brand) brand.addEventListener('click', () => activate('home'));
+  // 홈 요약 카드 클릭 → 해당 탭
+  document.querySelectorAll('.summary-card[data-go]').forEach(card => {
+    card.addEventListener('click', (e) => { e.preventDefault(); activate(card.dataset.go); });
+  });
+  // 초기 진입 처리
+  const hash = (location.hash || '#home').replace('#','');
+  activate(hash);
 </script>
 
 </body>
