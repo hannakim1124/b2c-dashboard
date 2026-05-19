@@ -1,0 +1,65 @@
+{
+  "fetchedAt": "2026-05-19T03:07:20.648Z",
+  "events": {
+    "career": {
+      "name": "커리어 컨퍼런스",
+      "rawCount": 1574,
+      "uniqueMembers": 1077,
+      "headersSample": [
+        "타임스탬프",
+        "신청 유형",
+        "성함",
+        "회사명",
+        "연차",
+        "직군",
+        "직무명",
+        "핸드폰 번호 (예. 01099992222)",
+        "이메일 주소",
+        "신청 경로",
+        "🎁 EVENT 01. 컨퍼런스 공유 이벤트 "
+      ]
+    },
+    "devcon": {
+      "name": "잡코리아 데브콘",
+      "rawCount": 1526,
+      "uniqueMembers": 0,
+      "headersSample": [
+        "타임스탬프",
+        "이벤트도 참여하실 건가요?",
+        "성함 ",
+        "회사명 (외부에 공개되지 않아요!)",
+        "연차",
+        "직무 ",
+        "핸드폰 번호 (예. 01099992222)"
+      ]
+    },
+    "workfest": {
+      "name": "WORK FEST",
+      "rawCount": 4452,
+      "uniqueMembers": 4233,
+      "headersSample": [
+        "Column 16",
+        "타임스탬프",
+        "성함",
+        "잡코리아 ID"
+      ]
+    }
+  },
+  "compare": {
+    "career_unique": {
+      "total_rows": 1574,
+      "unique_phones": 1479,
+      "unique_emails": 1077
+    },
+    "devcon_unique": {
+      "total_rows": 1526,
+      "unique_phones": 1463
+    },
+    "workfest_unique": {
+      "total_rows": 4452,
+      "unique_ids": 4233
+    },
+    "career_x_devcon_phone": 36,
+    "workfest_lookup_required": true
+  }
+}

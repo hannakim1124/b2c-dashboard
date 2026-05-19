@@ -5,1370 +5,425 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-<title>인사이트전략팀 B2C 이벤트 카탈로그</title>
+<title>B2C 이벤트 성과 보고 · 2026 Q1~Q2</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap">
 <style>
   :root {
-    /* 논문 결 — 흰 종이 + 잉크 단색 */
-    --paper: #FCFCFA;
-    --paper-2: #F4F2EC;
-    --paper-3: #E8E5DC;
+    --bg: #FFFFFF;
     --surface: #FFFFFF;
-    --surface-2: #FAF9F4;
-    --line: #C8C4BB;
-    --line-soft: #E0DDD3;
+    --surface-2: #F9FAFB;
+    --surface-3: #F2F4F6;
+    --line: #E5E8EB;
+    --line-2: #EAEDF0;
 
-    /* 잉크 — 흑백 톤만 */
-    --ink: #1A1A1A;
-    --ink-2: #4A4A4A;
-    --ink-3: #8A8A86;
+    --ink: #191F28;
+    --ink-2: #4E5968;
+    --ink-3: #8B95A1;
+    --ink-4: #B0B8C1;
 
-    /* 강조 — 무채색 (논문은 색 거의 안 씀) */
-    --green: #2A2A2A;
-    --green-dim: #ECEAE2;
-    --red: #2A2A2A;
-    --red-dim: #ECEAE2;
-    --gold: #4A4A4A;
-    --gold-dim: #ECEAE2;
-    --indigo: #4A4A4A;
-    --indigo-dim: #ECEAE2;
+    --blue: #3182F6;
+    --blue-soft: #E8F2FE;
+    --blue-dim: #F4F8FF;
 
-    --sans: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
-    --serif: 'Source Serif 4', 'Noto Serif KR', Georgia, 'Times New Roman', serif;
+    --green: #00875A;
+    --green-soft: #E6F4EF;
 
-    --r-lg: 4px;
-    --r-md: 3px;
-    --r-sm: 2px;
+    --red: #DC2626;
+    --red-soft: #FDECEC;
+
+    --warn: #F59E0B;
+    --warn-soft: #FFF7E6;
+
+    --font: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
   }
 
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
   body {
-    background: var(--paper);
+    background: var(--surface-3);
     color: var(--ink);
-    font-family: var(--serif);
-    font-size: 16px;
-    line-height: 1.75;
-    letter-spacing: 0;
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-  }
-  a { color: inherit; text-decoration: none; }
-
-  /* ─── Nav ─── */
-  .nav {
-    background: var(--surface);
-    border-bottom: 1px solid var(--line-soft);
-    padding: 18px 28px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 20;
-  }
-  .brand {
-    font-family: var(--serif);
-    font-weight: 700;
-    font-size: 18px;
-    color: var(--ink);
-    letter-spacing: -0.02em;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .brand .seal {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 26px; height: 26px;
-    border: 1px solid var(--ink);
-    color: var(--ink);
-    font-size: 12px;
-    font-weight: 700;
-    font-family: var(--serif);
-    font-style: italic;
-    letter-spacing: 0;
-  }
-  .brand .muted {
-    font-family: var(--sans);
-    color: var(--ink-3);
-    font-weight: 500;
-    font-size: 13px;
-    letter-spacing: -0.01em;
-  }
-  .nav-actions { display: flex; gap: 8px; }
-  .nav-btn {
-    font-family: var(--sans);
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--ink-2);
-    background: transparent;
-    border: 1px solid var(--line-soft);
-    padding: 8px 14px;
-    border-radius: var(--r-sm);
-    cursor: pointer;
-    transition: 0.18s;
-  }
-  .nav-btn:hover { background: var(--paper-2); color: var(--ink); border-color: var(--line); }
-  .nav-btn.primary {
-    background: var(--ink);
-    color: var(--paper);
-    border-color: var(--ink);
-  }
-  .nav-btn.primary:hover { background: #000; color: #fff; }
-
-  /* ─── Container ─── */
-  .container { max-width: 760px; margin: 0 auto; padding: 56px 28px 120px; }
-
-  /* ─── Hero — 논문 헤더 결 ─── */
-  .hero { margin-bottom: 48px; padding-bottom: 28px; border-bottom: 1px solid var(--line-soft); }
-  .hero .kicker {
-    font-family: var(--sans);
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--ink-3);
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    margin-bottom: 16px;
-  }
-  .hero h1 {
-    font-family: var(--serif);
-    font-size: 34px;
-    font-weight: 700;
-    color: var(--ink);
-    margin: 0 0 16px 0;
-    letter-spacing: -0.015em;
-    line-height: 1.25;
-  }
-  .hero p {
-    font-family: var(--serif);
-    font-size: 16px;
-    color: var(--ink-2);
-    margin: 0;
-    line-height: 1.75;
-  }
-
-  /* Summary — 논문 abstract 결: 가로 인라인 메타 */
-  .summary-strip {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0;
-    margin-top: 28px;
-    border-top: 1px solid var(--line-soft);
-    border-bottom: 1px solid var(--line-soft);
-  }
-  .sum-card {
-    background: transparent;
-    border: 0;
-    border-right: 1px solid var(--line-soft);
-    border-radius: 0;
-    padding: 18px 18px;
-    position: relative;
-  }
-  .sum-card:last-child { border-right: 0; }
-  .sum-card .ic { display: none; }
-  .sum-card .lab {
-    font-family: var(--sans);
-    font-size: 11px;
-    color: var(--ink-3);
-    font-weight: 500;
-    margin-bottom: 8px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-  .sum-card .val {
-    font-family: var(--serif);
-    font-size: 24px;
-    font-weight: 600;
-    color: var(--ink);
-    line-height: 1.1;
-    letter-spacing: -0.01em;
-  }
-  .sum-card .val .unit {
-    font-family: var(--sans);
-    font-size: 12px;
-    color: var(--ink-3);
-    font-weight: 500;
-    margin-left: 3px;
-    letter-spacing: 0;
-  }
-  .sum-card .sub {
-    font-family: var(--sans);
-    font-size: 11px;
-    color: var(--ink-3);
-    margin-top: 6px;
-    font-weight: 400;
-  }
-
-  /* ─── Filter row ─── */
-  .filter-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 18px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-  .chip {
-    font-family: var(--sans);
-    font-size: 13px;
-    font-weight: 600;
-    padding: 8px 14px;
-    border: 1px solid var(--line-soft);
-    border-radius: 99px;
-    background: var(--surface);
-    color: var(--ink-2);
-    cursor: pointer;
-    transition: 0.18s;
-    user-select: none;
-  }
-  .chip:hover { border-color: var(--line); }
-  .chip.active {
-    background: var(--ink);
-    color: var(--paper);
-    border-color: var(--ink);
-  }
-  .chip .count {
-    font-size: 11px;
-    color: var(--ink-3);
-    margin-left: 5px;
-    font-weight: 600;
-  }
-  .chip.active .count { color: rgba(248, 245, 238, 0.65); }
-  .filter-row .sep { width: 1px; height: 18px; background: var(--line-soft); margin: 0 6px; }
-
-  /* ─── Section head ─── */
-  .section-head {
-    display: flex;
-    align-items: baseline;
-    gap: 12px;
-    margin: 36px 0 14px;
-  }
-  .section-head .title {
-    font-family: var(--serif);
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--ink);
-    letter-spacing: -0.02em;
-  }
-  .section-head .count {
-    background: var(--paper-2);
-    color: var(--ink-2);
-    font-size: 12px;
-    padding: 3px 10px;
-    border-radius: 99px;
-    font-weight: 700;
-    font-family: var(--sans);
-  }
-  .section-head .toggle {
-    margin-left: auto;
-    font-size: 13px;
-    color: var(--red);
-    cursor: pointer;
-    font-weight: 600;
-  }
-  .section-head .toggle:hover { text-decoration: underline; }
-  .collapsed-table { display: none; }
-  .collapsed-table.open { display: block; }
-
-  /* ─── Table — 논문 결 (그림자 X, 줄선만) ─── */
-  .events-table {
-    background: transparent;
-    border: 0;
-    border-top: 1px solid var(--ink);
-    border-bottom: 1px solid var(--ink);
-    border-radius: 0;
-    overflow: visible;
-    box-shadow: none;
-  }
-  table { width: 100%; border-collapse: collapse; }
-  thead th {
-    text-align: left;
-    font-family: var(--sans);
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--ink-3);
-    padding: 16px 20px;
-    background: var(--surface-2);
-    border-bottom: 1px solid var(--line-soft);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-  thead th.right { text-align: right; }
-  tbody tr {
-    border-bottom: 1px solid var(--line-soft);
-    cursor: pointer;
-    transition: 0.18s;
-  }
-  tbody tr:hover { background: var(--surface-2); }
-  tbody tr:last-child { border-bottom: 0; }
-  tbody td {
-    padding: 20px;
-    vertical-align: middle;
-    font-size: 14px;
-  }
-
-  /* col 1: event */
-  .ev-cell { display: flex; align-items: center; gap: 16px; min-width: 0; }
-  .ev-emoji {
-    width: 52px; height: 52px;
-    flex: 0 0 52px;
-    border-radius: var(--r-md);
-    background: var(--paper-2);
-    border: 1px solid var(--line-soft);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 26px;
-  }
-  .ev-text { min-width: 0; flex: 1; }
-  .ev-title {
-    font-family: var(--serif);
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--ink);
-    margin-bottom: 4px;
-    letter-spacing: -0.02em;
-    line-height: 1.3;
-  }
-  .ev-cat {
-    font-size: 12px;
-    color: var(--ink-3);
-    font-weight: 500;
-    letter-spacing: 0.02em;
-  }
-
-  /* col 2: period */
-  .pr-cell { white-space: nowrap; }
-  .pr-date {
-    font-family: var(--serif);
+    font-family: var(--font);
     font-size: 15px;
-    color: var(--ink);
-    font-weight: 500;
-    letter-spacing: -0.01em;
-  }
-  .pr-dday {
-    font-size: 11px;
-    font-weight: 700;
-    margin-top: 5px;
-    display: inline-block;
-    padding: 3px 9px;
-    border-radius: 99px;
-    letter-spacing: 0.02em;
-  }
-  .pr-dday.ongoing { background: var(--green-dim); color: var(--green); }
-  .pr-dday.soon { background: var(--indigo-dim); color: var(--indigo); }
-  .pr-dday.done { background: var(--paper-2); color: var(--ink-3); }
-  .pr-dday.cancel { background: var(--red-dim); color: var(--red); }
-  .pr-oneday { font-size: 12px; color: var(--ink-3); font-family: var(--sans); margin-left: 4px; }
-
-  /* col 3, 4: KPI */
-  .kpi-cell { min-width: 180px; }
-  .kpi-vals {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-    line-height: 1;
-    margin-bottom: 8px;
-  }
-  .kpi-vals .cur {
-    font-family: var(--serif);
-    font-size: 24px;
-    font-weight: 900;
-    color: var(--ink);
-    letter-spacing: -0.025em;
-  }
-  .kpi-vals .cur .unit {
-    font-size: 12px;
-    color: var(--ink-3);
-    font-weight: 700;
-    margin-left: 1px;
-  }
-  .kpi-vals .sl { color: var(--ink-3); font-weight: 400; font-size: 14px; }
-  .kpi-vals .tgt {
-    font-family: var(--sans);
-    color: var(--ink-3);
-    font-weight: 600;
-    font-size: 13px;
-  }
-  .kpi-vals .tgt .unit { font-size: 11px; margin-left: 1px; }
-  .kpi-bar {
-    height: 6px;
-    background: var(--paper-2);
-    border-radius: 99px;
-    overflow: hidden;
-    position: relative;
-    margin-bottom: 6px;
-  }
-  .kpi-bar-fill { height: 100%; border-radius: 99px; transition: 0.3s; }
-  .kpi-bar-fill.ok { background: var(--green); }
-  .kpi-bar-fill.warn { background: var(--gold); }
-  .kpi-bar-fill.danger { background: var(--red); }
-  .kpi-bar-fill.blue { background: var(--green); }
-  .kpi-pct {
-    font-size: 12px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    letter-spacing: -0.005em;
-  }
-  .kpi-pct.ok { color: var(--green); }
-  .kpi-pct.warn { color: var(--gold); }
-  .kpi-pct.danger { color: var(--red); }
-  .kpi-pct.blue { color: var(--green); }
-  .kpi-empty {
-    font-family: var(--serif);
-    font-size: 16px;
-    color: var(--ink-3);
-    font-weight: 500;
-  }
-  .kpi-empty .req {
-    display: block;
-    margin-top: 4px;
-    font-family: var(--sans);
-    font-size: 11px;
-    color: var(--ink-3);
-    font-weight: 500;
-    letter-spacing: 0.02em;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
   }
 
-  /* col 5: arrow */
-  .arrow-cell {
-    width: 40px;
-    text-align: right;
-    color: var(--ink-3);
-    font-family: var(--serif);
-    font-size: 22px;
-    padding-right: 20px;
-    transition: 0.18s;
-  }
-  tbody tr:hover .arrow-cell { color: var(--red); transform: translateX(2px); }
-
-  /* ─── Empty state ─── */
-  .empty-state {
+  /* ── 헤더 ── */
+  .topbar {
     background: var(--surface);
-    border: 1px dashed var(--line);
-    border-radius: var(--r-lg);
-    padding: 56px 24px;
-    text-align: center;
-    color: var(--ink-3);
-    font-family: var(--serif);
-    font-size: 16px;
+    border-bottom: 1px solid var(--line);
+    padding: 20px 32px;
+    position: sticky; top: 0; z-index: 10;
   }
-  .empty-state .ic { font-size: 36px; margin-bottom: 12px; }
-  .empty-state .add {
-    color: var(--red);
-    cursor: pointer;
-    font-weight: 700;
-    margin-left: 6px;
-  }
+  .topbar-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .title-block h1 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); }
+  .title-block .sub { margin-top: 4px; font-size: 13px; color: var(--ink-3); }
+  .meta-block { display: flex; gap: 8px; align-items: center; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; font-size: 12px; color: var(--ink-2); font-weight: 500; }
+  .pill.live { background: var(--blue-dim); color: var(--blue); border-color: var(--blue-soft); }
+  .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); }
 
-  /* ─── Footer ─── */
-  .foot {
-    margin-top: 60px;
-    padding-top: 30px;
-    border-top: 1px solid var(--line-soft);
-    font-family: var(--serif);
-    font-size: 13px;
-    color: var(--ink-3);
-    text-align: center;
-    letter-spacing: -0.005em;
-  }
-  .foot .legacy {
-    display: inline-block;
-    margin-top: 6px;
-    font-family: var(--sans);
-    font-size: 12px;
-    color: var(--ink-3);
-  }
-  .foot .legacy a { color: var(--red); border-bottom: 1px solid currentColor; }
+  /* ── 컨테이너 ── */
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 32px; }
+  .section { margin-bottom: 40px; }
+  .section-head { margin-bottom: 16px; }
+  .section-head h2 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); }
+  .section-head .desc { margin-top: 4px; font-size: 13px; color: var(--ink-3); }
 
-  /* ─── 모바일 ─── */
-  @media (max-width: 720px) {
-    body { font-size: 14px; }
-    .container { padding: 20px 16px 70px; }
-    .nav { padding: 14px 18px; }
-    .brand { font-size: 16px; }
-    .hero h1 { font-size: 26px; }
-    .summary-strip { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .sum-card { padding: 16px; }
-    .sum-card .val { font-size: 26px; }
-    .section-head .title { font-size: 18px; }
-    thead { display: none; }
-    tbody tr { display: block; padding: 18px; }
-    tbody td { display: block; padding: 0; }
-    .ev-cell { margin-bottom: 14px; }
-    .pr-cell { margin-bottom: 12px; }
-    .kpi-cell { padding: 14px 0 0; border-top: 1px dashed var(--line-soft); margin-top: 12px; }
-    .kpi-cell + .kpi-cell { margin-top: 10px; }
-    .arrow-cell { display: none; }
-    .ev-title { font-size: 17px; }
-    .ev-emoji { width: 44px; height: 44px; flex-basis: 44px; font-size: 22px; }
+  /* ── Executive Summary ── */
+  .exec {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 28px;
   }
+  .exec-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+  .exec-cell { }
+  .exec-cell .label { font-size: 12px; color: var(--ink-3); font-weight: 500; margin-bottom: 6px; letter-spacing: 0.02em; }
+  .exec-cell .value { font-size: 28px; font-weight: 700; color: var(--ink); letter-spacing: -0.03em; line-height: 1.15; }
+  .exec-cell .unit { font-size: 14px; font-weight: 500; color: var(--ink-3); margin-left: 2px; }
+  .exec-cell .delta { margin-top: 6px; font-size: 12px; color: var(--ink-3); }
 
-  /* ─── Trash badge ─── */
-  .trash-count {
-    display: inline-block;
-    background: var(--ink);
-    color: var(--paper);
-    font-size: 10px;
-    font-weight: 700;
-    padding: 1px 6px;
-    border-radius: 99px;
-    margin-left: 4px;
-    min-width: 16px;
-    text-align: center;
-    letter-spacing: 0;
+  /* ── 비교 표 ── */
+  .compare-table {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden;
   }
-  .trash-count.is-empty { display: none; }
+  table.kpi { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.kpi th, table.kpi td { padding: 14px 20px; text-align: right; border-bottom: 1px solid var(--line-2); }
+  table.kpi th:first-child, table.kpi td:first-child { text-align: left; font-weight: 600; color: var(--ink); width: 30%; }
+  table.kpi thead th { background: var(--surface-2); font-weight: 600; color: var(--ink-2); font-size: 13px; }
+  table.kpi tbody tr:last-child td { border-bottom: none; }
+  table.kpi tbody tr:hover { background: var(--surface-2); }
+  table.kpi .num { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--ink); }
+  table.kpi .num.big { font-size: 16px; }
+  table.kpi .sub { display: block; font-size: 12px; color: var(--ink-3); font-weight: 400; margin-top: 2px; }
+  table.kpi .best { color: var(--green); }
+  table.kpi .ongoing { color: var(--blue); font-weight: 600; }
+  .legend { margin-top: 12px; font-size: 12px; color: var(--ink-3); padding: 0 8px; }
 
-  /* ─── Trash FAB (우하단 floating) ─── */
-  .trash-fab {
-    position: fixed;
-    right: 24px;
-    bottom: 24px;
-    z-index: 50;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 16px 10px 14px;
-    background: var(--surface);
-    color: var(--ink);
-    border: 1px solid var(--line);
-    border-radius: 99px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
-    cursor: pointer;
-    font-family: var(--sans);
-    font-size: 13px;
-    font-weight: 500;
-    letter-spacing: 0;
-    transition: 0.15s;
+  /* ── 이벤트 카드 3개 ── */
+  .event-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .event-card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
+    padding: 24px; display: flex; flex-direction: column;
   }
-  .trash-fab:hover {
-    border-color: var(--ink);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 12px 32px rgba(0,0,0,0.08);
-    transform: translateY(-1px);
-  }
-  .trash-fab-icon { font-size: 16px; line-height: 1; }
-  .trash-fab-label { letter-spacing: 0; }
-  .trash-fab .trash-count { margin-left: 2px; }
-  @media (max-width: 640px) {
-    .trash-fab {
-      right: 16px;
-      bottom: 16px;
-      padding: 9px 14px 9px 12px;
-      font-size: 12px;
-    }
-  }
-  /* ─── Trash list ─── */
-  .trash-modal { max-width: 560px; }
-  .trash-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--line-soft);
-    font-family: var(--serif);
-  }
-  .trash-item:last-child { border-bottom: 0; }
-  .trash-item .ic { font-size: 22px; opacity: 0.5; }
-  .trash-item .info { flex: 1; min-width: 0; }
-  .trash-item .ttl { font-size: 15px; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; }
-  .trash-item .meta { font-family: var(--sans); font-size: 11px; color: var(--ink-3); margin-top: 2px; letter-spacing: 0; }
-  .trash-item .acts { display: flex; gap: 4px; flex-shrink: 0; }
-  .trash-item .acts button {
-    font-family: var(--sans);
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--ink-2);
-    background: transparent;
-    border: 1px solid var(--line-soft);
-    padding: 6px 10px;
-    border-radius: 2px;
-    cursor: pointer;
-    letter-spacing: 0;
-  }
-  .trash-item .acts button:hover { color: var(--ink); border-color: var(--ink); }
-  .trash-empty {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--ink-3);
-    font-family: var(--serif);
-    font-size: 14px;
-  }
-  /* ─── Modal ─── */
-  .modal-bg {
-    position: fixed; inset: 0;
-    background: rgba(42, 39, 36, 0.4);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-  }
-  .modal-bg.open { display: flex; }
-  .modal-bg.is-open { display: flex; }
-  .modal {
-    background: var(--surface);
-    border: 1px solid var(--line-soft);
-    border-radius: var(--r-lg);
-    padding: 28px;
-    width: 92%;
-    max-width: 480px;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-  }
-  .modal h3 {
-    margin: 0 0 16px;
-    font-family: var(--serif);
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-  }
-  .modal label {
-    display: block;
-    font-size: 12px;
-    color: var(--ink-2);
-    margin: 12px 0 6px;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-  }
-  .modal input, .modal select {
-    width: 100%;
-    padding: 11px 13px;
-    border: 1px solid var(--line-soft);
-    border-radius: var(--r-sm);
-    font-family: var(--sans);
-    font-size: 14px;
-    background: var(--paper);
-    color: var(--ink);
-  }
-  .modal input:focus, .modal select:focus { outline: 1px solid var(--red); border-color: var(--red); }
-  .modal-actions { display: flex; gap: 8px; margin-top: 22px; justify-content: flex-end; }
+  .event-card .head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .event-card .head .quarter { font-size: 12px; color: var(--ink-3); font-weight: 600; letter-spacing: 0.05em; }
+  .event-card .head .badge { font-size: 11px; padding: 3px 8px; border-radius: 6px; font-weight: 600; }
+  .event-card .head .badge.done { background: var(--green-soft); color: var(--green); }
+  .event-card .head .badge.ongoing { background: var(--blue-soft); color: var(--blue); }
+  .event-card h3 { margin: 6px 0 12px; font-size: 17px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); }
+  .event-card .when { font-size: 12px; color: var(--ink-3); margin-bottom: 18px; }
+  .event-card .kpi-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .event-card .kpi { background: var(--surface-2); border-radius: 10px; padding: 12px 14px; }
+  .event-card .kpi .k { font-size: 11px; color: var(--ink-3); font-weight: 500; margin-bottom: 4px; }
+  .event-card .kpi .v { font-size: 20px; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .event-card .kpi .v .u { font-size: 12px; font-weight: 500; color: var(--ink-3); margin-left: 1px; }
+  .event-card .kpi .extra { font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+  .event-card .note { font-size: 12px; color: var(--ink-3); padding-top: 14px; border-top: 1px dashed var(--line-2); margin-top: auto; }
+  .event-card.ongoing-card { border-color: var(--blue); border-width: 1.5px; }
 
-  /* ─── Emoji Picker ─── */
-  .emoji-picker {
-    border: 1px solid var(--line-soft);
-    border-radius: var(--r-sm);
-    background: var(--paper);
-    padding: 10px;
-  }
-  .emoji-preview-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-  .emoji-preview {
-    width: 44px; height: 44px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 26px;
-    border: 1px solid var(--line-soft);
-    border-radius: var(--r-sm);
-    background: var(--surface);
-  }
-  .emoji-input-inline {
-    flex: 1;
-    padding: 9px 11px !important;
-    font-size: 13px !important;
-  }
-  .emoji-grid {
-    display: grid;
-    grid-template-columns: repeat(8, 1fr);
-    gap: 4px;
-  }
-  .emoji-btn {
-    aspect-ratio: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    background: var(--surface);
-    border: 1px solid transparent;
-    border-radius: var(--r-sm);
-    cursor: pointer;
-    transition: background 0.12s, border-color 0.12s;
-    padding: 0;
-    font-family: inherit;
-  }
-  .emoji-btn:hover { background: var(--paper-2); }
-  .emoji-btn.active {
-    border-color: var(--ink);
-    background: var(--paper-2);
-  }
+  /* ── 퍼널 ── */
+  .funnel-card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 28px; }
+  .funnel-row { display: flex; align-items: center; gap: 18px; margin-bottom: 12px; }
+  .funnel-row:last-child { margin-bottom: 0; }
+  .funnel-label { width: 200px; flex-shrink: 0; }
+  .funnel-label .name { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .funnel-label .sub { font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+  .funnel-bar-wrap { flex: 1; height: 44px; background: var(--surface-3); border-radius: 8px; overflow: hidden; position: relative; }
+  .funnel-bar { height: 100%; display: flex; align-items: center; justify-content: flex-end; padding-right: 12px; color: white; font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; transition: width .3s; }
+  .funnel-bar.b1 { background: var(--blue); }
+  .funnel-bar.b2 { background: #5B9BFA; }
+  .funnel-bar.b3 { background: #8FBCFB; color: var(--ink); }
+  .funnel-bar.b4 { background: #C7DCFD; color: var(--ink); }
+  .funnel-meta { width: 110px; text-align: right; flex-shrink: 0; }
+  .funnel-meta .pct { font-size: 14px; font-weight: 700; color: var(--ink); }
+  .funnel-meta .pct-sub { font-size: 11px; color: var(--ink-3); }
+  .funnel-note { margin-top: 18px; padding: 14px 16px; background: var(--warn-soft); border-radius: 8px; font-size: 13px; color: var(--ink-2); line-height: 1.6; }
+  .funnel-note strong { color: var(--ink); font-weight: 600; }
 
-  /* ─── Date Range ─── */
-  .period-toggle {
-    display: inline-flex;
-    border: 1px solid var(--line-soft);
-    border-radius: var(--r-sm);
-    overflow: hidden;
-    margin-bottom: 8px;
-  }
-  .period-toggle button {
-    padding: 7px 14px;
-    font-size: 12px;
-    font-family: var(--sans);
-    background: var(--surface);
-    border: 0;
-    cursor: pointer;
-    color: var(--ink-2);
-    font-weight: 600;
-  }
-  .period-toggle button.active {
-    background: var(--ink);
-    color: var(--surface);
-  }
-  .date-row {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
-  .date-row input[type="date"] {
-    flex: 1;
-  }
-  .date-row .dash {
-    color: var(--ink-3);
-    font-size: 14px;
-    user-select: none;
+  /* ── 인사이트 ── */
+  .insight-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .insight-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+  .insight-card .ic-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: var(--blue); margin-bottom: 8px; }
+  .insight-card.warn .ic-label { color: var(--warn); }
+  .insight-card.good .ic-label { color: var(--green); }
+  .insight-card h4 { margin: 0 0 6px; font-size: 15px; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
+  .insight-card p { margin: 0; font-size: 13px; color: var(--ink-2); line-height: 1.6; }
+
+  /* ── 푸터 ── */
+  .footer { margin-top: 48px; padding: 24px 0; border-top: 1px solid var(--line); font-size: 12px; color: var(--ink-3); text-align: center; }
+
+  /* 반응형 */
+  @media (max-width: 900px) {
+    .wrap { padding: 20px; }
+    .exec-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .event-grid { grid-template-columns: 1fr; }
+    .insight-grid { grid-template-columns: 1fr; }
+    .funnel-row { flex-wrap: wrap; gap: 10px; }
+    .funnel-label { width: 100%; }
+    .funnel-meta { width: 100%; text-align: left; }
+    table.kpi th, table.kpi td { padding: 10px 12px; font-size: 13px; }
   }
 </style>
 </head>
 <body>
 
-<nav class="nav">
-  <div class="brand">
-    인사이트전략팀 B2C
-    <span class="muted">· 이벤트 카탈로그</span>
-  </div>
-  <div class="nav-actions">
-    <button class="nav-btn" id="globalRefreshBtn" onclick="manualRefreshAll()" title="모든 카드의 시트 데이터 강제 새로고침">🔄 시트 동기화</button>
-    <button class="nav-btn" onclick="window.open('compare.html', '_blank')">비교</button>
-    <button class="nav-btn primary" onclick="openAddModal()">+ 새 이벤트</button>
-  </div>
-</nav>
-
-<!-- TRASH FLOATING (우하단) -->
-<button class="trash-fab" id="trashBtn" onclick="openTrashModal()" title="휴지통" aria-label="휴지통">
-  <span class="trash-fab-icon">🗑</span>
-  <span class="trash-fab-label">휴지통</span>
-  <span class="trash-count" id="trashCount">0</span>
-</button>
-
-<!-- TRASH MODAL -->
-<div class="modal-bg" id="trashModal" onclick="if(event.target===this)closeTrashModal()">
-  <div class="modal trash-modal">
-    <h3 style="margin:0 0 6px;font-family:var(--serif);font-size:22px;font-weight:700;letter-spacing:-0.015em">휴지통</h3>
-    <div style="font-family:var(--sans);font-size:11px;color:var(--ink-3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:20px">Trash</div>
-    <div id="trashList"></div>
-    <div class="modal-actions">
-      <button class="nav-btn" type="button" onclick="closeTrashModal()">닫기</button>
-      <button class="nav-btn" type="button" id="emptyTrashBtn" onclick="emptyTrashConfirm()">전체 비우기</button>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="title-block">
+      <h1>B2C 이벤트 성과 보고</h1>
+      <div class="sub">2026 Q1~Q2 · 인사이트전략팀 · 김한나</div>
+    </div>
+    <div class="meta-block">
+      <span class="pill"><span class="dot"></span>WORK FEST 진행중</span>
+      <span class="pill">as of 2026-05-19</span>
     </div>
   </div>
-</div>
+</header>
 
-<div class="container">
+<main class="wrap">
 
-  <!-- HERO -->
-  <div class="hero">
-    <h1>이벤트 카탈로그</h1>
-    <div class="summary-strip" id="summaryStrip"></div>
-  </div>
+  <!-- ── Executive Summary ── -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Executive Summary</h2>
+      <div class="desc">2026년 상반기 B2C 이벤트 3종 누적 성과</div>
+    </div>
+    <div class="exec">
+      <div class="exec-grid">
+        <div class="exec-cell">
+          <div class="label">진행 이벤트</div>
+          <div class="value">3<span class="unit">건</span></div>
+          <div class="delta">완료 2 · 진행중 1</div>
+        </div>
+        <div class="exec-cell">
+          <div class="label">총 신청자</div>
+          <div class="value">7,310<span class="unit">명</span></div>
+          <div class="delta">커컨 1,566 + 데브콘 1,511 + 워페 4,233</div>
+        </div>
+        <div class="exec-cell">
+          <div class="label">실 참여자 (완료 2건)</div>
+          <div class="value">1,420<span class="unit">명</span></div>
+          <div class="delta">커컨 595 + 데브콘 825</div>
+        </div>
+        <div class="exec-cell">
+          <div class="label">이력서 업데이트</div>
+          <div class="value">260<span class="unit">건</span></div>
+          <div class="delta">+ 워크페스트 산출 예정</div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  <!-- FILTERS -->
-  <div class="filter-row" id="filterRow"></div>
-
-  <!-- 진행중 & 예정 -->
-  <div class="section-head">
-    <span class="title">진행중 · 예정</span>
-    <span class="count" id="cntActive">0</span>
-  </div>
-  <div class="events-table">
-    <table>
-      <thead>
-        <tr>
-          <th style="width:38%">이벤트</th>
-          <th style="width:18%">모집 기간</th>
-          <th style="width:21%">신청 KPI</th>
-          <th style="width:21%">이력서 업데이트</th>
-          <th class="right" style="width:40px"></th>
-        </tr>
-      </thead>
-      <tbody id="tbodyActive"></tbody>
-    </table>
-  </div>
-
-  <!-- 종료 -->
-  <div class="section-head">
-    <span class="title">종료된 이벤트</span>
-    <span class="count" id="cntDone">0</span>
-    <span class="toggle" id="toggleDone" onclick="toggleDoneTable()">펼치기 ▾</span>
-  </div>
-  <div class="collapsed-table" id="doneWrap">
-    <div class="events-table">
-      <table>
+  <!-- ── KPI 비교 표 ── -->
+  <section class="section">
+    <div class="section-head">
+      <h2>이벤트별 KPI 비교</h2>
+      <div class="desc">동일 지표 가로 비교 — 매체비 효율(CVR·CPA)은 마크업 전 Meta 실 집행 기준</div>
+    </div>
+    <div class="compare-table">
+      <table class="kpi">
         <thead>
           <tr>
-            <th style="width:38%">이벤트</th>
-            <th style="width:18%">행사일</th>
-            <th style="width:21%">신청 KPI</th>
-            <th style="width:21%">이력서 업데이트</th>
-            <th class="right" style="width:40px"></th>
+            <th>지표</th>
+            <th>커리어 컨퍼런스<br><span style="font-weight:400;color:var(--ink-3);font-size:12px;">2026.03 · 완료</span></th>
+            <th>잡코리아 데브콘<br><span style="font-weight:400;color:var(--ink-3);font-size:12px;">2026.04 · 완료</span></th>
+            <th>WORK FEST<br><span style="font-weight:400;color:var(--blue);font-size:12px;">2026.05.28 · 진행중</span></th>
           </tr>
         </thead>
-        <tbody id="tbodyDone"></tbody>
+        <tbody>
+          <tr>
+            <td>총 신청자 수</td>
+            <td class="num big">1,566<span class="sub">명</span></td>
+            <td class="num big">1,511<span class="sub">명</span></td>
+            <td class="num big ongoing">4,233<span class="sub">명 · 5/19 기준</span></td>
+          </tr>
+          <tr>
+            <td>실제 참여자 수</td>
+            <td class="num big">595<span class="sub">명</span></td>
+            <td class="num big">825<span class="sub">명</span></td>
+            <td class="num big ongoing">—<span class="sub">행사 전</span></td>
+          </tr>
+          <tr>
+            <td>참여 전환율<br><span class="sub" style="font-weight:400;color:var(--ink-3);">참여 ÷ 신청</span></td>
+            <td class="num">38.0%</td>
+            <td class="num best">54.6%</td>
+            <td class="num ongoing">—</td>
+          </tr>
+          <tr>
+            <td>이력서 업데이트 수<br><span class="sub" style="font-weight:400;color:var(--ink-3);">신규+수정</span></td>
+            <td class="num">111<span class="sub">신규 84 · 수정 27</span></td>
+            <td class="num best">149<span class="sub">신규 63 · 수정 86</span></td>
+            <td class="num ongoing">산출 예정</td>
+          </tr>
+          <tr>
+            <td>CVR (이력서 ÷ 신청)</td>
+            <td class="num best">13.65%</td>
+            <td class="num">5.84%</td>
+            <td class="num ongoing">—</td>
+          </tr>
+          <tr>
+            <td>CPA (이력서 1건당)<br><span class="sub" style="font-weight:400;color:var(--ink-3);">매체비 ÷ 이력서 업데이트</span></td>
+            <td class="num">2,848<span class="sub">원</span></td>
+            <td class="num best">2,707<span class="sub">원</span></td>
+            <td class="num ongoing">—</td>
+          </tr>
+        </tbody>
       </table>
     </div>
-  </div>
+    <div class="legend">· <strong>best</strong>(녹색) = 항목별 최우수 / · 매체비는 VAT 제외 Meta 실 집행 기준</div>
+  </section>
 
-  <div id="emptyState" class="empty-state" style="display:none">
-    <div class="ic">📭</div>
-    아직 이벤트가 없습니다 <span class="add" onclick="openAddModal()">+ 새 이벤트 추가</span>
-  </div>
+  <!-- ── 이벤트별 카드 3개 ── -->
+  <section class="section">
+    <div class="section-head">
+      <h2>이벤트별 상세</h2>
+      <div class="desc">각 이벤트 핵심 KPI 개별 뷰</div>
+    </div>
+    <div class="event-grid">
 
-  <div class="foot">
-    인사이트전략팀 · B2C 대시보드
-  </div>
-</div>
+      <article class="event-card">
+        <div class="head">
+          <div class="quarter">Q1 · 2026.03</div>
+          <div class="badge done">완료</div>
+        </div>
+        <h3>커리어 컨퍼런스</h3>
+        <div class="when">B2C 대형 컨퍼런스 · 회원 직무 전환 지원</div>
+        <div class="kpi-row">
+          <div class="kpi"><div class="k">총 신청자</div><div class="v">1,566<span class="u">명</span></div></div>
+          <div class="kpi"><div class="k">실 참여자</div><div class="v">595<span class="u">명</span></div></div>
+          <div class="kpi"><div class="k">이력서 업데이트</div><div class="v">111<span class="u">건</span></div><div class="extra">신규 84 · 수정 27</div></div>
+          <div class="kpi"><div class="k">CVR / CPA</div><div class="v">13.65<span class="u">%</span></div><div class="extra">CPA 2,848원</div></div>
+        </div>
+        <div class="note">참여 전환율 38.0% · 이력서 CVR 13.65%는 3개 이벤트 중 최고</div>
+      </article>
 
-<!-- ADD MODAL -->
-<div class="modal-bg" id="addModal" onclick="if(event.target===this)closeAddModal()">
-  <div class="modal">
-    <h3>+ 새 이벤트 추가</h3>
+      <article class="event-card">
+        <div class="head">
+          <div class="quarter">Q2 · 2026.04</div>
+          <div class="badge done">완료</div>
+        </div>
+        <h3>잡코리아 데브콘</h3>
+        <div class="when">개발자 타겟 컨퍼런스 · 첫 단독 운영</div>
+        <div class="kpi-row">
+          <div class="kpi"><div class="k">총 신청자</div><div class="v">1,511<span class="u">명</span></div></div>
+          <div class="kpi"><div class="k">실 참여자</div><div class="v">825<span class="u">명</span></div></div>
+          <div class="kpi"><div class="k">이력서 업데이트</div><div class="v">149<span class="u">건</span></div><div class="extra">신규 63 · 수정 86</div></div>
+          <div class="kpi"><div class="k">CVR / CPA</div><div class="v">5.84<span class="u">%</span></div><div class="extra">CPA 2,707원</div></div>
+        </div>
+        <div class="note">참여 전환율 54.6% (이벤트 중 최고) · CPA 2,707원으로 비용 효율 최고</div>
+      </article>
 
-    <label>이모지</label>
-    <div class="emoji-picker">
-      <div class="emoji-preview-row">
-        <span class="emoji-preview" id="m_emoji_preview">📊</span>
-        <input id="m_emoji" class="emoji-input-inline" placeholder="직접 입력도 가능" maxlength="4" oninput="onEmojiInput()">
+      <article class="event-card ongoing-card">
+        <div class="head">
+          <div class="quarter">Q2 · 2026.05.28</div>
+          <div class="badge ongoing">진행중</div>
+        </div>
+        <h3>WORK FEST</h3>
+        <div class="when">잡코리아 첫 이력서 페스티벌 · 5/19 스냅샷</div>
+        <div class="kpi-row">
+          <div class="kpi"><div class="k">총 신청자</div><div class="v">4,233<span class="u">명</span></div><div class="extra">유니크 회원ID 기준</div></div>
+          <div class="kpi"><div class="k">실 참여자</div><div class="v">—</div><div class="extra">행사 전</div></div>
+          <div class="kpi"><div class="k">이력서 업데이트</div><div class="v">산출중</div><div class="extra">데이터팀 표준 SQL</div></div>
+          <div class="kpi"><div class="k">CVR / CPA</div><div class="v">—</div><div class="extra">행사 후 확정</div></div>
+        </div>
+        <div class="note"><strong>D-9</strong> 잔여 · 현재 신청자 4,233명은 커컨·데브콘 신청자 합(3,077명) 대비 +37.6% 규모</div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ── Cross-event 퍼널 ── -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Cross-event 재참여 퍼널</h2>
+      <div class="desc">동일 신청자의 이벤트 간 재참여 흐름 — 휴대폰 번호 매칭 기준</div>
+    </div>
+    <div class="funnel-card">
+
+      <div class="funnel-row">
+        <div class="funnel-label">
+          <div class="name">커리어 컨퍼런스 신청</div>
+          <div class="sub">2026.03 · 유니크 폰번호 기준</div>
+        </div>
+        <div class="funnel-bar-wrap">
+          <div class="funnel-bar b1" style="width: 100%;">1,479명</div>
+        </div>
+        <div class="funnel-meta">
+          <div class="pct">100%</div>
+          <div class="pct-sub">기준 모수</div>
+        </div>
       </div>
-      <div class="emoji-grid" id="m_emoji_grid"></div>
-    </div>
 
-    <label>이벤트명</label>
-    <input id="m_title" placeholder="예: WORK FEST 2026">
-
-    <label>카테고리</label>
-    <input id="m_category" placeholder="페스티벌 / 컨퍼런스 / 웨비나 / 해커톤">
-
-    <label>기간</label>
-    <div class="period-toggle" role="tablist">
-      <button type="button" id="m_period_multi" class="active" onclick="setPeriodMode('multi')">여러 날</button>
-      <button type="button" id="m_period_single" onclick="setPeriodMode('single')">당일</button>
-    </div>
-    <div class="date-row">
-      <input type="date" id="m_period_start">
-      <span class="dash" id="m_period_dash">~</span>
-      <input type="date" id="m_period_end">
-    </div>
-
-    <label>상태</label>
-    <select id="m_status">
-      <option value="ongoing">진행중</option>
-      <option value="soon">예정</option>
-      <option value="done">종료</option>
-    </select>
-    <label>신청 KPI 목표</label>
-    <input id="m_kpi_signup" placeholder="예: 1,000명">
-    <label>이력서 업데이트 KPI 목표</label>
-    <input id="m_kpi_resume" placeholder="예: 500명">
-    <div class="modal-actions">
-      <button class="nav-btn" onclick="closeAddModal()">취소</button>
-      <button class="nav-btn primary" onclick="saveNewProject()">추가</button>
-    </div>
-  </div>
-</div>
-
-<script src="projects-data.js"></script>
-<script src="data/cache.js" onerror="console.warn('[v4] data/cache.js 없음 (gitignore — 정상)')"></script>
-<script src="sync-client.js"></script>
-
-<script>
-  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const fmt = (n) => (n == null || isNaN(n)) ? '—' : Number(n).toLocaleString('ko-KR');
-  const getJSON = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } };
-
-  function parseDate(s) {
-    const m = String(s || '').match(/(\d{4})[.\-/](\d{1,2})[.\-/](\d{1,2})/);
-    return m ? new Date(+m[1], +m[2]-1, +m[3]) : null;
-  }
-  function parsePeriod(s) {
-    const m = String(s || '').match(/(\d{4}[.\-/]\d{1,2}[.\-/]\d{1,2}).*?(\d{4}[.\-/]\d{1,2}[.\-/]\d{1,2})/);
-    if (!m) return null;
-    return { start: parseDate(m[1]), end: parseDate(m[2]), startStr: m[1], endStr: m[2] };
-  }
-  function parseTarget(s) {
-    const m = String(s || '').match(/[\d,]+/);
-    if (!m) return null;
-    const n = Number(m[0].replace(/,/g, ''));
-    return isNaN(n) ? null : n;
-  }
-  function getEffectiveStatus(p) {
-    if (p.status === 'cancel') return 'cancel';
-    if (p.status === 'done' || p.status === 'completed') return 'done';
-    const period = parsePeriod(p.period);
-    if (!period) return p.status || 'ongoing';
-    const today = new Date(); today.setHours(0,0,0,0);
-    if (today < period.start) return 'soon';
-    if (today > period.end) return 'done';
-    return 'ongoing';
-  }
-  function getDDay(p, status) {
-    const period = parsePeriod(p.period);
-    if (!period) return null;
-    const today = new Date(); today.setHours(0,0,0,0);
-    if (status === 'ongoing') {
-      const d = Math.round((period.end - today) / 86400000);
-      return { txt: `D-${d}`, cls: 'ongoing' };
-    }
-    if (status === 'soon') {
-      const d = Math.round((period.start - today) / 86400000);
-      return { txt: `D-${d}`, cls: 'soon' };
-    }
-    if (status === 'done') return { txt: '종료', cls: 'done' };
-    if (status === 'cancel') return { txt: '취소', cls: 'cancel' };
-    return null;
-  }
-
-  // 시트 캐시 우선순위: localStorage vs 메모리(data/cache.js) — fetchedAt 더 최신 쪽 사용
-  function pickFreshSheetCache(sheetId) {
-    const ls = getJSON('b2c_sheet_data_' + sheetId);
-    const mem = window.SHEET_CACHES && window.SHEET_CACHES[sheetId];
-    if (ls && mem) return new Date(ls.fetchedAt || 0) >= new Date(mem.fetchedAt || 0) ? ls : mem;
-    return ls || mem;
-  }
-
-  function getSheetUnique(p) {
-    const allUrls = [...(p.resources || []), p.links?.sheet, p.links?.notion].filter(Boolean);
-    const sheetUrl = allUrls.find(u => /spreadsheets\/d\//.test(u || ''));
-    const sheetId = sheetUrl ? (sheetUrl.match(/spreadsheets\/d\/([\w-]+)/) || [])[1] : null;
-    if (!sheetId) return null;
-    const cache = pickFreshSheetCache(sheetId);
-    if (!cache?.rows) return null;
-    const rows = cache.rows;
-    if (!rows.length) return { total: 0, unique: 0 };
-    const head = rows[0].map(h => String(h || '').toLowerCase().replace(/\s/g, ''));
-    let idCol = head.findIndex(h => /^(잡코리아|jobkorea).*(id|아이디)$/.test(h) || h === '잡코리아id' || h === 'jobkoreaid');
-    if (idCol < 0) idCol = head.findIndex(h => /id|아이디/.test(h));
-    const seen = new Set();
-    let total = 0;
-    for (let i = 1; i < rows.length; i++) {
-      const r = rows[i];
-      if (!r || r.every(c => !c)) continue;
-      total++;
-      const id = idCol >= 0 ? String(r[idCol] || '').trim() : null;
-      if (id) seen.add(id.toLowerCase());
-    }
-    return { total, unique: seen.size || total };
-  }
-
-  function findKpi(p, kind) {
-    const kpis = (p.extKpis && p.extKpis.length ? p.extKpis : p.kpis || []).filter(k => k?.label && k?.value);
-    const re = kind === 'signup'
-      ? /신청|응모|지원|참여|참가|등록|모집/i
-      : /이력서|업데이트|resume|update/i;
-    return kpis.find(k => re.test(k.label)) || null;
-  }
-  function kpiCurrent(p, kind) {
-    const ana = getSheetUnique(p);
-    const r = getJSON('b2c_resume_stats_' + p.id);
-    if (kind === 'signup') return ana?.total ?? ana?.unique ?? null;
-    if (kind === 'resume') return r?.resumeUpdated ?? null;
-    return null;
-  }
-  function pctClass(pct) {
-    if (pct >= 100) return 'blue';
-    if (pct >= 70) return 'ok';
-    if (pct >= 40) return 'warn';
-    return 'danger';
-  }
-  function lightIcon(pct) {
-    if (pct >= 100) return '✓ 초과';
-    if (pct >= 70) return '안정';
-    if (pct >= 40) return '주의';
-    return '미달';
-  }
-
-  function kpiCell(p, kind) {
-    const kpi = findKpi(p, kind);
-    const cur = kpiCurrent(p, kind);
-    if (!kpi && cur == null) {
-      return `<td class="kpi-cell"><div class="kpi-empty">—<span class="req">데이터 입력 대기</span></div></td>`;
-    }
-    const target = kpi ? parseTarget(kpi.value) : null;
-    if (cur == null || target == null) {
-      const tgtTxt = kpi ? `목표 ${esc(kpi.value)}` : '—';
-      const curTxt = cur != null ? `<span class="cur">${fmt(cur)}<span class="unit">명</span></span>` : `<span class="kpi-empty">—</span>`;
-      return `<td class="kpi-cell">
-        <div class="kpi-vals">${curTxt}<span class="sl">/</span><span class="tgt">${esc(tgtTxt)}</span></div>
-        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:0%"></div></div>
-      </td>`;
-    }
-    const pct = (cur / target) * 100;
-    const cls = pctClass(pct);
-    const w = Math.min(pct, 100).toFixed(1);
-    return `<td class="kpi-cell">
-      <div class="kpi-vals">
-        <span class="cur">${fmt(cur)}<span class="unit">명</span></span>
-        <span class="sl">/</span>
-        <span class="tgt">${fmt(target)}<span class="unit">명</span></span>
+      <div class="funnel-row">
+        <div class="funnel-label">
+          <div class="name">↳ 데브콘도 신청</div>
+          <div class="sub">2026.04 · 재참여자</div>
+        </div>
+        <div class="funnel-bar-wrap">
+          <div class="funnel-bar b2" style="width: 2.4%; min-width: 60px;">36명</div>
+        </div>
+        <div class="funnel-meta">
+          <div class="pct">2.4%</div>
+          <div class="pct-sub">→ 데브콘 재참여</div>
+        </div>
       </div>
-      <div class="kpi-bar"><div class="kpi-bar-fill ${cls}" style="width:${w}%"></div></div>
-    </td>`;
-  }
 
-  function periodCell(p) {
-    const period = parsePeriod(p.period);
-    const status = getEffectiveStatus(p);
-    const dd = getDDay(p, status);
-    if (!period) {
-      return `<td class="pr-cell"><div class="pr-date">${esc(p.period || '기간 미정')}</div></td>`;
-    }
-    const startStr = period.startStr.replace(/^(\d{4})[.\-/](\d{1,2})[.\-/](\d{1,2})/, (_, y, m, d) => `${m}.${d}`);
-    const endStr = period.endStr.replace(/^(\d{4})[.\-/](\d{1,2})[.\-/](\d{1,2})/, (_, y, m, d) => `${m}.${d}`);
-    const sameDay = period.start && period.end && period.start.getTime() === period.end.getTime();
-    const dateLabel = sameDay ? `${startStr} <span class="pr-oneday">(당일)</span>` : `${esc(startStr)} ~ ${esc(endStr)}`;
-    return `<td class="pr-cell">
-      <div class="pr-date">${dateLabel}</div>
-      ${dd ? `<span class="pr-dday ${dd.cls}">${esc(dd.txt)}</span>` : ''}
-    </td>`;
-  }
-
-  function renderRow(p) {
-    return `<tr onclick="goDetail('${esc(p.id)}')">
-      <td>
-        <div class="ev-cell">
-          <div class="ev-emoji">${esc(p.emoji || '📊')}</div>
-          <div class="ev-text">
-            <div class="ev-title">${esc(p.title || p.name || '(제목 없음)')}</div>
-            <div class="ev-cat">${esc(p.category || '이벤트')}</div>
-          </div>
+      <div class="funnel-row">
+        <div class="funnel-label">
+          <div class="name">↳ WORK FEST도 신청</div>
+          <div class="sub">2026.05 · 3개 모두 참여</div>
         </div>
-      </td>
-      ${periodCell(p)}
-      ${kpiCell(p, 'signup')}
-      ${kpiCell(p, 'resume')}
-      <td class="arrow-cell">→</td>
-    </tr>`;
-  }
-
-  function goDetail(id) { location.href = 'project-detail.html?id=' + encodeURIComponent(id); }
-
-  function getAllProjects() {
-    const demo = Object.values(window.PROJECTS || {});
-    const overrides = window.getOverrides ? window.getOverrides() : {};
-    const deletedIds = window.getDeletedIds ? window.getDeletedIds() : [];
-    const user = window.getUserProjects ? window.getUserProjects() : [];
-    return demo
-      .filter(p => !deletedIds.includes(p.id))
-      .map(p => overrides[p.id] || p)
-      .concat(user);
-  }
-
-  let currentFilter = 'all';
-  const FILTERS = [
-    { key: 'all', label: '전체' },
-    { key: 'ongoing', label: '진행중' },
-    { key: 'soon', label: '예정' },
-    { key: 'done', label: '종료' }
-  ];
-
-  function passesFilter(p, filter) {
-    if (filter === 'all') return true;
-    if (filter.startsWith('cat:')) return p.category === filter.slice(4);
-    return getEffectiveStatus(p) === filter;
-  }
-
-  function renderFilterRow(projects) {
-    const counts = {
-      all: projects.length,
-      ongoing: projects.filter(p => getEffectiveStatus(p) === 'ongoing').length,
-      soon: projects.filter(p => getEffectiveStatus(p) === 'soon').length,
-      done: projects.filter(p => getEffectiveStatus(p) === 'done').length
-    };
-    const cats = Array.from(new Set(projects.map(p => p.category).filter(Boolean)));
-    const html = FILTERS.map(f => `
-      <button class="chip ${currentFilter === f.key ? 'active' : ''}" onclick="setFilter('${f.key}')">
-        ${esc(f.label)}<span class="count">${counts[f.key] ?? 0}</span>
-      </button>
-    `).join('') + (cats.length ? `<span class="sep"></span>` : '') + cats.map(c => `
-      <button class="chip ${currentFilter === 'cat:' + c ? 'active' : ''}" onclick="setFilter('cat:${esc(c).replace(/'/g, '&#39;')}')">${esc(c)}</button>
-    `).join('');
-    document.getElementById('filterRow').innerHTML = html;
-  }
-
-  function setFilter(k) { currentFilter = k; render(); }
-
-  function renderSummary(projects) {
-    const ongoing = projects.filter(p => getEffectiveStatus(p) === 'ongoing');
-    const done = projects.filter(p => getEffectiveStatus(p) === 'done');
-    let totalSignup = 0, totalResume = 0, achieved = 0, totalKpi = 0;
-    projects.forEach(p => {
-      const s = kpiCurrent(p, 'signup'); if (s) totalSignup += s;
-      const r = kpiCurrent(p, 'resume'); if (r) totalResume += r;
-      ['signup', 'resume'].forEach(kind => {
-        const kpi = findKpi(p, kind);
-        const cur = kpiCurrent(p, kind);
-        if (kpi && cur != null) {
-          const tgt = parseTarget(kpi.value);
-          if (tgt) { totalKpi++; if (cur / tgt * 100 >= 100) achieved++; }
-        }
-      });
-    });
-    const achievePct = totalKpi ? (achieved / totalKpi * 100).toFixed(0) : '—';
-    document.getElementById('summaryStrip').innerHTML = `
-      <div class="sum-card"><span class="ic">📚</span><div class="lab">총 이벤트</div><div class="val">${projects.length}<span class="unit">건</span></div><div class="sub">진행중 ${ongoing.length} · 종료 ${done.length}</div></div>
-      <div class="sum-card"><span class="ic">✉️</span><div class="lab">누적 신청자</div><div class="val">${fmt(totalSignup)}<span class="unit">명</span></div><div class="sub">유니크 기준 합산</div></div>
-      <div class="sum-card"><span class="ic">📝</span><div class="lab">누적 이력서 업데이트</div><div class="val">${fmt(totalResume)}<span class="unit">명</span></div><div class="sub">메타베이스 r_edit_dt</div></div>
-    `;
-  }
-
-  function render() {
-    const all = getAllProjects();
-    renderSummary(all);
-    renderFilterRow(all);
-    const filtered = all.filter(p => passesFilter(p, currentFilter));
-    const showSplit = (currentFilter === 'all');
-    const active = filtered.filter(p => { const s = getEffectiveStatus(p); return s === 'ongoing' || s === 'soon'; });
-    const done = filtered.filter(p => { const s = getEffectiveStatus(p); return s === 'done' || s === 'cancel'; });
-
-    if (showSplit) {
-      document.getElementById('tbodyActive').innerHTML = active.map(renderRow).join('') || `<tr><td colspan="5" style="padding:36px;color:var(--ink-3);text-align:center;font-family:var(--serif);font-size:15px">진행중 / 예정 이벤트가 없습니다</td></tr>`;
-      document.getElementById('cntActive').textContent = active.length;
-      document.getElementById('tbodyDone').innerHTML = done.map(renderRow).join('') || `<tr><td colspan="5" style="padding:36px;color:var(--ink-3);text-align:center;font-family:var(--serif);font-size:15px">종료된 이벤트가 없습니다</td></tr>`;
-      document.getElementById('cntDone').textContent = done.length;
-      document.querySelectorAll('.section-head')[1].style.display = '';
-    } else {
-      document.getElementById('tbodyActive').innerHTML = filtered.map(renderRow).join('') || `<tr><td colspan="5" style="padding:36px;color:var(--ink-3);text-align:center;font-family:var(--serif);font-size:15px">조건에 맞는 이벤트가 없습니다</td></tr>`;
-      document.getElementById('cntActive').textContent = filtered.length;
-      document.querySelectorAll('.section-head')[1].style.display = 'none';
-      document.getElementById('doneWrap').style.display = 'none';
-    }
-
-    document.getElementById('emptyState').style.display = all.length === 0 ? '' : 'none';
-  }
-
-  function toggleDoneTable() {
-    const wrap = document.getElementById('doneWrap');
-    const tog = document.getElementById('toggleDone');
-    wrap.classList.toggle('open');
-    tog.textContent = wrap.classList.contains('open') ? '접기 ▴' : '펼치기 ▾';
-  }
-
-  const EMOJI_PRESETS = ['📊','🎉','🎤','🎙️','🎯','🎁','🎓','🏆','💼','📝','📋','📄','🚀','💡','🔥','⭐','✨','📣','📢','📅','📌','💻','🪩','🍀'];
-
-  function renderEmojiGrid() {
-    const grid = document.getElementById('m_emoji_grid');
-    if (!grid) return;
-    const cur = (document.getElementById('m_emoji_preview').textContent || '').trim();
-    grid.innerHTML = EMOJI_PRESETS.map(e => `<button type="button" class="emoji-btn ${e===cur?'active':''}" onclick="pickEmoji('${e}')">${e}</button>`).join('');
-  }
-  function pickEmoji(e) {
-    document.getElementById('m_emoji_preview').textContent = e;
-    document.getElementById('m_emoji').value = '';
-    renderEmojiGrid();
-  }
-  function onEmojiInput() {
-    const v = document.getElementById('m_emoji').value.trim();
-    if (v) {
-      document.getElementById('m_emoji_preview').textContent = v;
-      renderEmojiGrid();
-    }
-  }
-  function setPeriodMode(mode) {
-    const isSingle = mode === 'single';
-    document.getElementById('m_period_single').classList.toggle('active', isSingle);
-    document.getElementById('m_period_multi').classList.toggle('active', !isSingle);
-    document.getElementById('m_period_dash').style.display = isSingle ? 'none' : '';
-    document.getElementById('m_period_end').style.display = isSingle ? 'none' : '';
-  }
-  function openAddModal() {
-    document.getElementById('m_emoji_preview').textContent = '📊';
-    document.getElementById('m_emoji').value = '';
-    document.getElementById('m_title').value = '';
-    document.getElementById('m_category').value = '';
-    document.getElementById('m_period_start').value = '';
-    document.getElementById('m_period_end').value = '';
-    document.getElementById('m_status').value = 'ongoing';
-    document.getElementById('m_kpi_signup').value = '';
-    document.getElementById('m_kpi_resume').value = '';
-    setPeriodMode('multi');
-    renderEmojiGrid();
-    document.getElementById('addModal').classList.add('open');
-  }
-  function closeAddModal() { document.getElementById('addModal').classList.remove('open'); }
-
-  // ─── 휴지통 ───
-  function renderTrashBadge() {
-    const trash = window.getTrash ? window.getTrash() : [];
-    const el = document.getElementById('trashCount');
-    if (!el) return;
-    el.textContent = trash.length;
-    el.classList.toggle('is-empty', trash.length === 0);
-  }
-  function openTrashModal() {
-    renderTrashList();
-    document.getElementById('trashModal').classList.add('is-open');
-  }
-  function closeTrashModal() { document.getElementById('trashModal').classList.remove('is-open'); }
-  function renderTrashList() {
-    const trash = window.getTrash ? window.getTrash() : [];
-    const wrap = document.getElementById('trashList');
-    const empty = document.getElementById('emptyTrashBtn');
-    if (!trash.length) {
-      wrap.innerHTML = `<div class="trash-empty">휴지통이 비어 있습니다</div>`;
-      empty.style.display = 'none';
-      return;
-    }
-    empty.style.display = '';
-    wrap.innerHTML = trash.map(p => {
-      const d = p._deletedAt ? new Date(p._deletedAt) : null;
-      const dStr = d ? `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}` : '—';
-      return `<div class="trash-item">
-        <div class="ic">${esc(p.emoji || '📊')}</div>
-        <div class="info">
-          <div class="ttl">${esc(p.title || p.name || '(제목 없음)')}</div>
-          <div class="meta">${esc(p.category || '이벤트')} · 삭제 ${esc(dStr)}</div>
+        <div class="funnel-bar-wrap">
+          <div class="funnel-bar b3" style="width: 2%; min-width: 80px;">집계중</div>
         </div>
-        <div class="acts">
-          <button onclick="restoreItem('${esc(p.id)}')">복구</button>
-          <button onclick="purgeItem('${esc(p.id)}', '${esc(p.title || '').replace(/'/g, '&#39;')}')">영구 삭제</button>
+        <div class="funnel-meta">
+          <div class="pct">산출중</div>
+          <div class="pct-sub">회원ID 매칭 필요</div>
         </div>
-      </div>`;
-    }).join('');
-  }
-  function restoreItem(id) {
-    if (!window.restoreFromTrash) return;
-    window.restoreFromTrash(id);
-    renderTrashList();
-    renderTrashBadge();
-    render();
-  }
-  function purgeItem(id, title) {
-    if (!confirm(`"${title || '이 카드'}"를 영구 삭제할까요?\n이 작업은 되돌릴 수 없습니다.`)) return;
-    window.purgeFromTrash(id);
-    renderTrashList();
-    renderTrashBadge();
-  }
-  function emptyTrashConfirm() {
-    const trash = window.getTrash ? window.getTrash() : [];
-    if (!trash.length) return;
-    if (!confirm(`휴지통의 ${trash.length}개 카드를 모두 영구 삭제할까요?\n이 작업은 되돌릴 수 없습니다.`)) return;
-    window.emptyTrash();
-    renderTrashList();
-    renderTrashBadge();
-  }
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') { closeTrashModal(); closeAddModal(); }
-  });
-  function saveNewProject() {
-    const title = document.getElementById('m_title').value.trim();
-    if (!title) { alert('이벤트명을 입력하세요'); return; }
+      </div>
 
-    const isSingle = document.getElementById('m_period_single').classList.contains('active');
-    const start = document.getElementById('m_period_start').value;
-    const end = isSingle ? start : document.getElementById('m_period_end').value;
-    let period = '';
-    if (start) {
-      const fmtDate = (iso) => iso.replace(/-/g, '.');
-      period = isSingle
-        ? `${fmtDate(start)} ~ ${fmtDate(start)}`
-        : (end ? `${fmtDate(start)} ~ ${fmtDate(end)}` : `${fmtDate(start)} ~ ${fmtDate(start)}`);
-    }
+      <div class="funnel-note">
+        <strong>매칭 근거:</strong> 커리어 컨퍼런스·데브콘은 휴대폰 번호 기준 매칭(폰 정규화 후 유니크 비교). WORK FEST는 잡코리아 회원ID 체계만 수집되어, 메타베이스에서 회원ID ↔ 폰번호 lookup 후 후속 산출 예정.<br>
+        <strong>해석:</strong> 커컨 신청자 중 데브콘 재참여 2.4% — 같은 컨퍼런스 결이라도 타겟(전직군 vs 개발직군)이 달라 자연스러운 분포.
+      </div>
+    </div>
+  </section>
 
-    const emoji = (document.getElementById('m_emoji').value.trim()
-      || document.getElementById('m_emoji_preview').textContent.trim()
-      || '📊');
+  <!-- ── 핵심 인사이트 ── -->
+  <section class="section">
+    <div class="section-head">
+      <h2>핵심 인사이트</h2>
+      <div class="desc">3개 이벤트 비교에서 도출된 시사점</div>
+    </div>
+    <div class="insight-grid">
 
-    const p = {
-      id: 'user-' + Date.now(),
-      emoji,
-      title,
-      category: document.getElementById('m_category').value.trim(),
-      period,
-      status: document.getElementById('m_status').value,
-      kpis: [
-        { label: '신청자', value: document.getElementById('m_kpi_signup').value.trim() },
-        { label: '이력서 업데이트', value: document.getElementById('m_kpi_resume').value.trim() }
-      ].filter(k => k.value)
-    };
-    if (window.saveUserProject) window.saveUserProject(p);
-    closeAddModal();
-    render();
-  }
+      <div class="insight-card good">
+        <div class="ic-label">STRENGTH</div>
+        <h4>데브콘 참여 전환 54.6%</h4>
+        <p>전사 평균을 상회하는 참여율. 개발 직군 타겟의 높은 몰입도가 확인됨. 후속 개발 직군 이벤트의 ROI 근거가 됨.</p>
+      </div>
 
-  render();
-  renderTrashBadge();
-  setTimeout(() => { render(); renderTrashBadge(); }, 1200);
+      <div class="insight-card good">
+        <div class="ic-label">EFFICIENCY</div>
+        <h4>CPA 평균 2,778원</h4>
+        <p>완료 2건 매체 효율 동등 수준 유지. 데브콘 2,707원 / 커컨 2,848원으로 채널 믹스 표준화 가능.</p>
+      </div>
 
-  // ── 백그라운드 자동 시트 fetch (메인 페이지 진입 시 1회) ──────────────
-  async function autoRefreshSheets(opts = {}) {
-    const verbose = opts.verbose !== false;
-    const projects = getAllProjects();
-    const targets = new Map();
-    for (const p of projects) {
-      const urls = [...(p.resources || []), p.links?.sheet].filter(Boolean);
-      const sheetUrl = urls.find(u => /spreadsheets\/d\//.test(u || ''));
-      if (!sheetUrl) continue;
-      const sid = (sheetUrl.match(/spreadsheets\/d\/([\w-]+)/) || [])[1];
-      if (sid && !targets.has(sid)) targets.set(sid, sheetUrl);
-    }
-    if (verbose) console.log('[autoRefreshSheets] 카드:', projects.length, '시트 fetch 대상:', targets.size, [...targets.keys()]);
-    if (!targets.size) { if (verbose) console.warn('[autoRefreshSheets] 시트 URL 박힌 카드 없음 — 카드 편집에서 시트 URL 등록 필요'); return { fetched: 0, errors: 0 }; }
-    let okCount = 0, errCount = 0;
-    const tasks = [...targets.entries()].map(async ([sid, sheetUrl]) => {
-      const gid = (sheetUrl.match(/[#&?]gid=(\d+)/) || [])[1] || '0';
-      try {
-        const r = await fetch('/api/fetch-sheet?t=' + Date.now(), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          cache: 'no-store',
-          body: JSON.stringify({ sheetUrl, sheetId: sid, gid })
-        });
-        if (!r.ok) { errCount++; if (verbose) console.warn('[autoRefreshSheets] HTTP', r.status, sid); return; }
-        const d = await r.json();
-        if (!d?.rows) { errCount++; if (verbose) console.warn('[autoRefreshSheets] 빈 응답', sid, d?.error); return; }
-        const payload = { sheetId: sid, sheetUrl, fetchedAt: d.fetchedAt || new Date().toISOString(), rows: d.rows };
-        window.SHEET_CACHES = window.SHEET_CACHES || {};
-        window.SHEET_CACHES[sid] = payload;
-        try { localStorage.setItem('b2c_sheet_data_' + sid, JSON.stringify(payload)); } catch(e) {}
-        okCount++;
-        if (verbose) console.log('[autoRefreshSheets] ✓', sid, 'rows:', d.rows.length, 'fetchedAt:', payload.fetchedAt);
-      } catch(e) { errCount++; if (verbose) console.error('[autoRefreshSheets] 예외', sid, e.message); }
-    });
-    await Promise.all(tasks);
-    if (verbose) console.log('[autoRefreshSheets] 완료. 성공:', okCount, '실패:', errCount);
-    render();
-    return { fetched: okCount, errors: errCount };
-  }
-  window.autoRefreshSheets = autoRefreshSheets;
+      <div class="insight-card">
+        <div class="ic-label">SCALE</div>
+        <h4>WORK FEST 신청 4,233명</h4>
+        <p>5/19 스냅샷 기준 직전 두 이벤트 합(3,077명) 대비 +37.6%. 페스티벌 포맷·이력서 인센티브의 확장성 검증.</p>
+      </div>
 
-  // ── 수동 새로고침 버튼 ──────────────────────────────────────────────
-  async function manualRefreshAll() {
-    const btn = document.getElementById('globalRefreshBtn');
-    if (btn) { btn.disabled = true; btn.textContent = '⏳ 동기화 중...'; }
-    const res = await autoRefreshSheets({ verbose: true });
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = res.fetched > 0 ? `✓ ${res.fetched}건 갱신` : (res.errors > 0 ? '⚠ 실패' : '시트 없음');
-      setTimeout(() => { btn.textContent = '🔄 시트 동기화'; }, 2500);
-    }
-  }
-  window.manualRefreshAll = manualRefreshAll;
+    </div>
+  </section>
 
-  setTimeout(() => autoRefreshSheets({ verbose: true }), 200);
-</script>
+  <footer class="footer">
+    데이터 기준 2026-05-19 · 신청자 수치 시트 raw / 매칭은 폰번호 유니크 기준 · 매체비 VAT 제외 Meta 실 집행<br>
+    문서 책임자 김한나 · 인사이트전략팀
+  </footer>
+
+</main>
 
 </body>
 </html>
