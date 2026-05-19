@@ -1,0 +1,37 @@
+{
+  "fetchedAt": "2026-05-19T04:18:34.119Z",
+  "method": "폰 OR 이메일 union 매칭 (한 회원이 폰 또는 이메일 하나라도 겹치면 동일인)",
+  "unique_members": {
+    "career": 1479,
+    "devcon": 1462,
+    "workfest": 4182
+  },
+  "cross": {
+    "career_x_devcon": 36,
+    "career_x_workfest": 52,
+    "devcon_x_workfest": 27,
+    "all_three": 3
+  },
+  "rates": {
+    "career_x_devcon": "2.43%",
+    "career_x_workfest": "3.52%",
+    "devcon_x_workfest": "1.85%"
+  },
+  "breakdown": {
+    "career_x_devcon": {
+      "phone_only": 26,
+      "email_only": 0,
+      "both": 10
+    },
+    "career_x_workfest": {
+      "phone_only": 49,
+      "email_only": 0,
+      "both": 3
+    },
+    "devcon_x_workfest": {
+      "phone_only": 24,
+      "email_only": 0,
+      "both": 3
+    }
+  }
+}
