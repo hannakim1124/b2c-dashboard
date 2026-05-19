@@ -235,19 +235,19 @@
             <td>총 신청자 수</td>
             <td class="num big">1,566<span class="sub">명</span></td>
             <td class="num big">1,511<span class="sub">명</span></td>
-            <td class="num big ongoing">4,233<span class="sub">명 · 5/19 기준</span></td>
+            <td class="num big ongoing">4,433<span class="sub">명 · 5/19 12:00</span></td>
           </tr>
           <tr>
-            <td>실제 참여자 수</td>
+            <td>실 참여자 수<br><span class="sub" style="font-weight:400;color:var(--ink-3);">이력서 이벤트 = 신청자 포함</span></td>
             <td class="num big">595<span class="sub">명</span></td>
             <td class="num big">825<span class="sub">명</span></td>
-            <td class="num big ongoing">—<span class="sub">행사 전</span></td>
+            <td class="num big ongoing">4,433<span class="sub">명 · 신청자 = 참여자</span></td>
           </tr>
           <tr>
             <td>참여 전환율<br><span class="sub" style="font-weight:400;color:var(--ink-3);">참여 ÷ 신청</span></td>
             <td class="num">38.0%</td>
             <td class="num best">54.6%</td>
-            <td class="num ongoing">—</td>
+            <td class="num ongoing">100%<span class="sub">정의상 1:1</span></td>
           </tr>
           <tr>
             <td>이력서 업데이트 수<br><span class="sub" style="font-weight:400;color:var(--ink-3);">신규+수정</span></td>
@@ -322,7 +322,7 @@
         <div class="when">잡코리아 첫 이력서 페스티벌 · 5/19 12:00 스냅샷</div>
         <div class="kpi-row">
           <div class="kpi"><div class="k">총 신청자</div><div class="v">4,433<span class="u">명</span></div><div class="extra">5/19 12:00 누적</div></div>
-          <div class="kpi"><div class="k">실 참여자</div><div class="v">—</div><div class="extra">행사 전</div></div>
+          <div class="kpi"><div class="k">실 참여자</div><div class="v">4,433<span class="u">명</span></div><div class="extra">신청자 = 참여자</div></div>
           <div class="kpi"><div class="k">이력서 업데이트</div><div class="v">2,828<span class="u">건</span></div><div class="extra">신규 597 · 수정 2,231</div></div>
           <div class="kpi"><div class="k">CVR</div><div class="v">63.79<span class="u">%</span></div><div class="extra">CPA는 행사 후</div></div>
         </div>
@@ -439,16 +439,16 @@
           <div class="sub">2026.05 · 3개 모두 참여</div>
         </div>
         <div class="funnel-bar-wrap">
-          <div class="funnel-bar b3" style="width: 2%; min-width: 80px;">집계중</div>
+          <div class="funnel-bar b3" style="width: 14%; min-width: 100px; background:#E5E8EB; color:var(--ink-3);">별도 분석</div>
         </div>
         <div class="funnel-meta">
-          <div class="pct">산출중</div>
-          <div class="pct-sub">회원ID 매칭 필요</div>
+          <div class="pct" style="font-size:12px;color:var(--ink-3);">체계 다름</div>
+          <div class="pct-sub">회원ID↔폰 lookup 필요</div>
         </div>
       </div>
 
       <div class="funnel-note">
-        <strong>매칭 근거:</strong> 커리어 컨퍼런스·데브콘은 휴대폰 번호 기준 매칭(폰 정규화 후 유니크 비교). WORK FEST는 잡코리아 회원ID 체계만 수집되어, 메타베이스에서 회원ID ↔ 폰번호 lookup 후 후속 산출 예정.<br>
+        <strong>매칭 근거:</strong> 커리어 컨퍼런스·데브콘은 휴대폰 번호 기준 매칭(폰 정규화 후 유니크 비교). WORK FEST는 잡코리아 회원ID 체계만 수집되어, 메타베이스에서 회원ID ↔ 폰번호 lookup이 필요한 별도 분석 영역 (후속 라운드).<br>
         <strong>해석:</strong> 커컨 신청자 중 데브콘 재참여 2.4% — 같은 컨퍼런스 결이라도 타겟(전직군 vs 개발직군)이 달라 자연스러운 분포.
       </div>
     </div>
@@ -462,6 +462,12 @@
     </div>
     <div class="insight-grid">
 
+      <div class="insight-card">
+        <div class="ic-label">SCALE</div>
+        <h4>WORK FEST 신청 4,433명 · 이력서 업데이트 2,828건</h4>
+        <p>5/19 12:00 스냅샷. 직전 두 이벤트 합 신청(3,077명) 대비 <strong>+44.1%</strong>, 이력서 업데이트(260건) 대비 <strong>+987%</strong>. CVR 63.79%는 두 이벤트 평균(9.7%)의 6.6배 — 페스티벌 포맷·인센티브 효과 검증.</p>
+      </div>
+
       <div class="insight-card good">
         <div class="ic-label">STRENGTH</div>
         <h4>데브콘 참여 전환 54.6%</h4>
@@ -470,14 +476,8 @@
 
       <div class="insight-card good">
         <div class="ic-label">EFFICIENCY</div>
-        <h4>CPA 평균 2,778원</h4>
-        <p>완료 2건 매체 효율 동등 수준 유지. 데브콘 2,707원 / 커컨 2,848원으로 채널 믹스 표준화 가능.</p>
-      </div>
-
-      <div class="insight-card">
-        <div class="ic-label">SCALE</div>
-        <h4>WORK FEST 신청 4,433명 · 이력서 업데이트 2,828건</h4>
-        <p>5/19 12:00 스냅샷. 직전 두 이벤트 합 신청(3,077명) 대비 <strong>+44.1%</strong>, 이력서 업데이트(260건) 대비 <strong>+987%</strong>. CVR 63.79%는 두 이벤트 평균(9.7%)의 6.6배 — 페스티벌 포맷·인센티브 효과 검증.</p>
+        <h4>완료 이벤트 CPA 평균 2,778원</h4>
+        <p>데브콘 2,707원 / 커컨 2,848원으로 매체 효율 동등 수준 유지. 채널 믹스 표준화 가능 — 후속 이벤트 예산 산정 기준선 확립.</p>
       </div>
 
     </div>
