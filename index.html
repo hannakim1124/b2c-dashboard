@@ -405,126 +405,106 @@
     </div>
   </section>
 
-  <!-- ── Cross-event 재참여 분석 (검증 + 워페 추가) ── -->
+  <!-- ── Cross-event 재참여 퍼널 (3개 페어) ── -->
   <section class="section">
     <div class="section-head">
-      <h2>Cross-event 재참여 분석</h2>
-      <div class="desc">동일 신청자가 다른 이벤트도 신청했는지 — 이벤트별 매칭 키가 달라 페어별 별도 산출</div>
+      <h2>Cross-event 재참여 퍼널</h2>
+      <div class="desc">이벤트별로 신청자 중 다른 이벤트도 신청한 사람 비율 — 페어별 산출</div>
     </div>
 
-    <!-- 매칭 방법 표 -->
-    <div class="compare-table" style="margin-bottom:16px;">
-      <table class="kpi">
-        <thead>
-          <tr>
-            <th>이벤트 페어</th>
-            <th>매칭 키</th>
-            <th>방법</th>
-            <th>매칭률</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>커컨 ↔ 데브콘</td>
-            <td class="num" style="text-align:left;">휴대폰 번호</td>
-            <td class="num" style="text-align:left;font-weight:400;color:var(--ink-2);">비숫자 제거 + 앞 0 제거 후 유니크 비교</td>
-            <td class="num best">~99% (직접 매칭)</td>
-          </tr>
-          <tr>
-            <td>커컨 ↔ 워페</td>
-            <td class="num" style="text-align:left;">m_id (회원 ID)</td>
-            <td class="num" style="text-align:left;font-weight:400;color:var(--ink-2);">커컨 이메일 → localpart SHA256 / 워페 회원ID 분류</td>
-            <td class="num">27.2% (커컨 측 한계)</td>
-          </tr>
-          <tr>
-            <td>데브콘 ↔ 워페</td>
-            <td class="num" style="text-align:left;color:var(--ink-3);">— (직접 매칭 키 없음)</td>
-            <td class="num" style="text-align:left;font-weight:400;color:var(--ink-3);">데브콘 폰만 / 워페 회원ID만 / user_db 폰 권한 보류</td>
-            <td class="num ongoing">별도 분석 필요</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- 결과 카드 3개 -->
     <div class="funnel-card">
-      <div class="funnel-row">
-        <div class="funnel-label">
-          <div class="name">커컨 → 데브콘 재참여</div>
-          <div class="sub">유니크 폰번호 매칭 기준</div>
-        </div>
-        <div class="funnel-bar-wrap">
-          <div class="funnel-bar b1" style="width: 100%; justify-content:flex-start; padding-left:14px;">커컨 1,479명 (유니크 폰)</div>
-        </div>
-        <div class="funnel-meta">
-          <div class="pct">100%</div>
-          <div class="pct-sub">기준 모수</div>
-        </div>
-      </div>
-      <div class="funnel-row">
-        <div class="funnel-label">
-          <div class="name"><span style="color:var(--ink-3);">ㄴ</span> 데브콘도 신청</div>
-          <div class="sub">교집합 36명</div>
-        </div>
-        <div class="funnel-bar-wrap">
-          <div class="funnel-bar b2" style="width: 2.4%; min-width: 70px;">36</div>
-        </div>
-        <div class="funnel-meta">
-          <div class="pct">2.4%</div>
-          <div class="pct-sub">재참여율</div>
-        </div>
-      </div>
 
-      <div style="height:14px;"></div>
-
-      <div class="funnel-row">
-        <div class="funnel-label">
-          <div class="name">커컨 → WORK FEST 재참여</div>
-          <div class="sub">m_id 매칭 (이메일 localpart SHA256)</div>
+      <!-- 퍼널 1: 커컨 → 데브콘 -->
+      <div style="border-left:3px solid var(--blue); padding-left:18px; margin-bottom:24px;">
+        <div style="display:flex; align-items:baseline; gap:10px; margin-bottom:14px;">
+          <div style="font-size:11px; font-weight:700; color:var(--blue); letter-spacing:0.08em;">FUNNEL 1</div>
+          <div style="font-size:15px; font-weight:700; color:var(--ink);">커리어 컨퍼런스 → 데브콘</div>
+          <div style="font-size:12px; color:var(--ink-3);">휴대폰 번호 매칭 · 신뢰 ~99%</div>
         </div>
-        <div class="funnel-bar-wrap">
-          <div class="funnel-bar b1" style="width: 100%; justify-content:flex-start; padding-left:14px;">커컨 m_id 매칭 292명 (이메일 1,072 중 27.2%)</div>
+        <div class="funnel-row">
+          <div class="funnel-label">
+            <div class="name">커컨 신청자</div>
+            <div class="sub">유니크 폰번호</div>
+          </div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar b1" style="width: 100%; justify-content:flex-start; padding-left:14px;">1,479명</div>
+          </div>
+          <div class="funnel-meta"><div class="pct">100%</div><div class="pct-sub">기준</div></div>
         </div>
-        <div class="funnel-meta">
-          <div class="pct">100%</div>
-          <div class="pct-sub">매칭 모수</div>
-        </div>
-      </div>
-      <div class="funnel-row">
-        <div class="funnel-label">
-          <div class="name"><span style="color:var(--ink-3);">ㄴ</span> WORK FEST도 신청</div>
-          <div class="sub">교집합 14명 (최소치)</div>
-        </div>
-        <div class="funnel-bar-wrap">
-          <div class="funnel-bar b2" style="width: 4.8%; min-width: 70px;">14</div>
-        </div>
-        <div class="funnel-meta">
-          <div class="pct">4.8%</div>
-          <div class="pct-sub">재참여율 (하한)</div>
+        <div class="funnel-row">
+          <div class="funnel-label">
+            <div class="name"><span style="color:var(--ink-3);">ㄴ</span> 데브콘도 신청</div>
+            <div class="sub">교집합</div>
+          </div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar b2" style="width: 2.4%; min-width: 70px;">36</div>
+          </div>
+          <div class="funnel-meta"><div class="pct">2.4%</div><div class="pct-sub">재참여율</div></div>
         </div>
       </div>
 
-      <div style="height:14px;"></div>
+      <!-- 퍼널 2: 커컨 → 워페 -->
+      <div style="border-left:3px solid var(--blue); padding-left:18px; margin-bottom:24px;">
+        <div style="display:flex; align-items:baseline; gap:10px; margin-bottom:14px;">
+          <div style="font-size:11px; font-weight:700; color:var(--blue); letter-spacing:0.08em;">FUNNEL 2</div>
+          <div style="font-size:15px; font-weight:700; color:var(--ink);">커리어 컨퍼런스 → WORK FEST</div>
+          <div style="font-size:12px; color:var(--ink-3);">m_id 매칭 · 하한값</div>
+        </div>
+        <div class="funnel-row">
+          <div class="funnel-label">
+            <div class="name">커컨 신청자</div>
+            <div class="sub">m_id 매칭 모수</div>
+          </div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar b1" style="width: 100%; justify-content:flex-start; padding-left:14px;">292명 (이메일 1,072 중 27.2%)</div>
+          </div>
+          <div class="funnel-meta"><div class="pct">100%</div><div class="pct-sub">매칭 모수</div></div>
+        </div>
+        <div class="funnel-row">
+          <div class="funnel-label">
+            <div class="name"><span style="color:var(--ink-3);">ㄴ</span> WORK FEST도 신청</div>
+            <div class="sub">교집합 (보수적 하한)</div>
+          </div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar b2" style="width: 4.8%; min-width: 70px;">14</div>
+          </div>
+          <div class="funnel-meta"><div class="pct">4.8%+</div><div class="pct-sub">재참여율</div></div>
+        </div>
+      </div>
 
-      <div class="funnel-row">
-        <div class="funnel-label">
-          <div class="name">데브콘 → WORK FEST 재참여</div>
-          <div class="sub" style="color:var(--ink-3);">데브콘 폰만 보유</div>
+      <!-- 퍼널 3: 데브콘 → 워페 -->
+      <div style="border-left:3px solid var(--line); padding-left:18px;">
+        <div style="display:flex; align-items:baseline; gap:10px; margin-bottom:14px;">
+          <div style="font-size:11px; font-weight:700; color:var(--ink-3); letter-spacing:0.08em;">FUNNEL 3</div>
+          <div style="font-size:15px; font-weight:700; color:var(--ink);">데브콘 → WORK FEST</div>
+          <div style="font-size:12px; color:var(--ink-3);">매칭 키 없음 · PII 권한 보류</div>
         </div>
-        <div class="funnel-bar-wrap">
-          <div class="funnel-bar b3" style="width: 18%; min-width: 130px; background:#E5E8EB; color:var(--ink-3);">user_db 폰 권한 보류 — 후속</div>
+        <div class="funnel-row">
+          <div class="funnel-label">
+            <div class="name">데브콘 신청자</div>
+            <div class="sub">유니크 폰번호</div>
+          </div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar b1" style="width: 100%; justify-content:flex-start; padding-left:14px; background:#9DA5B0;">1,463명</div>
+          </div>
+          <div class="funnel-meta"><div class="pct">100%</div><div class="pct-sub">기준</div></div>
         </div>
-        <div class="funnel-meta">
-          <div class="pct" style="font-size:12px;color:var(--ink-3);">— </div>
-          <div class="pct-sub">PII 정책</div>
+        <div class="funnel-row">
+          <div class="funnel-label">
+            <div class="name"><span style="color:var(--ink-3);">ㄴ</span> WORK FEST도 신청</div>
+            <div class="sub" style="color:var(--ink-3);">데브콘 폰만 / 워페 회원ID만</div>
+          </div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar b3" style="width: 24%; min-width: 160px; background:#E5E8EB; color:var(--ink-3);">user_db 폰 컬럼 없음 — PII 후속</div>
+          </div>
+          <div class="funnel-meta"><div class="pct" style="font-size:13px;color:var(--ink-3);">산출 불가</div><div class="pct-sub">매칭 키 없음</div></div>
         </div>
       </div>
 
       <div class="funnel-note">
-        <strong>해석 1 (커컨 ↔ 데브콘):</strong> 휴대폰 매칭 36명 / 2.4%. 같은 컨퍼런스 결이라도 타겟(전직군 vs 개발직군) 차이로 자연스러운 분포. 매칭률 ~99% 신뢰.<br>
-        <strong>해석 2 (커컨 ↔ 워페):</strong> 14명 / 4.8% — 컨퍼런스에서 페스티벌까지 흘러온 회원. 단 커컨 이메일 → m_id 매칭률이 27.2%로 낮아 <strong>실제 cross는 14명보다 클 가능성</strong> (이메일이 회원ID와 무관한 케이스 누락). 보수적 하한값.<br>
-        <strong>해석 3 (데브콘 ↔ 워페):</strong> 데브콘 시트가 휴대폰만 수집 + user_db 휴대폰 컬럼 권한 보류 상태. 후속 라운드에서 PII 권한 풀린 후 산출 가능.<br>
-        <strong>시사점:</strong> 이벤트 간 재참여율이 낮다는 것은 <strong>각 이벤트가 서로 다른 회원 풀을 끌어왔다는 신호</strong> — 카니발라이제이션이 아닌 신규 유입 확장 효과. 후속 이벤트는 cross-event 전용 인센티브로 재참여율 끌어올릴 여지 있음.
+        <strong>요약:</strong> 커컨 → 데브콘 <strong>36명 (2.4%)</strong> · 커컨 → 워페 <strong>14명+ (4.8%+, 하한)</strong> · 데브콘 → 워페 <strong>산출 불가</strong>.<br>
+        <strong>시사점:</strong> 재참여율이 낮다는 것은 <strong>각 이벤트가 서로 다른 회원 풀을 끌어왔다는 신호</strong> — 카니발라이제이션이 아닌 신규 유입 확장 효과. 후속 이벤트는 cross-event 전용 인센티브로 재참여율 끌어올릴 여지 있음.<br>
+        <strong>측정 한계:</strong> 워페는 회원ID, 커컨/데브콘은 폰·이메일로 수집 키가 달라 직접 비교 어려움. 커컨 ↔ 워페는 이메일 m_id 매칭률 27.2%로 14명은 하한값. 데브콘 ↔ 워페는 user_db에 폰 컬럼이 없어 (PII 분리) 산출 불가, 차후 권한 풀린 후 보완.
       </div>
     </div>
   </section>
