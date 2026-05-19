@@ -84,9 +84,9 @@
 
   /* ── 비교 표 ── */
   .compare-table {
-    background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow-x: auto;
   }
-  table.kpi { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.kpi { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 640px; }
   table.kpi th, table.kpi td { padding: 14px 20px; text-align: right; border-bottom: 1px solid var(--line-2); }
   table.kpi th:first-child, table.kpi td:first-child { text-align: left; font-weight: 600; color: var(--ink); width: 30%; }
   table.kpi thead th { background: var(--surface-2); font-weight: 600; color: var(--ink-2); font-size: 13px; }
@@ -156,12 +156,20 @@
   @media (max-width: 900px) {
     .wrap { padding: 20px; }
     .exec-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .exec-cell .value { font-size: 24px; }
     .event-grid { grid-template-columns: 1fr; }
     .insight-grid { grid-template-columns: 1fr; }
     .funnel-row { flex-wrap: wrap; gap: 10px; }
     .funnel-label { width: 100%; }
     .funnel-meta { width: 100%; text-align: left; }
     table.kpi th, table.kpi td { padding: 10px 12px; font-size: 13px; }
+    .topbar { padding: 16px 20px; }
+    .meta-block { flex-wrap: wrap; }
+  }
+  @media (max-width: 560px) {
+    .exec-grid { grid-template-columns: 1fr; gap: 16px; }
+    .exec-cell .value { font-size: 22px; }
+    .section { margin-bottom: 28px; }
   }
 </style>
 </head>
@@ -203,7 +211,7 @@
         <div class="exec-cell">
           <div class="label">실 참여자</div>
           <div class="value">5,853<span class="unit">명</span></div>
-          <div class="delta">커컨 595 + 데브콘 825 + 워페 4,433<br>※ 이력서 이벤트 신청자 = 참여자로 산정</div>
+          <div class="delta">커컨 595 + 데브콘 825 + 워페 4,433 (신청 = 참여)</div>
         </div>
         <div class="exec-cell">
           <div class="label">이력서 업데이트</div>
@@ -324,7 +332,7 @@
           <div class="kpi"><div class="k">총 신청자</div><div class="v">4,433<span class="u">명</span></div><div class="extra">5/19 12:00 누적</div></div>
           <div class="kpi"><div class="k">실 참여자</div><div class="v">4,433<span class="u">명</span></div><div class="extra">신청자 = 참여자</div></div>
           <div class="kpi"><div class="k">이력서 업데이트</div><div class="v">2,828<span class="u">건</span></div><div class="extra">신규 597 · 수정 2,231</div></div>
-          <div class="kpi"><div class="k">CVR</div><div class="v">63.79<span class="u">%</span></div><div class="extra">CPA는 행사 후</div></div>
+          <div class="kpi"><div class="k">CVR / CPA</div><div class="v">63.79<span class="u">%</span></div><div class="extra">CPA 행사 후 산출</div></div>
         </div>
         <div class="note"><strong>D-9</strong> 잔여 · 신청 4,433명은 커컨·데브콘 합(3,077명) 대비 +44.1% · 이력서 CVR 63.79%는 두 이벤트 평균(9.7%)의 6.6배</div>
       </article>
@@ -484,10 +492,9 @@
   </section>
 
   <footer class="footer">
-    데이터 기준 2026-05-19 12:00 · 워크페스트 이력서 업데이트 = 회원ID 매칭 후 user_resume_db.r_edit_dt 기준 (데이터팀 표준)<br>
-    워크페스트 회원ID 매칭률 77.7% (3,445/4,433) · 미매칭 988명은 일부 이메일 케이스 등 후속 보완 가능<br>
-    커컨·데브콘 cross-event는 휴대폰 번호 유니크 매칭 · 매체비 VAT 제외 Meta 실 집행<br>
-    문서 책임자 김한나 · 인사이트전략팀
+    데이터 기준 2026-05-19 12:00 · 이력서 업데이트 = 신규 생성 + 모든 수정 합산 (데이터팀 표준)<br>
+    워크페스트 회원 매칭률 77.7% (3,445/4,433) · 매체비 VAT 제외 Meta 실 집행 기준<br>
+    문서 책임자 김한나 · 인사이트전략팀 · 2026 Q1~Q2 회고
   </footer>
 
 </main>
