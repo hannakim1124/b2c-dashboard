@@ -1,0 +1,25 @@
+{
+  "fetchedAt": "2026-05-19T03:17:10.555Z",
+  "cutoff": "2026-05-19 12:00:00 KST",
+  "period": "2026-05-01 ~ 2026-05-19 12:00",
+  "columns": [
+    "matched_total",
+    "new_signup_count",
+    "resume_created_count",
+    "resume_updated_count"
+  ],
+  "rows": [
+    [
+      3445,
+      71,
+      597,
+      2828
+    ]
+  ],
+  "parsed": {
+    "matched_total": 3445,
+    "new_signup_count": 71,
+    "resume_created_count": 597,
+    "resume_updated_count": 2828
+  }
+}
